@@ -17,7 +17,6 @@ def log_signal(data):
             logs = json.load(f)
     except:
         logs = []
-
     logs.append(data)
     with open(LOG_FILE, "w") as f:
         json.dump(logs, f, indent=2)
@@ -42,8 +41,7 @@ def signal():
 def home():
     return "Webhook çalışıyor!", 200
 
-@app.route("/ozet", methods=["GET", "POST"])
-def ozet():
+def generate_ozet_msg():
     try:
         with open(LOG_FILE, "r") as f:
             logs = json.load(f)
@@ -78,7 +76,6 @@ def ozet():
             satis_sayim.append(f"{symbol} ({exchange})")
 
     ozet_msg = "📊 <b>Sinyal Özetin:</b>\n\n"
-
     if kairi_30:
         ozet_msg += "🔴 <b>KAIRI ≤ -30:</b>\n" + "\n".join(kairi_30) + "\n\n"
     if kairi_20:
@@ -91,10 +88,13 @@ def ozet():
         ozet_msg += "📈 <b>Alış Sayımı Tamamlananlar:</b>\n" + "\n".join(alis_sayim) + "\n\n"
     if satis_sayim:
         ozet_msg += "📉 <b>Satış Sayımı Tamamlananlar:</b>\n" + "\n".join(satis_sayim) + "\n\n"
-
     if ozet_msg == "📊 <b>Sinyal Özetin:</b>\n\n":
         ozet_msg += "Henüz sinyal gelmemiş."
+    return ozet_msg
 
+@app.route("/ozet", methods=["GET", "POST"])
+def ozet():
+    ozet_msg = generate_ozet_msg()
     requests.get(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
         params={
@@ -103,8 +103,27 @@ def ozet():
             "parse_mode": "HTML"
         }
     )
-
     return "Özet gönderildi.", 200
+
+@app.route("/telegram", methods=["POST"])
+def telegram_update():
+    update = request.get_json()
+    if update and "message" in update:
+        message = update["message"]
+        chat_id = message["chat"]["id"]
+        text = message.get("text", "").strip()
+
+        if text == "/ozet":
+            ozet_msg = generate_ozet_msg()
+            requests.get(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                params={
+                    "chat_id": chat_id,
+                    "text": ozet_msg,
+                    "parse_mode": "HTML"
+                }
+            )
+    return "OK", 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
