@@ -1,8 +1,1 @@
-services:
-  - type: web
-    name: tv-telegram-bot
-    env: python
-    plan: free
-    buildCommand: ""
-    startCommand: "python main.py"
-    autoDeploy: true
+Dummy content for render.yaml
