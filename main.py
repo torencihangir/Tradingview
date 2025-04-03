@@ -110,7 +110,51 @@ def telegram_update():
         text = message.get("text", "").strip().lower()
 
         if text.startswith("/ozet"):
-            ozet_msg = ozet_komutu_guncel()  # direkt çağırmak yerine fonksiyonu kullanırsan böyle yazılabilir
+            try:
+                with open(LOG_FILE, "r") as f:
+                    logs = json.load(f)
+            except:
+                logs = []
+
+            sinyaller = defaultdict(list)
+            for log in logs:
+                symbol = log.get("symbol", "")
+                signal_text = log.get("signal", "").upper()
+                exchange = log.get("exchange", "Bilinmiyor")
+                sinyaller[symbol].append({"signal": signal_text, "exchange": exchange})
+
+            uygunlar = []
+            for symbol, entries in sinyaller.items():
+                has_kairi = False
+                has_alis = False
+                kairi_val = None
+                exchange = "Bilinmiyor"
+
+                for entry in entries:
+                    signal_text = entry["signal"]
+                    if "KAIRI" in signal_text:
+                        try:
+                            val = float(signal_text.split("KAIRI")[1].split()[0])
+                            if val <= -20:
+                                has_kairi = True
+                                kairi_val = val
+                                exchange = entry["exchange"]
+                        except:
+                            continue
+
+                    if "MÜKEMMEL ALIŞ" in signal_text or "ALIŞ SAYIMI" in signal_text:
+                        has_alis = True
+                        exchange = entry["exchange"]
+
+                if has_kairi and has_alis:
+                    uygunlar.append(f"✅ {symbol} ({exchange}) - KAIRI: {kairi_val} ve Alış sinyali birlikte geldi")
+
+            ozet_msg = "📊 <b>GÜÇLÜ EŞLEŞEN SİNYALLER:</b>\n\n"
+            if uygunlar:
+                ozet_msg += "\n".join(uygunlar)
+            else:
+                ozet_msg += "Bugün eşleşen sinyal bulunamadı."
+
             requests.get(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                 params={
@@ -120,3 +164,8 @@ def telegram_update():
                 }
             )
     return "OK", 200
+
+# ⏬ Bu satır olmazsa Render gibi platformlar çalışmaz
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
