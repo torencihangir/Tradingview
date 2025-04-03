@@ -1,3 +1,3 @@
-# TradingView → Telegram Webhook
+# TradingView → Telegram Webhook (Render Uyumlu)
 
-Bu proje, TradingView sinyallerini Telegram'a iletmek için hazırlanmıştır.
+Bu proje Render üzerinde çalışmak üzere ayarlanmıştır. Telegram sinyallerini almak için /signal endpoint'ine POST atabilirsiniz.
