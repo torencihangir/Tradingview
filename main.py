@@ -3,6 +3,7 @@ import requests
 import os
 import json
 from datetime import datetime
+from collections import defaultdict
 
 app = Flask(__name__)
 
@@ -41,82 +42,64 @@ def signal():
 def home():
     return "Webhook çalışıyor!", 200
 
-def generate_ozet_msg(filter_keyword=None):
+@app.route("/ozet", methods=["GET", "POST"])
+def ozet():
     try:
         with open(LOG_FILE, "r") as f:
             logs = json.load(f)
     except:
         logs = []
 
-    # Eğer filtre parametresi verilmişse, önce büyük harfe çevirip kontrol edelim.
-    if filter_keyword:
-        filter_keyword_upper = filter_keyword.upper()
-        # Bilinen borsa isimleri (listeyi ihtiyaçlarınıza göre genişletebilirsiniz)
-        known_exchanges = ["BINANCE", "OKX", "COINBASE", "BITTREX", "HUOBI"]
-        if filter_keyword_upper in known_exchanges:
-            # Sadece ilgili borsadan gelen sinyalleri alalım.
-            logs = [log for log in logs if log.get("exchange", "").upper() == filter_keyword_upper]
-        else:
-            # Aksi halde, filtreyi sinyal tipi olarak kabul edip logun sinyal kısmında arayalım.
-            logs = [log for log in logs if filter_keyword_upper in log.get("signal", "").upper()]
-
-    kairi_20, kairi_30 = [], []
-    mukemmel_alis, mukemmel_satis = [], []
-    alis_sayim, satis_sayim = [], []
+    sinyaller = defaultdict(list)
 
     for log in logs:
-        signal_text = log.get("signal", "")
         symbol = log.get("symbol", "")
+        signal_text = log.get("signal", "").upper()
         exchange = log.get("exchange", "Bilinmiyor")
+        sinyaller[symbol].append({"signal": signal_text, "exchange": exchange})
 
-        if "KAIRI" in signal_text.upper():
-            try:
-                # Signal metninde "KAIRI" kelimesinden sonraki değeri çekiyoruz.
-                kairi_val = float(signal_text.upper().split("KAIRI")[1].split()[0])
-                if kairi_val <= -30:
-                    kairi_30.append(f"{symbol} ({exchange}): {kairi_val}")
-                elif kairi_val <= -20:
-                    kairi_20.append(f"{symbol} ({exchange}): {kairi_val}")
-            except:
-                continue
-        elif "MÜKEMMEL ALIŞ" in signal_text.upper():
-            mukemmel_alis.append(f"{symbol} ({exchange})")
-        elif "MÜKEMMEL SATIŞ" in signal_text.upper():
-            mukemmel_satis.append(f"{symbol} ({exchange})")
-        elif "ALIŞ SAYIMI" in signal_text.upper():
-            alis_sayim.append(f"{symbol} ({exchange})")
-        elif "SATIŞ SAYIMI" in signal_text.upper():
-            satis_sayim.append(f"{symbol} ({exchange})")
+    uygunlar = []
 
-    ozet_msg = "📊 <b>Sinyal Özetin:</b>\n\n"
-    if kairi_30:
-        ozet_msg += "🔴 <b>KAIRI ≤ -30:</b>\n" + "\n".join(kairi_30) + "\n\n"
-    if kairi_20:
-        ozet_msg += "🟠 <b>KAIRI ≤ -20:</b>\n" + "\n".join(kairi_20) + "\n\n"
-    if mukemmel_alis:
-        ozet_msg += "🟢 <b>Mükemmel Alış:</b>\n" + "\n".join(mukemmel_alis) + "\n\n"
-    if mukemmel_satis:
-        ozet_msg += "🔵 <b>Mükemmel Satış:</b>\n" + "\n".join(mukemmel_satis) + "\n\n"
-    if alis_sayim:
-        ozet_msg += "📈 <b>Alış Sayımı Tamamlananlar:</b>\n" + "\n".join(alis_sayim) + "\n\n"
-    if satis_sayim:
-        ozet_msg += "📉 <b>Satış Sayımı Tamamlananlar:</b>\n" + "\n".join(satis_sayim) + "\n\n"
-    if ozet_msg == "📊 <b>Sinyal Özetin:</b>\n\n":
-        ozet_msg += "Henüz sinyal gelmemiş."
-    return ozet_msg
+    for symbol, entries in sinyaller.items():
+        has_kairi = False
+        has_alis = False
+        kairi_val = None
+        exchange = "Bilinmiyor"
 
-@app.route("/ozet", methods=["GET", "POST"])
-def ozet():
-    ozet_msg = generate_ozet_msg()
+        for entry in entries:
+            signal_text = entry["signal"]
+            if "KAIRI" in signal_text:
+                try:
+                    val = float(signal_text.split("KAIRI")[1].split()[0])
+                    if val <= -20:
+                        has_kairi = True
+                        kairi_val = val
+                        exchange = entry["exchange"]
+                except:
+                    continue
+
+            if "MÜKEMMEL ALIŞ" in signal_text or "ALIŞ SAYIMI" in signal_text:
+                has_alis = True
+                exchange = entry["exchange"]
+
+        if has_kairi and has_alis:
+            uygunlar.append(f"✅ {symbol} ({exchange}) - KAIRI: {kairi_val} ve Alış sinyali birlikte geldi")
+
+    ozet_msg = "📊 <b>GÜÇLÜ EŞLEŞEN SİNYALLER:</b>\n\n"
+    if uygunlar:
+        ozet_msg += "\n".join(uygunlar)
+    else:
+        ozet_msg += "Bugün eşleşen sinyal bulunamadı."
+
     requests.get(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
         params={
-            "chat_id": CHAT_ID, 
+            "chat_id": CHAT_ID,
             "text": ozet_msg,
             "parse_mode": "HTML"
         }
     )
-    return "Özet gönderildi.", 200
+    return "Ozet gönderildi", 200
 
 @app.route("/telegram", methods=["POST"])
 def telegram_update():
@@ -124,12 +107,10 @@ def telegram_update():
     if update and "message" in update:
         message = update["message"]
         chat_id = message["chat"]["id"]
-        text = message.get("text", "").strip()
+        text = message.get("text", "").strip().lower()
 
         if text.startswith("/ozet"):
-            # "/ozet" komutundan sonra girilen serbest metni alıyoruz.
-            free_text = text[len("/ozet"):].strip()  # Örneğin: "BINANCE" veya "KAIRI"
-            ozet_msg = generate_ozet_msg(free_text) if free_text else generate_ozet_msg()
+            ozet_msg = ozet_komutu_guncel()  # direkt çağırmak yerine fonksiyonu kullanırsan böyle yazılabilir
             requests.get(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                 params={
@@ -139,7 +120,3 @@ def telegram_update():
                 }
             )
     return "OK", 200
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
