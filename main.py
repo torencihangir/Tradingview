@@ -1,4 +1,3 @@
-
 from flask import Flask, request
 import requests
 import os
@@ -35,9 +34,8 @@ def signal():
 
     log_signal(data)
 
-    msg = f"🚨 Sinyal Geldi!
-📈 {symbol} ({exchange})
-💬 {signal_text}"
+    msg = f"🚨 Sinyal Geldi!\n📈 {symbol} ({exchange})\n💬 {signal_text}"
+
     requests.get(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
         params={"chat_id": CHAT_ID, "text": msg}
