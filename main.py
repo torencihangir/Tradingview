@@ -52,13 +52,20 @@ def ozet():
 
     sinyaller = defaultdict(list)
 
+    # Sinyalleri hisselere göre grupla
     for log in logs:
         symbol = log.get("symbol", "")
         signal_text = log.get("signal", "").upper()
         exchange = log.get("exchange", "Bilinmiyor")
         sinyaller[symbol].append({"signal": signal_text, "exchange": exchange})
 
-    uygunlar = []
+    # Güçlü eşleşenler
+    güçlü_sinyaller = []
+
+    # Tekil listeler
+    kairi_20, kairi_30 = [], []
+    mukemmel_alis, mukemmel_satis = [], []
+    alis_sayim, satis_sayim = [], []
 
     for symbol, entries in sinyaller.items():
         has_kairi = False
@@ -68,28 +75,56 @@ def ozet():
 
         for entry in entries:
             signal_text = entry["signal"]
+            exchange = entry["exchange"]
+
+            # KAIRI
             if "KAIRI" in signal_text:
                 try:
                     val = float(signal_text.split("KAIRI")[1].split()[0])
+                    kairi_val = val
+                    if val <= -30:
+                        kairi_30.append(f"{symbol} ({exchange}): {val}")
+                    elif val <= -20:
+                        kairi_20.append(f"{symbol} ({exchange}): {val}")
                     if val <= -20:
                         has_kairi = True
-                        kairi_val = val
-                        exchange = entry["exchange"]
                 except:
                     continue
 
-            if "MÜKEMMEL ALIŞ" in signal_text or "ALIŞ SAYIMI" in signal_text:
+            # Alış türleri
+            if "MÜKEMMEL ALIŞ" in signal_text:
+                mukemmel_alis.append(f"{symbol} ({exchange})")
                 has_alis = True
-                exchange = entry["exchange"]
+            if "ALIŞ SAYIMI" in signal_text:
+                alis_sayim.append(f"{symbol} ({exchange})")
+                has_alis = True
+            if "MÜKEMMEL SATIŞ" in signal_text:
+                mukemmel_satis.append(f"{symbol} ({exchange})")
+            if "SATIŞ SAYIMI" in signal_text:
+                satis_sayim.append(f"{symbol} ({exchange})")
 
         if has_kairi and has_alis:
-            uygunlar.append(f"✅ {symbol} ({exchange}) - KAIRI: {kairi_val} ve Alış sinyali birlikte geldi")
+            güçlü_sinyaller.append(f"✅ {symbol} ({exchange}) - KAIRI: {kairi_val} ve Alış sinyali birlikte geldi")
 
+    # Mesajı oluştur
     ozet_msg = "📊 <b>GÜÇLÜ EŞLEŞEN SİNYALLER:</b>\n\n"
-    if uygunlar:
-        ozet_msg += "\n".join(uygunlar)
+    if güçlü_sinyaller:
+        ozet_msg += "\n".join(güçlü_sinyaller) + "\n\n"
     else:
-        ozet_msg += "Bugün eşleşen sinyal bulunamadı."
+        ozet_msg += "Bugün eşleşen güçlü sinyal bulunamadı.\n\n"
+
+    if kairi_30:
+        ozet_msg += "🔴 <b>KAIRI ≤ -30:</b>\n" + "\n".join(kairi_30) + "\n\n"
+    if kairi_20:
+        ozet_msg += "🟠 <b>KAIRI ≤ -20:</b>\n" + "\n".join(kairi_20) + "\n\n"
+    if mukemmel_alis:
+        ozet_msg += "🟢 <b>Mükemmel Alış:</b>\n" + "\n".join(mukemmel_alis) + "\n\n"
+    if alis_sayim:
+        ozet_msg += "📈 <b>Alış Sayımı Tamamlananlar:</b>\n" + "\n".join(alis_sayim) + "\n\n"
+    if mukemmel_satis:
+        ozet_msg += "🔵 <b>Mükemmel Satış:</b>\n" + "\n".join(mukemmel_satis) + "\n\n"
+    if satis_sayim:
+        ozet_msg += "📉 <b>Satış Sayımı Tamamlananlar:</b>\n" + "\n".join(satis_sayim) + "\n\n"
 
     requests.get(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
@@ -99,7 +134,7 @@ def ozet():
             "parse_mode": "HTML"
         }
     )
-    return "Ozet gönderildi", 200
+    return "Özet gönderildi", 200
 
 @app.route("/telegram", methods=["POST"])
 def telegram_update():
@@ -110,62 +145,9 @@ def telegram_update():
         text = message.get("text", "").strip().lower()
 
         if text.startswith("/ozet"):
-            try:
-                with open(LOG_FILE, "r") as f:
-                    logs = json.load(f)
-            except:
-                logs = []
-
-            sinyaller = defaultdict(list)
-            for log in logs:
-                symbol = log.get("symbol", "")
-                signal_text = log.get("signal", "").upper()
-                exchange = log.get("exchange", "Bilinmiyor")
-                sinyaller[symbol].append({"signal": signal_text, "exchange": exchange})
-
-            uygunlar = []
-            for symbol, entries in sinyaller.items():
-                has_kairi = False
-                has_alis = False
-                kairi_val = None
-                exchange = "Bilinmiyor"
-
-                for entry in entries:
-                    signal_text = entry["signal"]
-                    if "KAIRI" in signal_text:
-                        try:
-                            val = float(signal_text.split("KAIRI")[1].split()[0])
-                            if val <= -20:
-                                has_kairi = True
-                                kairi_val = val
-                                exchange = entry["exchange"]
-                        except:
-                            continue
-
-                    if "MÜKEMMEL ALIŞ" in signal_text or "ALIŞ SAYIMI" in signal_text:
-                        has_alis = True
-                        exchange = entry["exchange"]
-
-                if has_kairi and has_alis:
-                    uygunlar.append(f"✅ {symbol} ({exchange}) - KAIRI: {kairi_val} ve Alış sinyali birlikte geldi")
-
-            ozet_msg = "📊 <b>GÜÇLÜ EŞLEŞEN SİNYALLER:</b>\n\n"
-            if uygunlar:
-                ozet_msg += "\n".join(uygunlar)
-            else:
-                ozet_msg += "Bugün eşleşen sinyal bulunamadı."
-
-            requests.get(
-                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                params={
-                    "chat_id": chat_id,
-                    "text": ozet_msg,
-                    "parse_mode": "HTML"
-                }
-            )
+            requests.post("http://localhost:10000/ozet")  # kendi içindeki ozet endpoint'ini tetikle
     return "OK", 200
 
-# ⏬ Bu satır olmazsa Render gibi platformlar çalışmaz
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
