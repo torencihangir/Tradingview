@@ -1,1 +1,4 @@
-Dummy content for requirements.txt
+flask
+requests
+openai
+yfinance

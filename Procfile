@@ -1,1 +1,1 @@
-Dummy content for Procfile
+web: python main.py
