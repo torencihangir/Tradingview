@@ -44,25 +44,25 @@ def home():
 
 @app.route("/ozet", methods=["GET", "POST"])
 def ozet():
+    filter_keyword = request.args.get("filter", "").upper()
+
     try:
         with open(LOG_FILE, "r") as f:
             logs = json.load(f)
     except:
         logs = []
 
-    sinyaller = defaultdict(list)
+    if filter_keyword:
+        logs = [log for log in logs if filter_keyword in log.get("exchange", "").upper() or filter_keyword in log.get("signal", "").upper()]
 
-    # Sinyalleri hisselere göre grupla
+    sinyaller = defaultdict(list)
     for log in logs:
         symbol = log.get("symbol", "")
         signal_text = log.get("signal", "").upper()
         exchange = log.get("exchange", "Bilinmiyor")
         sinyaller[symbol].append({"signal": signal_text, "exchange": exchange})
 
-    # Güçlü eşleşenler
-    güçlü_sinyaller = []
-
-    # Tekil listeler
+    guclu_sinyaller = []
     kairi_20, kairi_30 = [], []
     mukemmel_alis, mukemmel_satis = [], []
     alis_sayim, satis_sayim = [], []
@@ -77,7 +77,6 @@ def ozet():
             signal_text = entry["signal"]
             exchange = entry["exchange"]
 
-            # KAIRI
             if "KAIRI" in signal_text:
                 try:
                     val = float(signal_text.split("KAIRI")[1].split()[0])
@@ -91,7 +90,6 @@ def ozet():
                 except:
                     continue
 
-            # Alış türleri
             if "MÜKEMMEL ALIŞ" in signal_text:
                 mukemmel_alis.append(f"{symbol} ({exchange})")
                 has_alis = True
@@ -104,12 +102,11 @@ def ozet():
                 satis_sayim.append(f"{symbol} ({exchange})")
 
         if has_kairi and has_alis:
-            güçlü_sinyaller.append(f"✅ {symbol} ({exchange}) - KAIRI: {kairi_val} ve Alış sinyali birlikte geldi")
+            guclu_sinyaller.append(f"✅ {symbol} ({exchange}) - KAIRI: {kairi_val} ve Alış sinyali birlikte geldi")
 
-    # Mesajı oluştur
     ozet_msg = "📊 <b>GÜÇLÜ EŞLEŞEN SİNYALLER:</b>\n\n"
-    if güçlü_sinyaller:
-        ozet_msg += "\n".join(güçlü_sinyaller) + "\n\n"
+    if guclu_sinyaller:
+        ozet_msg += "\n".join(guclu_sinyaller) + "\n\n"
     else:
         ozet_msg += "Bugün eşleşen güçlü sinyal bulunamadı.\n\n"
 
@@ -122,7 +119,7 @@ def ozet():
     if alis_sayim:
         ozet_msg += "📈 <b>Alış Sayımı Tamamlananlar:</b>\n" + "\n".join(alis_sayim) + "\n\n"
     if mukemmel_satis:
-        ozet_msg += "🔵 <b>Mükemmel Satış:</b>\n" + "\n".join(mukemmel_satis) + "\n\n"
+        ozet_msg += "🔹 <b>Mükemmel Satış:</b>\n" + "\n".join(mukemmel_satis) + "\n\n"
     if satis_sayim:
         ozet_msg += "📉 <b>Satış Sayımı Tamamlananlar:</b>\n" + "\n".join(satis_sayim) + "\n\n"
 
@@ -134,7 +131,7 @@ def ozet():
             "parse_mode": "HTML"
         }
     )
-    return "Özet gönderildi", 200
+    return "Ozet gönderildi", 200
 
 @app.route("/telegram", methods=["POST"])
 def telegram_update():
@@ -142,10 +139,11 @@ def telegram_update():
     if update and "message" in update:
         message = update["message"]
         chat_id = message["chat"]["id"]
-        text = message.get("text", "").strip().lower()
+        text = message.get("text", "").strip()
 
         if text.startswith("/ozet"):
-            requests.post("http://localhost:10000/ozet")  # kendi içindeki ozet endpoint'ini tetikle
+            free_text = text[len("/ozet"):].strip()
+            requests.get(f"http://localhost:10000/ozet", params={"filter": free_text})
     return "OK", 200
 
 if __name__ == "__main__":
