@@ -82,18 +82,18 @@ def get_stock_metrics(symbol):
 
 
 def generate_gpt_ranking(top_metrics):
-    content = """Sen bir finansal analiz uzmanısın. Aşağıdaki hisseler NASDAQ borsasından geliyor ve KAIRI -20 altında Alış sinyali aldılar. Temel verilere göre en cazipten en az cazibe doğru sırala ve nedenlerini kısaca yaz:
+    content = '''Sen bir finansal analiz uzmanısın. Aşağıdaki hisseler NASDAQ borsasından geliyor ve KAIRI -20 altında Alış sinyali aldılar. Temel verilere göre en cazipten en az cazibe doğru sırala ve nedenlerini kısaca yaz:
 
 Değerlendirme Kuralları:
 - PE < 25 iyi, 15 altısı çok iyi
 - EPS pozitif ve artıyorsa tercih sebebi
-- Büyüme %%10'dan fazlaysa olumlu
+- Büyüme %10'dan fazlaysa olumlu
 - D/E < 1 sağlıklı
 - FCF pozitifse iyi
 - Forward PE < 20 cazip
 
 Hisseler:
-"""
+'''
     for m in top_metrics:
         content += f"\n{m['symbol']}: PE={m['pe']}, EPS={m['eps']}, Growth={m['growth']}, D/E={m['de_ratio']}, FCF={m['fcf']}, Forward PE={m['forward_pe']}"
 
@@ -148,6 +148,24 @@ def analiz():
             "text": mesaj,
             "parse_mode": "HTML"
         }
+    )
+    return "OK", 200
+
+@app.route("/signal", methods=["POST"])
+def signal():
+    data = request.get_json()
+    symbol = data.get("symbol", "UNKNOWN")
+    signal_text = data.get("signal", "Sinyal Yok")
+    exchange = data.get("exchange", "Borsa Bilinmiyor")
+
+    with open(LOG_FILE, "a") as f:
+        json.dump(data, f)
+        f.write("\n")
+
+    msg = f"🚨 Sinyal Geldi!\n📈 {symbol} ({exchange})\n💬 {signal_text}"
+    requests.get(
+        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+        params={"chat_id": CHAT_ID, "text": msg}
     )
     return "OK", 200
 
