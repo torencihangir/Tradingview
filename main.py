@@ -41,12 +41,24 @@ def signal():
 def home():
     return "Webhook çalışıyor!", 200
 
-def generate_ozet_msg():
+def generate_ozet_msg(filter_keyword=None):
     try:
         with open(LOG_FILE, "r") as f:
             logs = json.load(f)
     except:
         logs = []
+
+    # Eğer filtre parametresi verilmişse, önce büyük harfe çevirip kontrol edelim.
+    if filter_keyword:
+        filter_keyword_upper = filter_keyword.upper()
+        # Bilinen borsa isimleri (listeyi ihtiyaçlarınıza göre genişletebilirsiniz)
+        known_exchanges = ["BINANCE", "OKX", "COINBASE", "BITTREX", "HUOBI"]
+        if filter_keyword_upper in known_exchanges:
+            # Sadece ilgili borsadan gelen sinyalleri alalım.
+            logs = [log for log in logs if log.get("exchange", "").upper() == filter_keyword_upper]
+        else:
+            # Aksi halde, filtreyi sinyal tipi olarak kabul edip logun sinyal kısmında arayalım.
+            logs = [log for log in logs if filter_keyword_upper in log.get("signal", "").upper()]
 
     kairi_20, kairi_30 = [], []
     mukemmel_alis, mukemmel_satis = [], []
@@ -57,22 +69,23 @@ def generate_ozet_msg():
         symbol = log.get("symbol", "")
         exchange = log.get("exchange", "Bilinmiyor")
 
-        if "KAIRI" in signal_text:
+        if "KAIRI" in signal_text.upper():
             try:
-                kairi_val = float(signal_text.split("KAIRI")[1].split()[0])
+                # Signal metninde "KAIRI" kelimesinden sonraki değeri çekiyoruz.
+                kairi_val = float(signal_text.upper().split("KAIRI")[1].split()[0])
                 if kairi_val <= -30:
                     kairi_30.append(f"{symbol} ({exchange}): {kairi_val}")
                 elif kairi_val <= -20:
                     kairi_20.append(f"{symbol} ({exchange}): {kairi_val}")
             except:
                 continue
-        elif "Mükemmel Alış" in signal_text:
+        elif "MÜKEMMEL ALIŞ" in signal_text.upper():
             mukemmel_alis.append(f"{symbol} ({exchange})")
-        elif "Mükemmel Satış" in signal_text:
+        elif "MÜKEMMEL SATIŞ" in signal_text.upper():
             mukemmel_satis.append(f"{symbol} ({exchange})")
-        elif "ALIŞ SAYIMI" in signal_text:
+        elif "ALIŞ SAYIMI" in signal_text.upper():
             alis_sayim.append(f"{symbol} ({exchange})")
-        elif "SATIŞ SAYIMI" in signal_text:
+        elif "SATIŞ SAYIMI" in signal_text.upper():
             satis_sayim.append(f"{symbol} ({exchange})")
 
     ozet_msg = "📊 <b>Sinyal Özetin:</b>\n\n"
@@ -113,8 +126,10 @@ def telegram_update():
         chat_id = message["chat"]["id"]
         text = message.get("text", "").strip()
 
-        if text == "/ozet":
-            ozet_msg = generate_ozet_msg()
+        if text.startswith("/ozet"):
+            # "/ozet" komutundan sonra girilen serbest metni alıyoruz.
+            free_text = text[len("/ozet"):].strip()  # Örneğin: "BINANCE" veya "KAIRI"
+            ozet_msg = generate_ozet_msg(free_text) if free_text else generate_ozet_msg()
             requests.get(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                 params={
