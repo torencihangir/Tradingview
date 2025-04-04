@@ -205,26 +205,92 @@ def analiz():
         )
         return "No signal", 200
 
-    top5 = uygunlar[:5]
-    kalanlar = uygunlar[5:]
-
-    metrikler = []
-    for s in top5:
+    all_metrics = {}
+    for s in uygunlar:
         try:
             info = yf.Ticker(s).info
-            metrikler.append({
-                "symbol": s,
+            all_metrics[s] = {
                 "pe": info.get("trailingPE"),
                 "forward_pe": info.get("forwardPE"),
                 "eps": info.get("trailingEps"),
                 "growth": info.get("revenueGrowth"),
                 "de_ratio": info.get("debtToEquity"),
                 "fcf": info.get("freeCashflow")
-            })
+            }
         except:
-            continue
+            all_metrics[s] = None  # Metrik alınamazsa işaretle
 
-    prompt = f"""Sen bir finansal analiz uzmanısın. Aşağıdaki hisseler {borsa} borsasından geliyor ve KAIRI -20 altında Alış sinyali aldılar. Her hisseyi 10 üzerinden puanla ve kısa yorumla. Ayrıca her metrik için değeri göster ve uygun olanlara emoji ekle.
+    if not all_metrics:
+        msg = f"{borsa} borsasındaki uygun hisselerin metrikleri alınamadı."
+        requests.get(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+            params={"chat_id": CHAT_ID, "text": msg}
+        )
+        return "No metrics", 200
+
+    # GPT'ye puanlama isteği için prompt oluşturma
+    prompt_base = f"""Sen bir finansal analiz uzmanısın. Aşağıdaki hisseler {borsa} borsasından geliyor ve KAIRI -20 altında Alış sinyali aldılar. Her hisseyi sadece metriklerine göre 10 üzerinden bir puanla. Sadece puanı ver, başka bir açıklama yapma.
+
+Kurallar:
+- PE < 25 iyi, <15 çok iyi
+- EPS pozitif ve artıyorsa
+- Büyüme > %10 ise
+- D/E < 1 sağlıklı
+- FCF pozitifse
+- Forward PE < 20 cazip
+
+Format:
+HISSE_ADI: PUAN
+"""
+
+    hisse_metrik_prompt = prompt_base
+    for symbol, metrics in all_metrics.items():
+        if metrics:
+            hisse_metrik_prompt += f"\n{symbol}: PE={metrics.get('pe')}, EPS={metrics.get('eps')}, Growth={metrics.get('growth')}, D/E={metrics.get('de_ratio')}, FCF={metrics.get('fcf')}, FPE={metrics.get('forward_pe')}"
+        else:
+            hisse_metrik_prompt += f"\n{symbol}: Metrikler alınamadı"
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "Sen finansal analiz konusunda uzman bir asistansın."},
+                {"role": "user", "content": hisse_metrik_prompt}
+            ]
+        )
+        puanlama_text = response.choices[0].message.content
+        hisse_puanlari = {}
+        for line in puanlama_text.strip().split('\n'):
+            try:
+                symbol, puan_str = line.split(':')
+                hisse_puanlari[symbol.strip()] = float(puan_str.strip())
+            except ValueError:
+                print(f"Puanlama ayrıştırılamadı: {line}")
+                continue
+    except Exception as e:
+        hisse_puanlari = {}
+        print(f"GPT puanlama hatası: {e}")
+
+    # Puanlara göre hisseleri sırala
+    siralanmis_hisseler = sorted(hisse_puanlari.items(), key=lambda item: item[1], reverse=True)
+
+    top5_hisseler = [item[0] for item in siralanmis_hisseler[:5]]
+    kalan_hisseler = [item[0] for item in siralanmis_hisseler[5:]]
+
+    mesaj = f"📊 <b>GPT Tavsiyesi – {borsa} (Puan Sıralaması):</b>\n\n"
+    if top5_hisseler:
+        for symbol in top5_hisseler:
+            metrics = all_metrics.get(symbol)
+            if metrics:
+                prompt_detay = f"""Sen bir finansal analiz uzmanısın. Aşağıdaki {borsa} borsasından gelen {symbol} hissesinin metriklerini değerlendir ve kısa bir yorum yap.
+
+Metrikler:
+PE: {metrics.get('pe')}
+Forward PE: {metrics.get('forward_pe')}
+EPS: {metrics.get('eps')}
+Büyüme: {metrics.get('growth')}
+D/E: {metrics.get('de_ratio')}
+FCF: {metrics.get('fcf')}
 
 Kurallar:
 - PE < 25 iyi, <15 çok iyi ✅
@@ -233,32 +299,29 @@ Kurallar:
 - D/E < 1 sağlıklı 💪
 - FCF pozitifse 🟢
 - Forward PE < 20 cazip 💰
-
-Örnek format:
-🟩 <b>MSFT</b>
-PE: 22 ✅ | EPS: 5.3 👍 | Growth: 0.12 📈 | D/E: 0.5 💪 | FCF: 2B 🟢 | FPE: 18 💰
-👉 Puan: 9/10 – Güçlü finansallar, büyüme iyi, değerleme makul.
 """
+                try:
+                    response_detay = openai.ChatCompletion.create(
+                        model="gpt-4",
+                        messages=[
+                            {"role": "system", "content": "Sen finansal analiz yapan bir uzmansın."},
+                            {"role": "user", "content": prompt_detay}
+                        ]
+                    )
+                    yorum = response_detay.choices[0].message.content
+                    puan = hisse_puanlari.get(symbol, "Puan Yok")
+                    mesaj += f"⭐ <b>{symbol} (Puan: {puan:.2f}/10)</b>\n"
+                    mesaj += f"PE: {metrics.get('pe')} | FPE: {metrics.get('forward_pe')} | EPS: {metrics.get('eps')} | Büyüme: {metrics.get('growth')} | D/E: {metrics.get('de_ratio')} | FCF: {metrics.get('fcf')}\n"
+                    mesaj += f"👉 {yorum}\n\n"
+                except Exception as e:
+                    mesaj += f"⚠️ <b>{symbol}</b> için detaylı analiz alınamadı: {e}\n\n"
+            else:
+                mesaj += f"⚠️ <b>{symbol}</b> için metrikler bulunamadı.\n\n"
+    else:
+        mesaj += "Puanlama için yeterli hisse bulunamadı.\n\n"
 
-    for m in metrikler:
-        prompt += f"\n{m['symbol']}: PE={m['pe']}, EPS={m['eps']}, Growth={m['growth']}, D/E={m['de_ratio']}, FCF={m['fcf']}, FPE={m['forward_pe']}"
-
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "Sen finansal analiz yapan bir uzmansın."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        yorum = response.choices[0].message.content
-    except Exception as e:
-        yorum = f"GPT yorum alınamadı: {e}"
-
-    mesaj = f"📊 <b>GPT Tavsiyesi – {borsa}:</b>\n\n"
-    mesaj += yorum + "\n\n"
-    if kalanlar:
-        mesaj += "📂 Diğer eşleşen hisseler: " + ", ".join(kalanlar)
+    if kalan_hisseler:
+        mesaj += "📂 Diğer eşleşen hisseler: " + ", ".join(kalan_hisseler)
 
     requests.get(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
