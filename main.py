@@ -104,23 +104,10 @@ def analiz():
     except Exception as e:
         yorum = f"GPT yorum alınamadı: {e}"
 
-    # Yorumları sıralamak için puanları ayrıştır
-    hisse_bloklari = re.split(r"(?:🔸|🔴|🟢)\s+<b>(\w+)</b>\\n", yorum)
-    hisse_sirali = []
-    for i in range(1, len(hisse_bloklari), 2):
-        symbol = hisse_bloklari[i]
-        detay = hisse_bloklari[i + 1]
-        puan_match = re.search(r"Puan: (\d+)/10", detay)
-        puan = int(puan_match.group(1)) if puan_match else 0
-        hisse_sirali.append((puan, f"🔸 <b>{symbol}</b>\n" + detay.strip()))
-
-    hisse_sirali.sort(reverse=True)
-
     mesaj = f"📊 <b>GPT Tavsiyesi – {borsa}:</b>\n\n"
-    mesaj += "\n\n".join(h[1] for h in hisse_sirali)
-    mesaj += "\n\n"
+    mesaj += yorum
     if kalanlar:
-        mesaj += "📂 Diğer eşleşen hisseler: " + ", ".join(kalanlar)
+        mesaj += "\n\n📂 Diğer eşleşen hisseler: " + ", ".join(kalanlar)
 
     requests.get(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
@@ -131,6 +118,10 @@ def analiz():
         }
     )
     return "OK", 200
+
+@app.route("/")
+def home():
+    return "Webhook aktif", 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
