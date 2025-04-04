@@ -87,7 +87,7 @@ def analiz():
         except:
             continue
 
-    prompt = f"""Sen bir finansal analiz uzmanısın. Aşağıdaki hisseler {borsa} borsasından geliyor ve KAIRI -20 altında Alış sinyali aldılar. Her hisseyi 10 üzerinden puanla ve kısa yorumla. Ayrıca her metrik için değeri göster ve uygun olanlara emoji ekle.\n\nKurallar:\n- PE < 25 iyi, <15 çok iyi ✅\n- EPS pozitif ve artıyorsa 👍\n- Büyüme > %10 ise 📈\n- D/E < 1 sağlıklı 💪\n- FCF pozitifse 🟢\n- Forward PE < 20 cazip 💰\n\nFormat:\n🏆 <b>Sembol</b>\n✅ PE: 15 | 👍 EPS: 3.2 | 📈 Growth: 0.14 | 💪 D/E: 0.6 | 🟢 FCF: 1.2B | 💰 FPE: 17\n👉 Puan: 9/10 – kısa açıklama"""
+    prompt = f"""Sen bir finansal analiz uzmanısın. Aşağıdaki hisseler {borsa} borsasından geliyor ve KAIRI -20 altında Alış sinyali aldılar. Her hisseyi 10 üzerinden puanla ve kısa yorumla. Ayrıca her metrik için değeri alt alta olacak şekilde göster ve uygun olanlara emoji ekle.\n\nKurallar:\n- PE < 25 iyi, <15 çok iyi ✅\n- EPS pozitif ve artıyorsa 👍\n- Büyüme > %10 ise 📈\n- D/E < 1 sağlıklı 💪\n- FCF pozitifse 🟢\n- Forward PE < 20 cazip 💰\n\nFormat:\n🏆 <b>Sembol</b>\n✅ PE: 15\n👍 EPS: 3.2\n📈 Growth: 0.14\n💪 D/E: 0.6\n🟢 FCF: 1.2B\n💰 FPE: 17\n👉 Puan: 9/10 – kısa açıklama"""
 
     for m in metrikler:
         prompt += f"\n{m['symbol']}: PE={m['pe']}, EPS={m['eps']}, Growth={m['growth']}, D/E={m['de_ratio']}, FCF={m['fcf']}, FPE={m['forward_pe']}"
@@ -105,7 +105,7 @@ def analiz():
         yorum = f"GPT yorum alınamadı: {e}"
 
     # Yorumları sıralamak için puanları ayrıştır
-    hisse_bloklari = re.split(r"(?:🔴|🟢)\s+(\w+)\n", yorum)
+    hisse_bloklari = re.split(r"(?:🔸|🔴|🟢)\s+<b>(\w+)</b>\\n", yorum)
     hisse_sirali = []
     for i in range(1, len(hisse_bloklari), 2):
         symbol = hisse_bloklari[i]
