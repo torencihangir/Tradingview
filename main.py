@@ -6,6 +6,7 @@ import openai
 import yfinance as yf
 from datetime import datetime
 from collections import defaultdict
+import re
 
 app = Flask(__name__)
 
@@ -67,46 +68,60 @@ def analiz():
         )
         return "No signal", 200
 
-    top5 = uygunlar[:5]
-    kalanlar = uygunlar[5:]
-
-    metrikler = []
-    for s in top5:
+    # ✅ Tüm hisseler için metrikleri topla ve puan hesapla
+    hisse_metrikleri = []
+    for s in uygunlar:
         try:
             info = yf.Ticker(s).info
-            metrikler.append({
+            pe = info.get("trailingPE")
+            forward_pe = info.get("forwardPE")
+            eps = info.get("trailingEps")
+            growth = info.get("revenueGrowth")
+            de_ratio = info.get("debtToEquity")
+            fcf = info.get("freeCashflow")
+
+            puan = 0
+            if pe is not None and pe < 25: puan += 1
+            if eps is not None and eps > 0: puan += 1
+            if growth is not None and growth > 0.1: puan += 1
+            if de_ratio is not None and de_ratio < 100: puan += 1
+            if fcf is not None and fcf > 0: puan += 1
+            if forward_pe is not None and forward_pe < 20: puan += 1
+
+            hisse_metrikleri.append({
                 "symbol": s,
-                "pe": info.get("trailingPE"),
-                "forward_pe": info.get("forwardPE"),
-                "eps": info.get("trailingEps"),
-                "growth": info.get("revenueGrowth"),
-                "de_ratio": info.get("debtToEquity"),
-                "fcf": info.get("freeCashflow")
+                "pe": pe,
+                "forward_pe": forward_pe,
+                "eps": eps,
+                "growth": growth,
+                "de_ratio": de_ratio,
+                "fcf": fcf,
+                "puan": puan
             })
         except:
             continue
 
-    prompt = f"""Sen bir finansal analiz uzmanısın. Aşağıdaki hisseler {borsa} borsasından geliyor ve KAIRI -20 altında Alış sinyali aldılar. Her hisseyi 10 üzerinden puanla ve kısa yorumla. Ayrıca her metrik için değeri alt alta olacak şekilde göster ve uygun olanlara emoji ekle.
+    # ✅ Puan sıralamasına göre ilk 5
+    hisse_metrikleri.sort(key=lambda x: x["puan"], reverse=True)
+    top5 = hisse_metrikleri[:5]
+    kalanlar = [m["symbol"] for m in hisse_metrikleri[5:]]
+
+    prompt = f"""Sen bir finansal analiz uzmanısın. Aşağıdaki hisseler {borsa} borsasından geliyor ve KAIRI -20 altında Alış sinyali aldılar. Her hisseyi 10 üzerinden puanla ve kısa yorumla. Ayrıca her metrik için değeri göster ve uygun olanlara emoji ekle.
 
 Kurallar:
 - PE < 25 iyi, <15 çok iyi ✅
 - EPS pozitif ve artıyorsa 👍
-- Büyümé > %10 ise 📈
+- Büyüme > %10 ise 📈
 - D/E < 1 sağlıklı 💪
 - FCF pozitifse 🟢
 - Forward PE < 20 cazip 💰
 
-Format:
-🍉 <b>Sembol</b>
-PE: 15 ✅
-EPS: 3.2 👍
-Growth: 0.14 📈
-D/E: 0.6 💪
-FCF: 1.2B 🟢
-FPE: 17 💰
-🖐 Puan: 9/10 – kısa açıklama"""
+Örnek format:
+🟩 <b>MSFT</b>
+PE: 22 ✅\nEPS: 5.3 👍\nGrowth: 0.12 📈\nD/E: 0.5 💪\nFCF: 2B 🟢\nFPE: 18 💰\n👉 Puan: 9/10 – Güçlü finansallar, büyüme iyi, değerleme makul.
+"""
 
-    for m in metrikler:
+    for m in top5:
         prompt += f"\n{m['symbol']}: PE={m['pe']}, EPS={m['eps']}, Growth={m['growth']}, D/E={m['de_ratio']}, FCF={m['fcf']}, FPE={m['forward_pe']}"
 
     try:
