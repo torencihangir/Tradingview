@@ -86,7 +86,7 @@ def analiz():
         except:
             continue
 
-    prompt = """Sen bir finansal analiz uzmanısın. Aşağıdaki hisseler {borsa} borsasından geliyor ve KAIRI -20 altında Alış sinyali aldılar. Her hisseyi 10 üzerinden puanla ve kısa yorumla. Ayrıca her metrik için değeri göster ve uygun olanlara emoji ekle.
+    prompt = f"""Sen bir finansal analiz uzmanısın. Aşağıdaki hisseler {borsa} borsasından geliyor ve KAIRI -20 altında Alış sinyali aldılar. Her hisseyi 10 üzerinden puanla ve kısa yorumla. Ayrıca her metrik için değeri göster ve uygun olanlara emoji ekle.
 
 Kurallar:
 - PE < 25 iyi, <15 çok iyi ✅
@@ -120,7 +120,7 @@ PE: 22 ✅ | EPS: 5.3 👍 | Growth: 0.12 📈 | D/E: 0.5 💪 | FCF: 2B 🟢 | 
     mesaj = f"📊 <b>GPT Tavsiyesi – {borsa}:</b>\n\n"
     mesaj += yorum + "\n\n"
     if kalanlar:
-        mesaj += "🗂 Diğer eşleşen hisseler: " + ", ".join(kalanlar)
+        mesaj += "📂 Diğer eşleşen hisseler: " + ", ".join(kalanlar)
 
     requests.get(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
@@ -131,3 +131,7 @@ PE: 22 ✅ | EPS: 5.3 👍 | Growth: 0.12 📈 | D/E: 0.5 💪 | FCF: 2B 🟢 | 
         }
     )
     return "OK", 200
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
