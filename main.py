@@ -6,6 +6,9 @@ import openai
 import yfinance as yf
 from datetime import datetime
 from collections import defaultdict
+from dotenv import load_dotenv  # ✅ EKLENDİ
+
+load_dotenv()  # ✅ .env dosyasını oku
 
 app = Flask(__name__)
 
@@ -15,6 +18,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "YOK")
 LOG_FILE = "signals.json"
 
 openai.api_key = OPENAI_API_KEY
+
 
 # 🔁 Sinyal Loglama
 def log_signal(data):
