@@ -113,6 +113,24 @@ def ozet():
 def home():
     return "Webhook aktif", 200
 
+
+
+@app.route("/telegram", methods=["POST"])
+def telegram_update():
+    update = request.get_json()
+    if update and "message" in update:
+        message = update["message"]
+        chat_id = message["chat"]["id"]
+        text = message.get("text", "").strip().lower()
+
+        if text.startswith("/ozet"):
+            try:
+                requests.get("http://localhost:10000/ozet", timeout=3)
+            except Exception:
+                print("Local /ozet çağrısı başarısız oldu.")
+    return "OK", 200
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
