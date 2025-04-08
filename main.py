@@ -1,4 +1,3 @@
-
 from flask import Flask, request
 import requests
 import os
@@ -30,25 +29,27 @@ def signal():
     try:
         data = request.get_json(force=True)
         symbol = data.get("symbol", "UNKNOWN")
-        signal_text = data.get("signal", "Sinyal Yok")
-        exchange = data.get("exchange", "Borsa Bilinmiyor")
+        signal_text = data.get("signal", "No signal")
+        exchange = data.get("exchange", "Unknown Exchange")
         log_signal(data)
 
-        msg = f"Sinyal Geldi!\n{symbol} ({exchange})\n{signal_text}"
+        # 🟢 Emojili Telegram mesajı
+        msg = f"🚨 Signal Received!\n📈 {symbol} ({exchange})\n💬 {signal_text}"
 
         try:
+            # Telegram'a gönder
             resp = requests.get(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                 params={"chat_id": CHAT_ID, "text": msg},
                 timeout=3
             )
-            print("Telegram mesajı gönderildi.")
-        except Exception as e:
-            print("Telegram gönderimi sırasında hata oluştu.")
+            print("Telegram message sent.")  # ❌ Emoji yok, konsola sade
+        except Exception:
+            print("Telegram sending error.")
 
         return "OK", 200
-    except Exception as e:
-        print("Sinyal işleminde genel bir hata oluştu.")
+    except Exception:
+        print("General signal error.")
         return "Internal Server Error", 500
 
 @app.route("/")
