@@ -119,6 +119,8 @@ def debug():
 @app.route("/telegram", methods=["POST"])
 def telegram_update():
     update = request.get_json()
+    print(">>> TELEGRAM POST VERİSİ:", update)  # DEBUG için eklendi ✅
+
     if update and "message" in update:
         message = update["message"]
         chat_id = message["chat"]["id"]
