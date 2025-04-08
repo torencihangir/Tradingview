@@ -1,4 +1,3 @@
-
 from flask import Flask, request
 import requests
 import os
@@ -75,7 +74,7 @@ def ozet():
     güçlü_sinyaller = []
     kairi_20, kairi_30 = [], []
     mukemmel_alis, mukemmel_satis = [], []
-    alis_sayim, satis_sayim = [], []
+    alis_sayim, satis_sayim = []
 
     for symbol, entries in sinyaller.items():
         has_kairi = False
@@ -137,6 +136,20 @@ def ozet():
         params={"chat_id": CHAT_ID, "text": ozet_msg}
     )
     return "Ozet gönderildi", 200
+
+@app.route("/telegram", methods=["POST"])
+def telegram_update():
+    update = request.get_json()
+    if update and "message" in update:
+        message = update["message"]
+        text = message.get("text", "").strip().lower()
+
+        if text.startswith("/ozet"):
+            requests.get("http://localhost:10000/ozet")
+
+        elif text.startswith("/analiz"):
+            requests.get("http://localhost:10000/analiz")
+    return "OK", 200
 
 @app.route("/")
 def home():
