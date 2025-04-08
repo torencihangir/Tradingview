@@ -1,4 +1,3 @@
-
 from flask import Flask, request
 import requests
 import os
@@ -113,7 +112,9 @@ def ozet():
 def home():
     return "Webhook aktif", 200
 
-
+@app.route("/debug", methods=["GET"])
+def debug():
+    return "Debug OK", 200
 
 @app.route("/telegram", methods=["POST"])
 def telegram_update():
@@ -129,7 +130,6 @@ def telegram_update():
             except Exception:
                 print("Local /ozet çağrısı başarısız oldu.")
     return "OK", 200
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
