@@ -1,3 +1,4 @@
+
 from flask import Flask, request
 import requests
 import os
@@ -5,8 +6,6 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 from collections import defaultdict
-import yfinance as yf
-import openai
 
 load_dotenv()
 
@@ -14,10 +13,7 @@ app = Flask(__name__)
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "TOKEN_YOK")
 CHAT_ID = os.getenv("CHAT_ID", "CHAT_ID_YOK")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "YOK")
 LOG_FILE = "signals.json"
-
-openai.api_key = OPENAI_API_KEY
 
 def log_signal(data):
     data["timestamp"] = datetime.now().isoformat()
@@ -40,7 +36,6 @@ def signal():
         log_signal(data)
 
         msg = f"🚨 Signal Received!\n📈 {symbol} ({exchange})\n💬 {signal_text}"
-
         try:
             resp = requests.get(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
@@ -66,15 +61,12 @@ def ozet():
 
     sinyaller = defaultdict(list)
     for log in logs:
-        symbol = log.get("symbol", "")
-        signal = log.get("signal", "").upper()
-        exchange = log.get("exchange", "")
+        symbol = log.get("symbol", log.get("ticker", ""))
+        signal = log.get("signal", log.get("message", "")).upper()
+        exchange = log.get("exchange", log.get("source", ""))
         sinyaller[symbol].append({"signal": signal, "exchange": exchange})
 
     güçlü_sinyaller = []
-    kairi_20, kairi_30 = [], []
-    mukemmel_alis, mukemmel_satis = [], []
-    alis_sayim, satis_sayim = []
 
     for symbol, entries in sinyaller.items():
         has_kairi = False
@@ -90,66 +82,32 @@ def ozet():
                 try:
                     val = float(signal_text.split("KAIRI")[1].split()[0])
                     kairi_val = val
-                    if val <= -30:
-                        kairi_30.append(f"{symbol} ({exchange}): {val}")
-                    elif val <= -20:
-                        kairi_20.append(f"{symbol} ({exchange}): {val}")
                     if val <= -20:
                         has_kairi = True
                 except:
                     continue
-            if "MÜKEMMEL ALIŞ" in signal_text:
-                mukemmel_alis.append(f"{symbol} ({exchange})")
+            if "ALIŞ SAYIMI" in signal_text or "MÜKEMMEL ALIŞ" in signal_text:
                 has_alis = True
-            if "ALIŞ SAYIMI" in signal_text:
-                alis_sayim.append(f"{symbol} ({exchange})")
-                has_alis = True
-            if "MÜKEMMEL SATIŞ" in signal_text:
-                mukemmel_satis.append(f"{symbol} ({exchange})")
-            if "SATIŞ SAYIMI" in signal_text:
-                satis_sayim.append(f"{symbol} ({exchange})")
 
         if has_kairi and has_alis:
-            güçlü_sinyaller.append(f"✅ {symbol} ({exchange}) - KAIRI: {kairi_val} ve Alış sinyali birlikte geldi")
+            güçlü_sinyaller.append(f"✅ {symbol} ({exchange})")
 
-    ozet_msg = "📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\n\n"
     if güçlü_sinyaller:
-        ozet_msg += "\n".join(güçlü_sinyaller) + "\n\n"
+        msg = "📊 GÜÇLÜ EŞLEŞEN HİSSELER:\n\n"
+        msg += "\n".join(güçlü_sinyaller[:10])
+        msg += "\n\n🔁 Hem KAIRI ≤ -20 hem de Alış sinyali geldi."
     else:
-        ozet_msg += "Bugün eşleşen güçlü sinyal bulunamadı.\n\n"
+        msg = "📊 Bugün güçlü eşleşen sinyal bulunamadı."
 
-    if kairi_30:
-        ozet_msg += "🔴 KAIRI ≤ -30:\n" + "\n".join(kairi_30) + "\n\n"
-    if kairi_20:
-        ozet_msg += "🟠 KAIRI ≤ -20:\n" + "\n".join(kairi_20) + "\n\n"
-    if mukemmel_alis:
-        ozet_msg += "🟢 Mükemmel Alış:\n" + "\n".join(mukemmel_alis) + "\n\n"
-    if alis_sayim:
-        ozet_msg += "📈 Alış Sayımı Tamamlananlar:\n" + "\n".join(alis_sayim) + "\n\n"
-    if mukemmel_satis:
-        ozet_msg += "🔵 Mükemmel Satış:\n" + "\n".join(mukemmel_satis) + "\n\n"
-    if satis_sayim:
-        ozet_msg += "📉 Satış Sayımı Tamamlananlar:\n" + "\n".join(satis_sayim) + "\n\n"
-
-    requests.get(
-        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-        params={"chat_id": CHAT_ID, "text": ozet_msg}
-    )
+    try:
+        requests.get(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+            params={"chat_id": CHAT_ID, "text": msg},
+            timeout=3
+        )
+    except:
+        print("Telegram gönderim hatası.")
     return "Ozet gönderildi", 200
-
-@app.route("/telegram", methods=["POST"])
-def telegram_update():
-    update = request.get_json()
-    if update and "message" in update:
-        message = update["message"]
-        text = message.get("text", "").strip().lower()
-
-        if text.startswith("/ozet"):
-            requests.get("http://localhost:10000/ozet")
-
-        elif text.startswith("/analiz"):
-            requests.get("http://localhost:10000/analiz")
-    return "OK", 200
 
 @app.route("/")
 def home():
