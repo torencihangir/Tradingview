@@ -36,7 +36,7 @@ def signal():
 
         msg = f"🚨 Signal Received!\n📈 {symbol} ({exchange})\n💬 {signal_text}"
         try:
-            resp = requests.get(
+            requests.get(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                 params={"chat_id": CHAT_ID, "text": msg},
                 timeout=3
@@ -46,8 +46,8 @@ def signal():
             print("Telegram sending error.")
 
         return "OK", 200
-    except Exception:
-        print("General signal error.")
+    except Exception as e:
+        print("General signal error:", e)
         return "Internal Server Error", 500
 
 @app.route("/ozet", methods=["GET"])
@@ -61,16 +61,18 @@ def ozet():
     sinyaller = defaultdict(list)
     for log in logs:
         symbol = log.get("symbol", log.get("ticker", ""))
-        signal = log.get("signal", log.get("message", "")).lower()
+        signal = log.get("signal", log.get("message", ""))
         exchange = log.get("exchange", log.get("source", ""))
-        sinyaller[symbol].append({"signal": signal, "exchange": exchange})
+        sinyaller[symbol].append({"signal": signal.lower(), "exchange": exchange})
 
-    güçlü_sinyaller = []
+    guclu = []
+    sadece_kairi = []
+    sadece_alis = []
 
     for symbol, entries in sinyaller.items():
         has_kairi = False
         has_alis = False
-        exchange = "Unknown"
+        exchange = ""
 
         for entry in entries:
             signal_text = entry["signal"]
@@ -83,18 +85,28 @@ def ozet():
                         has_kairi = True
                 except:
                     continue
-            if "alış" in signal_text or "alis" in signal_text:
+
+            if "alış" in signal_text:
                 has_alis = True
 
         if has_kairi and has_alis:
-            güçlü_sinyaller.append(f"✅ {symbol} ({exchange})")
+            guclu.append(f"✅ {symbol} ({exchange})")
+        elif has_kairi:
+            sadece_kairi.append(f"• {symbol} ({exchange})")
+        elif has_alis:
+            sadece_alis.append(f"• {symbol} ({exchange})")
 
-    if güçlü_sinyaller:
-        msg = "📊 GÜÇLÜ EŞLEŞEN HİSSELER:\n\n"
-        msg += "\n".join(güçlü_sinyaller[:10])
-        msg += "\n\n🔁 Hem KAIRI ≤ -20 hem de Alış sinyali geldi."
+    msg = ""
+    if guclu:
+        msg += "📊 GÜÇLÜ EŞLEŞEN HİSSELER (KAIRI -20 ve Alış)\n\n"
+        msg += "\n".join(guclu[:10]) + "\n\n🔁 Hem KAIRI ≤ -20 hem de Alış sinyali geldi.\n\n"
     else:
-        msg = "📊 Bugün güçlü eşleşen sinyal bulunamadı."
+        msg += "📊 Bugün güçlü eşleşen sinyal bulunamadı.\n\n"
+
+    if sadece_kairi:
+        msg += "💬 KAIRI -20 Gelenler:\n" + "\n".join(sadece_kairi[:10]) + "\n\n"
+    if sadece_alis:
+        msg += "💬 Alış Gelenler:\n" + "\n".join(sadece_alis[:10]) + "\n"
 
     try:
         requests.get(
@@ -104,15 +116,8 @@ def ozet():
         )
     except:
         print("Telegram gönderim hatası.")
+
     return "Ozet gönderildi", 200
-
-@app.route("/")
-def home():
-    return "Webhook aktif", 200
-
-@app.route("/debug", methods=["GET"])
-def debug():
-    return "Debug OK", 200
 
 @app.route("/telegram", methods=["POST"])
 def telegram_update():
@@ -130,6 +135,14 @@ def telegram_update():
             except Exception:
                 print("Local /ozet çağrısı başarısız oldu.")
     return "OK", 200
+
+@app.route("/")
+def home():
+    return "Webhook aktif", 200
+
+@app.route("/debug")
+def debug():
+    return "Debug OK", 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
