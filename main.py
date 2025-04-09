@@ -126,3 +126,7 @@ def generate_summary():
     msg += "\n\n🟤 Matisay Fib0:\n" + ("\n".join(summary["matisay"]) or "Yok")
 
     return msg
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+
