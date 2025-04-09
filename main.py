@@ -36,7 +36,7 @@ def signal():
 
         msg = f"🚨 Signal Received!\n📈 {symbol} ({exchange})\n💬 {signal_text}"
         try:
-            resp = requests.get(
+            requests.get(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                 params={"chat_id": CHAT_ID, "text": msg},
                 timeout=3
@@ -70,7 +70,6 @@ def ozet():
     for symbol, entries in sinyaller.items():
         has_kairi = False
         has_alis = False
-        kairi_val = None
         exchange = "Unknown"
 
         for entry in entries:
@@ -80,12 +79,12 @@ def ozet():
             if "KAIRI" in signal_text:
                 try:
                     val = float(signal_text.split("KAIRI")[1].split()[0])
-                    kairi_val = val
                     if val <= -20:
                         has_kairi = True
                 except:
                     continue
-            if "ALIŞ SAYIMI" in signal_text or "MÜKEMMEL ALIŞ" in signal_text:
+
+            if "ALIŞ" in signal_text:
                 has_alis = True
 
         if has_kairi and has_alis:
@@ -119,7 +118,7 @@ def debug():
 @app.route("/telegram", methods=["POST"])
 def telegram_update():
     update = request.get_json()
-    print(">>> TELEGRAM POST VERİSİ:", update)  # DEBUG için eklendi ✅
+    print(">>> TELEGRAM POST VERİSİ:", update)
 
     if update and "message" in update:
         message = update["message"]
