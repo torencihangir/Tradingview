@@ -3,6 +3,7 @@ from flask import Flask, request
 import json
 import requests
 import os
+import re
 from datetime import datetime
 
 app = Flask(__name__)
@@ -24,9 +25,9 @@ def send_telegram_message(message):
 @app.route("/signal", methods=["POST"])
 def receive_signal():
     data = request.json
-    data["timestamp"] = datetime.utcnow().isoformat()
-    with open(SIGNALS_FILE, "a") as f:
-        f.write(json.dumps(data) + "\n")
+    data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(SIGNALS_FILE, "a", encoding="utf-8") as f:
+        f.write(json.dumps(data, ensure_ascii=False) + "\n")
 
     symbol = data.get("symbol")
     exchange = data.get("exchange")
@@ -44,7 +45,8 @@ def telegram_webhook():
     chat_id = message["chat"]["id"]
 
     if text.startswith("/ozet"):
-        summary = generate_summary()
+        exchange_filter = text[6:].strip().lower() if len(text) > 6 else None
+        summary = generate_summary(exchange_filter)
         send_telegram_message(summary)
 
     return "ok", 200
@@ -55,64 +57,66 @@ def parse_signal_line(line):
     except:
         return None
 
-def generate_summary():
+def generate_summary(exchange_filter=None):
     if not os.path.exists(SIGNALS_FILE):
         return "📊 Henüz hiç sinyal kaydedilmedi."
 
-    with open(SIGNALS_FILE, "r") as f:
+    with open(SIGNALS_FILE, "r", encoding="utf-8") as f:
         lines = f.readlines()
 
     summary = {
-        "güçlü": [],
-        "kairi_-30": [],
-        "kairi_-20": [],
-        "mükemmel_alış": [],
-        "alış_sayımı": [],
-        "mükemmel_satış": [],
-        "satış_sayımı": [],
-        "matisay": []
+        "güçlü": set(),
+        "kairi_-30": set(),
+        "kairi_-20": set(),
+        "mükemmel_alış": set(),
+        "alış_sayımı": set(),
+        "mükemmel_satış": set(),
+        "satış_sayımı": set(),
+        "matisay": set()
     }
 
-    for line in lines:
-        signal_data = parse_signal_line(line)
-        if not signal_data:
-            continue
+    parsed_lines = [parse_signal_line(line) for line in lines]
+    parsed_lines = [s for s in parsed_lines if s]
 
+    for signal_data in parsed_lines:
         symbol = signal_data.get("symbol", "")
         exchange = signal_data.get("exchange", "")
-        signal = signal_data.get("signal", "").lower()
+        signal = signal_data.get("signal", "")
         key = f"{symbol} ({exchange})"
 
-        if "kairi" in signal:
-            try:
-                kairi_value = float(signal.split("kairi")[1].split("seviyesinde")[0].strip())
-                if kairi_value <= -30:
-                    summary["kairi_-30"].append(f"{key}: {kairi_value}")
-                elif kairi_value <= -20:
-                    summary["kairi_-20"].append(f"{key}: {kairi_value}")
+        if exchange_filter and exchange_filter not in exchange.lower():
+            continue
 
-                # Güçlü eşleşme kontrolü
-                for other_line in lines:
-                    other = parse_signal_line(other_line)
-                    if other and other.get("symbol") == symbol and (
-                        "mükemmel alış" in other.get("signal", "").lower() or
-                        "alış sayımı" in other.get("signal", "").lower()
+        signal_lower = signal.lower()
+
+        if "kairi" in signal_lower:
+            try:
+                kairi_value = float(re.findall(r"[-+]?[0-9]*\.?[0-9]+", signal_lower)[0])
+                if kairi_value <= -30:
+                    summary["kairi_-30"].add(f"{key}: {kairi_value}")
+                elif kairi_value <= -20:
+                    summary["kairi_-20"].add(f"{key}: {kairi_value}")
+
+                for other in parsed_lines:
+                    if (
+                        other.get("symbol") == symbol and
+                        re.search(r"(mükemmel alış|alış sayımı)", other.get("signal", ""), re.IGNORECASE)
                     ):
-                        summary["güçlü"].append(f"✅ {key} - KAIRI: {kairi_value} ve Alış sinyali birlikte geldi")
+                        summary["güçlü"].add(f"✅ {key} - KAIRI: {kairi_value} ve Alış sinyali birlikte geldi")
                         break
             except:
                 continue
 
-        elif "mükemmel alış" in signal:
-            summary["mükemmel_alış"].append(key)
-        elif "alış sayımı" in signal:
-            summary["alış_sayımı"].append(key)
-        elif "mükemmel satış" in signal:
-            summary["mükemmel_satış"].append(key)
-        elif "satış sayımı" in signal:
-            summary["satış_sayımı"].append(key)
-        elif "fib0" in signal:
-            summary["matisay"].append(key)
+        elif re.search(r"mükemmel alış", signal, re.IGNORECASE):
+            summary["mükemmel_alış"].add(key)
+        elif re.search(r"alış sayımı", signal, re.IGNORECASE):
+            summary["alış_sayımı"].add(key)
+        elif re.search(r"mükemmel satış", signal, re.IGNORECASE):
+            summary["mükemmel_satış"].add(key)
+        elif re.search(r"satış sayımı", signal, re.IGNORECASE):
+            summary["satış_sayımı"].add(key)
+        elif "fib0" in signal_lower:
+            summary["matisay"].add(key)
 
     msg = "📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\n\n"
     msg += "\n".join(summary["güçlü"]) or "Yok"
@@ -129,4 +133,3 @@ def generate_summary():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
