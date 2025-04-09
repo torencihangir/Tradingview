@@ -1,3 +1,4 @@
+
 from flask import Flask, request
 import json
 import requests
@@ -9,7 +10,6 @@ app = Flask(__name__)
 
 BOT_TOKEN = "7760965138:AAH4ZdrJjnXJ36UWZUh1f0-VWL-FyUBgh54"
 CHAT_ID = "5686330513"
-
 SIGNALS_FILE = "signals.json"
 
 def send_telegram_message(message):
@@ -19,23 +19,43 @@ def send_telegram_message(message):
         "text": message,
         "parse_mode": "Markdown"
     }
-    requests.post(url, json=data)
+    try:
+        requests.post(url, json=data)
+    except Exception as e:
+        print("Telegram'a mesaj gönderilemedi:", e)
 
 @app.route("/signal", methods=["POST"])
 def receive_signal():
-    data = request.json
-    data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(SIGNALS_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(data, ensure_ascii=False) + "\\n")
+    try:
+        if request.is_json:
+            data = request.get_json()
+        else:
+            raw = request.data.decode("utf-8")
+            match = re.match(r"(.*?) \((.*?)\) - (.*)", raw)
+            if match:
+                symbol, exchange, signal = match.groups()
+                data = {
+                    "symbol": symbol.strip(),
+                    "exchange": exchange.strip(),
+                    "signal": signal.strip()
+                }
+            else:
+                data = {"symbol": "Bilinmiyor", "exchange": "Bilinmiyor", "signal": raw.strip()}
 
-    symbol = data.get("symbol")
-    exchange = data.get("exchange")
-    signal = data.get("signal")
+        data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(SIGNALS_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(data, ensure_ascii=False) + "\n")
 
-    message = f"📡 Yeni Sinyal Geldi:\\n\\n*{symbol}* ({exchange})\\n📍 _{signal}_"
-    send_telegram_message(message)
+        symbol = data.get("symbol", "Bilinmiyor")
+        exchange = data.get("exchange", "Bilinmiyor")
+        signal = data.get("signal", "Bilinmiyor")
 
-    return "ok", 200
+        message = f"📡 Yeni Sinyal Geldi:\n\n*{symbol}* ({exchange})\n📍 _{signal}_"
+        send_telegram_message(message)
+
+        return "ok", 200
+    except Exception as e:
+        return str(e), 500
 
 @app.route("/telegram", methods=["POST"])
 def telegram_webhook():
@@ -44,8 +64,8 @@ def telegram_webhook():
     chat_id = message["chat"]["id"]
 
     if text.startswith("/ozet"):
-        exchange_filter = text[6:].strip().lower() if len(text) > 6 else None
-        summary = generate_summary(exchange_filter)
+        keyword = text[6:].strip().lower() if len(text) > 6 else None
+        summary = generate_summary(keyword)
         send_telegram_message(summary)
 
     return "ok", 200
@@ -56,7 +76,7 @@ def parse_signal_line(line):
     except:
         return None
 
-def generate_summary(exchange_filter=None):
+def generate_summary(keyword=None):
     if not os.path.exists(SIGNALS_FILE):
         return "📊 Henüz hiç sinyal kaydedilmedi."
 
@@ -83,14 +103,17 @@ def generate_summary(exchange_filter=None):
         signal = signal_data.get("signal", "")
         key = f"{symbol} ({exchange})"
 
-        if exchange_filter and exchange_filter not in exchange.lower():
-            continue
+        # FREE TEXT FILTER - symbol, exchange, or signal
+        if keyword:
+            combined = f"{symbol} {exchange} {signal}".lower()
+            if keyword not in combined:
+                continue
 
         signal_lower = signal.lower()
 
         if "kairi" in signal_lower:
             try:
-                kairi_value = float(re.findall(r"[-+]?[0-9]*\\.?[0-9]+", signal_lower)[0])
+                kairi_value = float(re.findall(r"[-+]?[0-9]*\.?[0-9]+", signal_lower)[0])
                 if kairi_value <= -30:
                     summary["kairi_-30"].add(f"{key}: {kairi_value}")
                 elif kairi_value <= -20:
@@ -117,16 +140,16 @@ def generate_summary(exchange_filter=None):
         elif "fib0" in signal_lower:
             summary["matisay"].add(key)
 
-    msg = "📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\\n\\n"
-    msg += "\\n".join(summary["güçlü"]) or "Yok"
+    msg = "📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\n\n"
+    msg += "\n".join(summary["güçlü"]) or "Yok"
 
-    msg += "\\n\\n🔴 KAIRI ≤ -30:\\n" + ("\\n".join(summary["kairi_-30"]) or "Yok")
-    msg += "\\n\\n🟠 KAIRI ≤ -20:\\n" + ("\\n".join(summary["kairi_-20"]) or "Yok")
-    msg += "\\n\\n🟢 Mükemmel Alış:\\n" + ("\\n".join(summary["mükemmel_alış"]) or "Yok")
-    msg += "\\n\\n📈 Alış Sayımı Tamamlananlar:\\n" + ("\\n".join(summary["alış_sayımı"]) or "Yok")
-    msg += "\\n\\n🔵 Mükemmel Satış:\\n" + ("\\n".join(summary["mükemmel_satış"]) or "Yok")
-    msg += "\\n\\n📉 Satış Sayımı Tamamlananlar:\\n" + ("\\n".join(summary["satış_sayımı"]) or "Yok")
-    msg += "\\n\\n🟤 Matisay Fib0:\\n" + ("\\n".join(summary["matisay"]) or "Yok")
+    msg += "\n\n🔴 KAIRI ≤ -30:\n" + ("\n".join(summary["kairi_-30"]) or "Yok")
+    msg += "\n\n🟠 KAIRI ≤ -20:\n" + ("\n".join(summary["kairi_-20"]) or "Yok")
+    msg += "\n\n🟢 Mükemmel Alış:\n" + ("\n".join(summary["mükemmel_alış"]) or "Yok")
+    msg += "\n\n📈 Alış Sayımı Tamamlananlar:\n" + ("\n".join(summary["alış_sayımı"]) or "Yok")
+    msg += "\n\n🔵 Mükemmel Satış:\n" + ("\n".join(summary["mükemmel_satış"]) or "Yok")
+    msg += "\n\n📉 Satış Sayımı Tamamlananlar:\n" + ("\n".join(summary["satış_sayımı"]) or "Yok")
+    msg += "\n\n🟤 Matisay Fib0:\n" + ("\n".join(summary["matisay"]) or "Yok")
 
     return msg
 
