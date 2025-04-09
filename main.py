@@ -36,7 +36,7 @@ def signal():
 
         msg = f"🚨 Signal Received!\n📈 {symbol} ({exchange})\n💬 {signal_text}"
         try:
-            requests.get(
+            resp = requests.get(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                 params={"chat_id": CHAT_ID, "text": msg},
                 timeout=3
@@ -61,7 +61,7 @@ def ozet():
     sinyaller = defaultdict(list)
     for log in logs:
         symbol = log.get("symbol", log.get("ticker", ""))
-        signal = log.get("signal", log.get("message", "")).upper()
+        signal = log.get("signal", log.get("message", "")).lower()
         exchange = log.get("exchange", log.get("source", ""))
         sinyaller[symbol].append({"signal": signal, "exchange": exchange})
 
@@ -76,15 +76,14 @@ def ozet():
             signal_text = entry["signal"]
             exchange = entry["exchange"]
 
-            if "KAIRI" in signal_text:
+            if "kairi" in signal_text:
                 try:
-                    val = float(signal_text.split("KAIRI")[1].split()[0])
+                    val = float(signal_text.split("kairi")[1].split()[0])
                     if val <= -20:
                         has_kairi = True
                 except:
                     continue
-
-            if "ALIŞ" in signal_text:
+            if "alış" in signal_text or "alis" in signal_text:
                 has_alis = True
 
         if has_kairi and has_alis:
