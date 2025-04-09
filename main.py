@@ -31,7 +31,6 @@ def receive_signal():
             data = request.get_json()
         else:
             raw = request.data.decode("utf-8")
-            # Düz metni parçalayıp symbol, exchange ve signal çıkartmaya çalış
             match = re.match(r"(.*?) \((.*?)\) - (.*)", raw)
             if match:
                 symbol, exchange, signal = match.groups()
@@ -65,8 +64,8 @@ def telegram_webhook():
     chat_id = message["chat"]["id"]
 
     if text.startswith("/ozet"):
-        exchange_filter = text[6:].strip().lower() if len(text) > 6 else None
-        summary = generate_summary(exchange_filter)
+        keyword = text[6:].strip().lower() if len(text) > 6 else None
+        summary = generate_summary(keyword)
         send_telegram_message(summary)
 
     return "ok", 200
@@ -77,7 +76,7 @@ def parse_signal_line(line):
     except:
         return None
 
-def generate_summary(exchange_filter=None):
+def generate_summary(keyword=None):
     if not os.path.exists(SIGNALS_FILE):
         return "📊 Henüz hiç sinyal kaydedilmedi."
 
@@ -104,8 +103,11 @@ def generate_summary(exchange_filter=None):
         signal = signal_data.get("signal", "")
         key = f"{symbol} ({exchange})"
 
-        if exchange_filter and exchange_filter not in exchange.lower():
-            continue
+        # FREE TEXT FILTER - symbol, exchange, or signal
+        if keyword:
+            combined = f"{symbol} {exchange} {signal}".lower()
+            if keyword not in combined:
+                continue
 
         signal_lower = signal.lower()
 
