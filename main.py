@@ -10,7 +10,6 @@ app = Flask(__name__)
 
 BOT_TOKEN = "7760965138:AAH4ZdrJjnXJ36UWZUh1f0-VWL-FyUBgh54"
 CHAT_ID = "5686330513"
-
 SIGNALS_FILE = "signals.json"
 
 def send_telegram_message(message):
@@ -20,23 +19,44 @@ def send_telegram_message(message):
         "text": message,
         "parse_mode": "Markdown"
     }
-    requests.post(url, json=data)
+    try:
+        requests.post(url, json=data)
+    except Exception as e:
+        print("Telegram'a mesaj gönderilemedi:", e)
 
 @app.route("/signal", methods=["POST"])
 def receive_signal():
-    data = request.json
-    data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(SIGNALS_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(data, ensure_ascii=False) + "\n")
+    try:
+        if request.is_json:
+            data = request.get_json()
+        else:
+            raw = request.data.decode("utf-8")
+            # Düz metni parçalayıp symbol, exchange ve signal çıkartmaya çalış
+            match = re.match(r"(.*?) \((.*?)\) - (.*)", raw)
+            if match:
+                symbol, exchange, signal = match.groups()
+                data = {
+                    "symbol": symbol.strip(),
+                    "exchange": exchange.strip(),
+                    "signal": signal.strip()
+                }
+            else:
+                data = {"symbol": "Bilinmiyor", "exchange": "Bilinmiyor", "signal": raw.strip()}
 
-    symbol = data.get("symbol")
-    exchange = data.get("exchange")
-    signal = data.get("signal")
+        data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(SIGNALS_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(data, ensure_ascii=False) + "\n")
 
-    message = f"📡 Yeni Sinyal Geldi:\n\n*{symbol}* ({exchange})\n📍 _{signal}_"
-    send_telegram_message(message)
+        symbol = data.get("symbol", "Bilinmiyor")
+        exchange = data.get("exchange", "Bilinmiyor")
+        signal = data.get("signal", "Bilinmiyor")
 
-    return "ok", 200
+        message = f"📡 Yeni Sinyal Geldi:\n\n*{symbol}* ({exchange})\n📍 _{signal}_"
+        send_telegram_message(message)
+
+        return "ok", 200
+    except Exception as e:
+        return str(e), 500
 
 @app.route("/telegram", methods=["POST"])
 def telegram_webhook():
