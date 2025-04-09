@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from collections import defaultdict
 
 load_dotenv()
-
 app = Flask(__name__)
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "TOKEN_YOK")
@@ -35,19 +34,15 @@ def signal():
         log_signal(data)
 
         msg = f"🚨 Signal Received!\n📈 {symbol} ({exchange})\n💬 {signal_text}"
-        try:
-            requests.get(
-                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                params={"chat_id": CHAT_ID, "text": msg},
-                timeout=3
-            )
-            print("Telegram message sent.")
-        except Exception:
-            print("Telegram sending error.")
-
+        requests.get(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+            params={"chat_id": CHAT_ID, "text": msg},
+            timeout=3
+        )
+        print("✅ Telegram mesajı gönderildi.")
         return "OK", 200
     except Exception as e:
-        print("General signal error:", e)
+        print("❌ Signal error:", e)
         return "Internal Server Error", 500
 
 @app.route("/ozet", methods=["GET"])
@@ -64,7 +59,7 @@ def ozet():
         signal_raw = str(log.get("signal", log.get("message", "")))
         signal = signal_raw.upper()
         exchange = log.get("exchange", log.get("source", "UNKNOWN")).upper()
-        sinyaller[symbol].append({"signal": signal, "exchange": exchange, "raw": signal_raw})
+        sinyaller[symbol].append({"signal": signal, "exchange": exchange})
 
     güçlü_sinyaller = []
     kairi_30 = []
@@ -77,14 +72,13 @@ def ozet():
     for symbol, entries in sinyaller.items():
         has_kairi = False
         has_alis = False
-        kairi_val = None
         exchange = "UNKNOWN"
 
         for entry in entries:
             signal_text = entry["signal"]
             exchange = entry["exchange"]
 
-            # KAIRI ayırımı
+            # KAIRI kontrolü
             if "KAIRI" in signal_text:
                 try:
                     val = float(signal_text.split("KAIRI")[1].split()[0])
@@ -95,7 +89,7 @@ def ozet():
                     if val <= -20:
                         has_kairi = True
                 except:
-                    continue
+                    pass
 
             if "ALIŞ" in signal_text:
                 has_alis = True
@@ -111,6 +105,7 @@ def ozet():
         if has_kairi and has_alis:
             güçlü_sinyaller.append(f"✅ {symbol} ({exchange})")
 
+    # Mesajın yapısını oluştur
     msg = "📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\n"
     if güçlü_sinyaller:
         msg += "\n".join(güçlü_sinyaller)
@@ -137,26 +132,28 @@ def ozet():
             params={"chat_id": CHAT_ID, "text": msg},
             timeout=3
         )
-    except:
-        print("Telegram gönderim hatası.")
+    except Exception as e:
+        print("❌ Telegram gönderim hatası:", e)
     return "Ozet gönderildi", 200
 
 @app.route("/telegram", methods=["POST"])
 def telegram_update():
     update = request.get_json()
-    print(">>> TELEGRAM POST VERİSİ:", update)
+    print("📩 TELEGRAM POST:", update)
     if update and "message" in update:
         message = update["message"]
-        chat_id = message["chat"]["id"]
         text = message.get("text", "").strip().lower()
-
         if text.startswith("/ozet"):
             try:
                 requests.get("http://localhost:10000/ozet", timeout=3)
-            except Exception:
-                print("Local /ozet çağrısı başarısız oldu.")
+            except:
+                print("❌ /ozet çağrısı başarısız oldu.")
     return "OK", 200
 
 @app.route("/")
 def home():
     return "Webhook aktif", 200
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
