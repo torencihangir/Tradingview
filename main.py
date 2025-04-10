@@ -1,6 +1,6 @@
 
 def send_telegram_message(message):
-    print(">>> Telegram'a gönderilecek mesaj:\n", message)
+    print(">>> Telegram'a gönderilecek mesaj:\n", message, flush=True)
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     data = {
         "chat_id": CHAT_ID,
@@ -8,10 +8,10 @@ def send_telegram_message(message):
         "parse_mode": "Markdown"
     }
     try:
-        r = requests.post(url, json=data)
-        print(">>> Telegram yanıtı:", r.status_code, r.text)
+        r = requests.post(url, json=data, timeout=5)
+        print(">>> Telegram yanıtı:", r.status_code, r.text, flush=True)
     except Exception as e:
-        print("Telegram'a mesaj gönderilemedi:", e)
+        print("Telegram'a mesaj gönderilemedi:", e, flush=True)
 @app.route("/signal", methods=["POST"])
 def receive_signal():
     try:
