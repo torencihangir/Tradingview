@@ -1,4 +1,3 @@
-
 from flask import Flask, request
 import json
 import requests
@@ -107,8 +106,6 @@ def generate_summary(keyword=None):
         signal = signal_data.get("signal", "")
         key = f"{symbol} ({exchange})"
 
-        # FREE TEXT FILTER - symbol, exchange, or signal
-        
         if keyword:
             keyword_map = {
                 "bist": "bist_dly",
@@ -120,7 +117,6 @@ def generate_summary(keyword=None):
             combined = f"{symbol} {exchange} {signal}".lower()
             if keyword not in combined:
                 continue
-
 
         signal_lower = signal.lower()
 
@@ -166,9 +162,6 @@ def generate_summary(keyword=None):
 
     return msg
 
-
-import pytz
-
 def clear_signals_daily():
     already_cleared = False
     while True:
@@ -187,9 +180,7 @@ def clear_signals_daily():
             already_cleared = False
         time.sleep(30)
 
-# Temizlik işini ayrı bir thread olarak başlat
 threading.Thread(target=clear_signals_daily, daemon=True).start()
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
