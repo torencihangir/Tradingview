@@ -1,21 +1,6 @@
 
-from flask import Flask, request
-import json
-import requests
-import os
-import time
-import re
-import threading
-from datetime import datetime
-import pytz
-
-app = Flask(__name__)
-
-BOT_TOKEN = "7760965138:AAEv82WCEfYPt8EJUhGli8n-EdOlsIViHdE"
-CHAT_ID = "5686330513"
-SIGNALS_FILE = "signals.json"
-
 def send_telegram_message(message):
+    print(">>> Telegram'a gönderilecek mesaj:\n", message)
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     data = {
         "chat_id": CHAT_ID,
@@ -23,10 +8,10 @@ def send_telegram_message(message):
         "parse_mode": "Markdown"
     }
     try:
-        requests.post(url, json=data)
+        r = requests.post(url, json=data)
+        print(">>> Telegram yanıtı:", r.status_code, r.text)
     except Exception as e:
         print("Telegram'a mesaj gönderilemedi:", e)
-
 @app.route("/signal", methods=["POST"])
 def receive_signal():
     try:
