@@ -5,6 +5,7 @@ import requests
 import os
 import re
 from datetime import datetime
+import pytz
 
 app = Flask(__name__)
 
@@ -46,11 +47,12 @@ def receive_signal():
         with open(SIGNALS_FILE, "a", encoding="utf-8") as f:
             f.write(json.dumps(data, ensure_ascii=False) + "\n")
 
-        symbol = data.get("symbol", "Bilinmiyor")
-        exchange = data.get("exchange", "Bilinmiyor")
-        signal = data.get("signal", "Bilinmiyor")
+        symbol = data.get("symbol") or "Bilinmiyor"
+        exchange = data.get("exchange") or "Bilinmiyor"
+        signal = data.get("signal") or "Bilinmiyor"
 
-        message = f"📡 Yeni Sinyal Geldi:\n\n*{symbol}* ({exchange})\n📍 _{signal}_"
+        exchange_display = exchange.replace("BIST_DLY", "BIST").replace("BATS", "NASDAQ")
+        message = f"📡 Yeni Sinyal Geldi:\n\n*{symbol}* ({exchange_display})\n📍 _{signal}_"
         send_telegram_message(message)
 
         return "ok", 200
@@ -65,7 +67,7 @@ def telegram_webhook():
 
     if text.startswith("/ozet"):
         keyword = text[6:].strip().lower() if len(text) > 6 else None
-        summary = generate_summary(keyword)
+        summary = generate_summary(keyword if keyword else "")
         send_telegram_message(summary)
 
     return "ok", 200
@@ -105,6 +107,13 @@ def generate_summary(keyword=None):
 
         # FREE TEXT FILTER - symbol, exchange, or signal
         if keyword:
+        keyword_map = {
+            "bist": "bist_dly",
+            "nasdaq": "bats"
+        }
+        mapped = keyword_map.get(keyword, keyword)
+        keyword = mapped
+    
             combined = f"{symbol} {exchange} {signal}".lower()
             if keyword not in combined:
                 continue
@@ -152,6 +161,31 @@ def generate_summary(keyword=None):
     msg += "\n\n🟤 Matisay Fib0:\n" + ("\n".join(summary["matisay"]) or "Yok")
 
     return msg
+
+
+import pytz
+
+def clear_signals_daily():
+    already_cleared = False
+    while True:
+        now = datetime.now(pytz.timezone("Europe/Istanbul"))
+        if now.hour == 23 and now.minute == 59:
+            if not already_cleared:
+                try:
+                    if os.path.exists(SIGNALS_FILE):
+                        with open(SIGNALS_FILE, "w", encoding="utf-8") as f:
+                            f.write("")
+                        print("📁 signals.json dosyası temizlendi (Türkiye saatiyle 23:59)")
+                    already_cleared = True
+                except Exception as e:
+                    print("signals.json temizlenirken hata:", e)
+        else:
+            already_cleared = False
+        time.sleep(30)
+
+# Temizlik işini ayrı bir thread olarak başlat
+threading.Thread(target=clear_signals_daily, daemon=True).start()
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
