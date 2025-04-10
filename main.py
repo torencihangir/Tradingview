@@ -106,17 +106,19 @@ def generate_summary(keyword=None):
         key = f"{symbol} ({exchange})"
 
         # FREE TEXT FILTER - symbol, exchange, or signal
+        
         if keyword:
-        keyword_map = {
-            "bist": "bist_dly",
-            "nasdaq": "bats"
-        }
-        mapped = keyword_map.get(keyword, keyword)
-        keyword = mapped
-    
+            keyword_map = {
+                "bist": "bist_dly",
+                "nasdaq": "bats"
+            }
+            mapped = keyword_map.get(keyword, keyword)
+            keyword = mapped
+
             combined = f"{symbol} {exchange} {signal}".lower()
             if keyword not in combined:
                 continue
+
 
         signal_lower = signal.lower()
 
