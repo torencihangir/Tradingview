@@ -16,8 +16,7 @@ CHAT_ID = "5686330513"
 SIGNALS_FILE = "signals.json"
 
 def send_telegram_message(message):
-    print(">>> Telegram'a gönderilecek mesaj:
-", message, flush=True)
+print(">>> Telegram'a gönderilecek mesaj:", message, flush=True)
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     data = {
         "chat_id": CHAT_ID,
