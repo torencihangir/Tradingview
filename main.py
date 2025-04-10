@@ -10,7 +10,7 @@ import pytz
 
 app = Flask(__name__)
 
-BOT_TOKEN = "7760965138:AAH4ZdrJjnXJ36UWZUh1f0-VWL-FyUBgh54"
+BOT_TOKEN = "7760965138:AAEv82WCEfYPt8EJUhGli8n-EdOlsIViHdE"
 CHAT_ID = "5686330513"
 SIGNALS_FILE = "signals.json"
 
