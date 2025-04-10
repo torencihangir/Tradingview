@@ -1,3 +1,4 @@
+
 from flask import Flask, request
 import json
 import requests
@@ -29,6 +30,7 @@ def send_telegram_message(message):
 @app.route("/signal", methods=["POST"])
 def receive_signal():
     try:
+        print(">>> /signal endpoint tetiklendi")
         if request.is_json:
             data = request.get_json()
         else:
@@ -62,17 +64,20 @@ def receive_signal():
 
 @app.route("/telegram", methods=["POST"])
 def telegram_webhook():
-    message = request.json["message"]
+    print(">>> /telegram endpoint tetiklendi")
+    message = request.json.get("message", {})
     text = message.get("text", "")
-    chat_id = message["chat"]["id"]
+    chat_id = message.get("chat", {}).get("id", "")
 
     if text.startswith("/ozet"):
+        print(">>> /ozet komutu alındı")
         keyword = text[6:].strip().lower() if len(text) > 6 else None
         summary = generate_summary(keyword if keyword else "")
         send_telegram_message(summary)
 
     return "ok", 200
 
+# --- aşağıdaki fonksiyonlar değişmeden aynı şekilde devam eder ---
 def parse_signal_line(line):
     try:
         return json.loads(line)
