@@ -7,16 +7,12 @@ import re
 import threading
 from datetime import datetime
 import pytz
-from threading import Lock
 
 app = Flask(__name__)
 
 BOT_TOKEN = "7760965138:AAEv82WCEfYPt8EJUhGli8n-EdOlsIViHdE"
 CHAT_ID = "5686330513"
-SIGNALS_FILE = r"C:\Users\Administrator\Desktop\tradingview-telegram-bot\signals.json"
-
-# Kilit, dosya erişim çakışmalarını önlemek için kullanılıyor
-lock = Lock()
+SIGNALS_FILE = "signals.json"
 
 def send_telegram_message(message):
     # Mesajı 4096 karakterlik parçalara böl
@@ -87,23 +83,105 @@ def telegram_webhook():
 @app.route("/clear_signals", methods=["POST"])
 def clear_signals_endpoint():
     try:
-        print(">>> /clear_signals endpoint tetiklendi")
-        print(f"Headers: {request.headers}")  # Debug headers
-        print(f"Data: {request.data}")  # Debug data
         clear_signals()
         return "Sinyaller başarıyla temizlendi!", 200
     except Exception as e:
-        print(f"Hata: {e}")
         return f"Hata: {e}", 500
 
+def parse_signal_line(line):
+    try:
+        return json.loads(line)
+    except:
+        return None
+
+def generate_summary(keyword=None):
+    if not os.path.exists(SIGNALS_FILE):
+        return "📊 Henüz hiç sinyal kaydedilmedi."
+
+    with open(SIGNALS_FILE, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    summary = {
+        "güçlü": set(),
+        "kairi_-30": set(),
+        "kairi_-20": set(),
+        "mükemmel_alış": set(),
+        "alış_sayımı": set(),
+        "mükemmel_satış": set(),
+        "satış_sayımı": set(),
+        "matisay": set()
+    }
+
+    parsed_lines = [parse_signal_line(line) for line in lines]
+    parsed_lines = [s for s in parsed_lines if s]
+
+    for signal_data in parsed_lines:
+        symbol = signal_data.get("symbol", "")
+        exchange = signal_data.get("exchange", "")
+        signal = signal_data.get("signal", "")
+        key = f"{symbol} ({exchange})"
+
+        if keyword:
+            keyword_map = {
+                "bist": "bist_dly",
+                "nasdaq": "bats"
+            }
+            mapped = keyword_map.get(keyword, keyword)
+            keyword = mapped
+
+            combined = f"{symbol} {exchange} {signal}".lower()
+            if keyword not in combined:
+                continue
+
+        signal_lower = signal.lower()
+
+        if "kairi" in signal_lower:
+            try:
+                kairi_value = round(float(re.findall(r"[-+]?[0-9]*\.?[0-9]+", signal_lower)[0]), 2)
+                if kairi_value <= -30:
+                    summary["kairi_-30"].add(f"{key}: KAIRI {kairi_value}")
+                elif kairi_value <= -20:
+                    summary["kairi_-20"].add(f"{key}: KAIRI {kairi_value}")
+
+                for other in parsed_lines:
+                    if (
+                        other.get("symbol") == symbol and
+                        re.search(r"(mükemmel alış|alış sayımı)", other.get("signal", ""), re.IGNORECASE)
+                    ):
+                        summary["güçlü"].add(f"✅ {key} - KAIRI: {kairi_value} ve Alış sinyali birlikte geldi")
+                        break
+            except:
+                continue
+
+        elif re.search(r"mükemmel alış", signal, re.IGNORECASE):
+            summary["mükemmel_alış"].add(key)
+        elif re.search(r"alış sayımı", signal, re.IGNORECASE):
+            summary["alış_sayımı"].add(key)
+        elif re.search(r"mükemmel satış", signal, re.IGNORECASE):
+            summary["mükemmel_satış"].add(key)
+        elif re.search(r"satış sayımı", signal, re.IGNORECASE):
+            summary["satış_sayımı"].add(key)
+        elif "fib0" in signal_lower:
+            summary["matisay"].add(key)
+
+    msg = "📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\n\n"
+    msg += "\n".join(summary["güçlü"]) or "Yok"
+
+    msg += "\n\n🔴 KAIRI ≤ -30:\n" + ("\n".join(summary["kairi_-30"]) or "Yok")
+    msg += "\n\n🟠 KAIRI ≤ -20:\n" + ("\n".join(summary["kairi_-20"]) or "Yok")
+    msg += "\n\n🟢 Mükemmel Alış:\n" + ("\n".join(summary["mükemmel_alış"]) or "Yok")
+    msg += "\n\n📈 Alış Sayımı Tamamlananlar:\n" + ("\n".join(summary["alış_sayımı"]) or "Yok")
+    msg += "\n\n🔵 Mükemmel Satış:\n" + ("\n".join(summary["mükemmel_satış"]) or "Yok")
+    msg += "\n\n📉 Satış Sayımı Tamamlananlar:\n" + ("\n".join(summary["satış_sayımı"]) or "Yok")
+    msg += "\n\n🟤 Matisay Fib0:\n" + ("\n".join(summary["matisay"]) or "Yok")
+
+    return msg
+
 def clear_signals():
-    with lock:  # Kilit kullanımı
-        if os.path.exists(SIGNALS_FILE):
-            with open(SIGNALS_FILE, "w", encoding="utf-8") as f:
-                f.write("")
-            print("📁 signals.json dosyası temizlendi!")
-        else:
-            print("📁 signals.json dosyası bulunamadı!")
+    if os.path.exists(SIGNALS_FILE):
+        with open(SIGNALS_FILE, "w", encoding="utf-8") as f:
+            f.write("")
+        print("📁 signals.json dosyası temizlendi!")
 
 def clear_signals_daily():
     already_cleared = False
