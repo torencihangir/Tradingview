@@ -8,7 +8,7 @@ import threading
 from datetime import datetime
 import pytz
 from threading import Lock
-from flask-wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
 csrf = CSRFProtect(app)
