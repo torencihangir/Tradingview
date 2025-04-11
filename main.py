@@ -75,7 +75,14 @@ def telegram_webhook():
     if text.startswith("/ozet"):
         print(">>> /ozet komutu alındı")
         keyword = text[6:].strip().lower() if len(text) > 6 else None
-        summary = generate_summary(keyword if keyword else "")
+
+        # Anahtar kelime kontrolü ekliyoruz
+        if keyword in ["bats", "nasdaq", "bist_dly"]:
+            print(f">>> /ozet komutu için anahtar kelime: {keyword}")
+            summary = generate_summary(keyword)
+        else:
+            summary = generate_summary()  # Varsayılan tüm sinyaller için özet
+
         send_telegram_message(summary)
 
     return "ok", 200
