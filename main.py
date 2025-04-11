@@ -1,4 +1,3 @@
-
 from flask import Flask, request
 import json
 import requests
@@ -16,18 +15,20 @@ CHAT_ID = "5686330513"
 SIGNALS_FILE = "signals.json"
 
 def send_telegram_message(message):
-    print(">>> Telegram'a gönderilecek mesaj:", message, flush=True)
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    data = {
-        "chat_id": CHAT_ID,
-        "text": message,
-        "parse_mode": "Markdown"
-    }
-    try:
-        r = requests.post(url, json=data, timeout=5)
-        print(">>> Telegram yanıtı:", r.status_code, r.text, flush=True)
-    except Exception as e:
-        print("Telegram'a mesaj gönderilemedi:", e, flush=True)
+    # Mesajı 4096 karakterlik parçalara böl
+    for i in range(0, len(message), 4096):
+        chunk = message[i:i+4096]
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+        data = {
+            "chat_id": CHAT_ID,
+            "text": chunk,
+            "parse_mode": "Markdown"
+        }
+        try:
+            r = requests.post(url, json=data, timeout=5)
+            print(">>> Telegram yanıtı:", r.status_code, r.text, flush=True)
+        except Exception as e:
+            print("Telegram'a mesaj gönderilemedi:", e, flush=True)
 
 @app.route("/signal", methods=["POST"])
 def receive_signal():
@@ -79,6 +80,14 @@ def telegram_webhook():
 
     return "ok", 200
 
+@app.route("/clear_signals", methods=["POST"])
+def clear_signals_endpoint():
+    try:
+        clear_signals()
+        return "Sinyaller başarıyla temizlendi!", 200
+    except Exception as e:
+        return f"Hata: {e}", 500
+
 def parse_signal_line(line):
     try:
         return json.loads(line)
@@ -128,11 +137,11 @@ def generate_summary(keyword=None):
 
         if "kairi" in signal_lower:
             try:
-                kairi_value = float(re.findall(r"[-+]?[0-9]*\.?[0-9]+", signal_lower)[0])
+                kairi_value = round(float(re.findall(r"[-+]?[0-9]*\.?[0-9]+", signal_lower)[0]), 2)
                 if kairi_value <= -30:
-                    summary["kairi_-30"].add(f"{key}: {kairi_value}")
+                    summary["kairi_-30"].add(f"{key}: KAIRI {kairi_value}")
                 elif kairi_value <= -20:
-                    summary["kairi_-20"].add(f"{key}: {kairi_value}")
+                    summary["kairi_-20"].add(f"{key}: KAIRI {kairi_value}")
 
                 for other in parsed_lines:
                     if (
@@ -168,6 +177,12 @@ def generate_summary(keyword=None):
 
     return msg
 
+def clear_signals():
+    if os.path.exists(SIGNALS_FILE):
+        with open(SIGNALS_FILE, "w", encoding="utf-8") as f:
+            f.write("")
+        print("📁 signals.json dosyası temizlendi!")
+
 def clear_signals_daily():
     already_cleared = False
     while True:
@@ -175,10 +190,7 @@ def clear_signals_daily():
         if now.hour == 23 and now.minute == 59:
             if not already_cleared:
                 try:
-                    if os.path.exists(SIGNALS_FILE):
-                        with open(SIGNALS_FILE, "w", encoding="utf-8") as f:
-                            f.write("")
-                        print("📁 signals.json dosyası temizlendi (Türkiye saatiyle 23:59)")
+                    clear_signals()
                     already_cleared = True
                 except Exception as e:
                     print("signals.json temizlenirken hata:", e)
