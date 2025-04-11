@@ -7,11 +7,16 @@ import re
 import threading
 from datetime import datetime
 import pytz
+from dotenv import load_dotenv
+
+# .env dosyasını yükle
+load_dotenv()
 
 app = Flask(__name__)
 
-BOT_TOKEN = "7760965138:AAEv82WCEfYPt8EJUhGli8n-EdOlsIViHdE"
-CHAT_ID = "5686330513"
+# .env dosyasından değerleri al
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 SIGNALS_FILE = "signals.json"
 
 def escape_markdown(text):
