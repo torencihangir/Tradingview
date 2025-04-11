@@ -74,8 +74,11 @@ def telegram_webhook():
 
     if text.startswith("/ozet"):
         print(">>> /ozet komutu alındı")
-        keyword = text[6:].strip().lower() if len(text) > 6 else None
-        summary = generate_summary(keyword if keyword else "")
+        free_text = text[6:].strip()  # Kullanıcıdan gelen serbest metni al
+        if not free_text:  # Eğer boşsa tüm sinyallerin özetini gönder
+            summary = generate_summary()  # Anahtar kelime olmadan genel özet oluştur
+        else:
+            summary = generate_summary(free_text)  # Free text'i generate_summary'e aktar
         send_telegram_message(summary)
 
     return "ok", 200
