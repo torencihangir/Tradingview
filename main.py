@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 BOT_TOKEN = "7760965138:AAEv82WCEfYPt8EJUhGli8n-EdOlsIViHdE"
 CHAT_ID = "5686330513"
-SIGNALS_FILE = "signals.json"
+SIGNALS_FILE = r"C:\Users\Administrator\Desktop\tradingview-telegram-bot\signals.json"
 
 def send_telegram_message(message):
     # Mesajı 4096 karakterlik parçalara böl
