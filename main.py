@@ -15,7 +15,8 @@ CHAT_ID = "5686330513"
 SIGNALS_FILE = "signals.json"
 
 def escape_markdown(text):
-    escape_chars = r"*_[]()~`>#+-=|{}.!\\"
+    # Sadece özel karakterlerden bazılarını kaçır
+    escape_chars = r"*_[~`>|{}"
     return re.sub(r"([{}])".format(re.escape(escape_chars)), r"\\\1", text)
 
 def send_telegram_message(message):
