@@ -8,10 +8,8 @@ import threading
 from datetime import datetime
 import pytz
 from threading import Lock
-from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
-csrf = CSRFProtect(app)
 
 BOT_TOKEN = "7760965138:AAEv82WCEfYPt8EJUhGli8n-EdOlsIViHdE"
 CHAT_ID = "5686330513"
@@ -87,7 +85,6 @@ def telegram_webhook():
     return "ok", 200
 
 @app.route("/clear_signals", methods=["POST"])
-@csrf.exempt  # CSRF korumasını devre dışı bırak
 def clear_signals_endpoint():
     try:
         print(">>> /clear_signals endpoint tetiklendi")
