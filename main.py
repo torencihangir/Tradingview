@@ -77,6 +77,14 @@ def telegram_webhook():
         keyword = text[6:].strip().lower() if len(text) > 6 else None
         summary = generate_summary(keyword if keyword else "")
         send_telegram_message(summary)
+    
+    elif text.startswith("/clear_signals"):
+        print(">>> /clear_signals komutu alındı")
+        try:
+            clear_signals()
+            send_telegram_message("📁 Sinyaller başarıyla temizlendi!")
+        except Exception as e:
+            send_telegram_message(f"Hata: {e}")
 
     return "ok", 200
 
