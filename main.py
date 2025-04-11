@@ -77,7 +77,7 @@ def telegram_webhook():
         keyword = text[6:].strip().lower() if len(text) > 6 else None
 
         # Anahtar kelime kontrolü ekliyoruz
-        if keyword in ["bats", "nasdaq", "bist_dly"]:
+        if keyword in ["bats", "nasdaq", "bist_dly", "binance"]:
             print(f">>> /ozet komutu için anahtar kelime: {keyword}")
             summary = generate_summary(keyword)
         else:
@@ -122,23 +122,23 @@ def generate_summary(keyword=None):
     parsed_lines = [parse_signal_line(line) for line in lines]
     parsed_lines = [s for s in parsed_lines if s]
 
+    # Anahtar kelimelere göre filtreleme yap
+    keyword_map = {
+        "bist": "bist_dly",
+        "nasdaq": "bats",
+        "binance": "binance"
+    }
+    if keyword:
+        keyword_mapped = keyword_map.get(keyword.lower(), keyword.lower())
+        parsed_lines = [
+            s for s in parsed_lines if keyword_mapped in s.get("exchange", "").lower()
+        ]
+
     for signal_data in parsed_lines:
         symbol = signal_data.get("symbol", "")
         exchange = signal_data.get("exchange", "")
         signal = signal_data.get("signal", "")
         key = f"{symbol} ({exchange})"
-
-        if keyword:
-            keyword_map = {
-                "bist": "bist_dly",
-                "nasdaq": "bats"
-            }
-            mapped = keyword_map.get(keyword, keyword)
-            keyword = mapped
-
-            combined = f"{symbol} {exchange} {signal}".lower()
-            if keyword not in combined:
-                continue
 
         signal_lower = signal.lower()
 
@@ -208,4 +208,4 @@ def clear_signals_daily():
 threading.Thread(target=clear_signals_daily, daemon=True).start()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)  # Port 5000 açık olacak şekilde
+    app.run(host="0.0.0.0", port=5000)
