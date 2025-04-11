@@ -14,10 +14,17 @@ BOT_TOKEN = "7760965138:AAEv82WCEfYPt8EJUhGli8n-EdOlsIViHdE"
 CHAT_ID = "5686330513"
 SIGNALS_FILE = "signals.json"
 
+def escape_markdown(text):
+    escape_chars = r"*_[]()~`>#+-=|{}.!\\"
+    return re.sub(r"([{}])".format(re.escape(escape_chars)), r"\\\1", text)
+
 def send_telegram_message(message):
+    # Mesajı Markdown formatına uygun şekilde kaçar
+    escaped_message = escape_markdown(message)
+
     # Mesajı 4096 karakterlik parçalara böl
-    for i in range(0, len(message), 4096):
-        chunk = message[i:i+4096]
+    for i in range(0, len(escaped_message), 4096):
+        chunk = escaped_message[i:i+4096]
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
         data = {
             "chat_id": CHAT_ID,
