@@ -1461,5 +1461,20 @@
       "🔮 *EPS next Y (15.75)* → Güzel → +3"
     ],
     "yorum": "ZS için analiz tamamlandı. Toplam puan: -4."
+  },
+  "BLBD": {
+    "puan": 38,
+    "detaylar": [
+      "📈 P/E oranı 10.58 → Uygun seviyede.",
+      "📉 Forward P/E oranı 7.81 → İyi seviyede.",
+      "🧠 PEG oranı 1.23 → Makul büyüme/fiyat oranı.",
+      "📊 ROE oranı 84.71% → Güçlü öz sermaye kârlılığı.",
+      "💰 Kâr marjı 8.05% → Ortalama düzeyde.",
+      "💸 Debt/Eq oranı 0.52 → Düşük borç seviyesi.",
+      "🚨 Quick Ratio 0.73 → Zayıf kısa vadeli likidite.",
+      "📈 Bu yıl EPS artışı 14.08% → Pozitif performans.",
+      "🔮 Gelecek yıl EPS büyümesi 10.84% → Güzel büyüme beklentisi."
+    ],
+    "yorum": "BLBD için analiz tamamlandı. Toplam puan: 38."
   }
 }
