@@ -101,9 +101,10 @@ def telegram_webhook():
 
     elif text.startswith("/analiz"):
         print(">>> /analiz komutu alındı")
-        tickers = text[8:].strip().split()  # Hisse kodlarını ayır
+        tickers_input = text[8:].strip()
+        tickers = [ticker.strip() for ticker in tickers_input.split(",")]
         if not tickers:
-            send_telegram_message("Lütfen bir veya daha fazla hisse kodu belirtin. Örnek: /analiz AAPL MSFT")
+            send_telegram_message("Lütfen bir veya daha fazla hisse kodu belirtin. Örnek: /analiz AAPL,MSFT,AMD")
         else:
             response = generate_analiz_response(tickers)
             send_telegram_message(response)
@@ -129,18 +130,37 @@ def load_analiz_json():
 
 def generate_analiz_response(tickers):
     analiz_data = load_analiz_json()
-    response = ""
+    response = []
+    not_found = []
 
     for ticker in tickers:
         ticker = ticker.upper()
         if ticker in analiz_data:
             data = analiz_data[ticker]
             detaylar = "\n".join(data["detaylar"])
-            response += f"📊 {ticker} için temel analiz:\n\n{detaylar}\n\n{data['yorum']}\n\n"
+            response.append({
+                "ticker": ticker,
+                "puan": data["puan"],
+                "detaylar": detaylar,
+                "yorum": data["yorum"]
+            })
         else:
-            response += f"❌ {ticker} için analiz bulunamadı.\n\n"
+            not_found.append(ticker)
 
-    return response.strip()
+    # Puanlara göre azalan sırada sıralama
+    response = sorted(response, key=lambda x: x["puan"], reverse=True)
+
+    # Yanıt mesajını oluştur
+    result_message = "📊 Hisse Analizleri (En Yüksek Puanlıdan Başlayarak):\n\n"
+    for idx, item in enumerate(response, 1):
+        result_message += f"{idx}. *{item['ticker']}* - Puan: {item['puan']}\n"
+        result_message += f"{item['detaylar']}\n\n"
+        result_message += f"💬 {item['yorum']}\n\n"
+
+    if not_found:
+        result_message += "❌ Analiz bulunamayan hisseler: " + ", ".join(not_found) + "\n"
+
+    return result_message.strip()
 
 def generate_summary(keyword=None):
     if not os.path.exists(SIGNALS_FILE):
