@@ -18,6 +18,7 @@ app = Flask(__name__)
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 SIGNALS_FILE = "signals.json"
+ANALIZ_FILE = "analiz.json"
 
 def escape_markdown(text):
     # Sadece özel karakterlerden bazılarını kaçır
@@ -98,21 +99,48 @@ def telegram_webhook():
 
         send_telegram_message(summary)
 
-    return "ok", 200
+    elif text.startswith("/analiz"):
+        print(">>> /analiz komutu alındı")
+        tickers = text[8:].strip().split()  # Hisse kodlarını ayır
+        if not tickers:
+            send_telegram_message("Lütfen bir veya daha fazla hisse kodu belirtin. Örnek: /analiz AAPL MSFT")
+        else:
+            response = generate_analiz_response(tickers)
+            send_telegram_message(response)
 
-@app.route("/clear_signals", methods=["POST"])
-def clear_signals_endpoint():
-    try:
-        clear_signals()
-        return "Sinyaller başarıyla temizlendi!", 200
-    except Exception as e:
-        return f"Hata: {e}", 500
+    return "ok", 200
 
 def parse_signal_line(line):
     try:
         return json.loads(line)
     except:
         return None
+
+def load_analiz_json():
+    try:
+        with open(ANALIZ_FILE, "r", encoding="utf-8") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        print("analiz.json dosyası bulunamadı.")
+        return {}
+    except json.JSONDecodeError:
+        print("analiz.json dosyası geçerli bir JSON formatında değil.")
+        return {}
+
+def generate_analiz_response(tickers):
+    analiz_data = load_analiz_json()
+    response = ""
+
+    for ticker in tickers:
+        ticker = ticker.upper()
+        if ticker in analiz_data:
+            data = analiz_data[ticker]
+            detaylar = "\n".join(data["detaylar"])
+            response += f"📊 {ticker} için temel analiz:\n\n{detaylar}\n\n{data['yorum']}\n\n"
+        else:
+            response += f"❌ {ticker} için analiz bulunamadı.\n\n"
+
+    return response.strip()
 
 def generate_summary(keyword=None):
     if not os.path.exists(SIGNALS_FILE):
