@@ -1,0 +1,1465 @@
+{
+  "AAPL": {
+    "puan": 5,
+    "detaylar": [
+      "📈 *P/E (31.5)* → Pahalı → -5",
+      "📉 *Forward P/E (24.63)* → Yüksek → -3",
+      "🧠 *PEG (3.4)* → Pahalı → -3",
+      "📊 *ROE (136.52)* → Güçlü → +10",
+      "💰 *Profit Margin (24.3)* → Yüksek → +6",
+      "💸 *Debt/Eq (1.45)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.88)* → Zayıf → -2",
+      "📈 *EPS this Y (7.73)* → Pozitif → +3",
+      "🔮 *EPS next Y (10.63)* → Güzel → +3"
+    ],
+    "yorum": "AAPL için analiz tamamlandı. Toplam puan: 5."
+  },
+  "ABNB": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (27.7)* → Pahalı → -5",
+      "📉 *Forward P/E (22.84)* → Yüksek → -3",
+      "🧠 *PEG (2.02)* → Pahalı → -3",
+      "📊 *ROE (31.95)* → Güçlü → +10",
+      "💰 *Profit Margin (23.85)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.27)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.69)* → Sağlam → +2",
+      "📈 *EPS this Y (5.7)* → Pozitif → +3",
+      "🔮 *EPS next Y (15.43)* → Güzel → +3"
+    ],
+    "yorum": "ABNB için analiz tamamlandı. Toplam puan: 17."
+  },
+  "ADBE": {
+    "puan": 35,
+    "detaylar": [
+      "📈 *P/E (23.21)* → Uygun → +5",
+      "📉 *Forward P/E (15.42)* → İyi → +5",
+      "🧠 *PEG (2.03)* → Pahalı → -3",
+      "📊 *ROE (47.28)* → Güçlü → +10",
+      "💰 *Profit Margin (30.63)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.5)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.18)* → Sağlam → +2",
+      "📈 *EPS this Y (10.65)* → Pozitif → +3",
+      "🔮 *EPS next Y (12.15)* → Güzel → +3"
+    ],
+    "yorum": "ADBE için analiz tamamlandı. Toplam puan: 35."
+  },
+  "ADI": {
+    "puan": 11,
+    "detaylar": [
+      "📈 *P/E (57.13)* → Pahalı → -5",
+      "📉 *Forward P/E (20.45)* → İyi → +5",
+      "🧠 *PEG (3.34)* → Pahalı → -3",
+      "📊 *ROE (4.43)* → Zayıf → -4",
+      "💰 *Profit Margin (16.75)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.22)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.43)* → Sağlam → +2",
+      "📈 *EPS this Y (12.29)* → Pozitif → +3",
+      "🔮 *EPS next Y (22.31)* → Güzel → +3"
+    ],
+    "yorum": "ADI için analiz tamamlandı. Toplam puan: 11."
+  },
+  "ADP": {
+    "puan": 4,
+    "detaylar": [
+      "📈 *P/E (31.25)* → Pahalı → -5",
+      "📉 *Forward P/E (27.53)* → Yüksek → -3",
+      "🧠 *PEG (3.45)* → Pahalı → -3",
+      "📊 *ROE (83.72)* → Güçlü → +10",
+      "💰 *Profit Margin (19.76)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.86)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (1.0)* → Sağlam → +2",
+      "📈 *EPS this Y (8.34)* → Pozitif → +3",
+      "🔮 *EPS next Y (9.39)* → Zayıf → -2"
+    ],
+    "yorum": "ADP için analiz tamamlandı. Toplam puan: 4."
+  },
+  "ADSK": {
+    "puan": 5,
+    "detaylar": [
+      "📈 *P/E (50.44)* → Pahalı → -5",
+      "📉 *Forward P/E (23.67)* → Yüksek → -3",
+      "🧠 *PEG (3.64)* → Pahalı → -3",
+      "📊 *ROE (49.69)* → Güçlü → +10",
+      "💰 *Profit Margin (18.19)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.98)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.68)* → Zayıf → -2",
+      "📈 *EPS this Y (12.49)* → Pozitif → +3",
+      "🔮 *EPS next Y (14.58)* → Güzel → +3"
+    ],
+    "yorum": "ADSK için analiz tamamlandı. Toplam puan: 5."
+  },
+  "AEP": {
+    "puan": -11,
+    "detaylar": [
+      "📈 *P/E (18.73)* → Uygun → +5",
+      "📉 *Forward P/E (16.62)* → İyi → +5",
+      "🧠 *PEG (3.0)* → Pahalı → -3",
+      "📊 *ROE (11.37)* → Zayıf → -4",
+      "💰 *Profit Margin (14.9)* → Düşük → -3",
+      "💸 *Debt/Eq (1.7)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.31)* → Zayıf → -2",
+      "📈 *EPS this Y (4.66)* → Negatif → -3",
+      "🔮 *EPS next Y (7.03)* → Zayıf → -2"
+    ],
+    "yorum": "AEP için analiz tamamlandı. Toplam puan: -11."
+  },
+  "AMAT": {
+    "puan": 30,
+    "detaylar": [
+      "📈 *P/E (18.96)* → Uygun → +5",
+      "📉 *Forward P/E (14.42)* → İyi → +5",
+      "🧠 *PEG (2.33)* → Pahalı → -3",
+      "📊 *ROE (35.19)* → Güçlü → +10",
+      "💰 *Profit Margin (22.97)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.35)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.96)* → Sağlam → +2",
+      "📈 *EPS this Y (8.05)* → Pozitif → +3",
+      "🔮 *EPS next Y (7.51)* → Zayıf → -2"
+    ],
+    "yorum": "AMAT için analiz tamamlandı. Toplam puan: 30."
+  },
+  "AMD": {
+    "puan": 2,
+    "detaylar": [
+      "📈 *P/E (93.1)* → Pahalı → -5",
+      "📉 *Forward P/E (15.03)* → İyi → +5",
+      "🧠 *PEG (2.82)* → Pahalı → -3",
+      "📊 *ROE (2.89)* → Zayıf → -4",
+      "💰 *Profit Margin (6.36)* → Düşük → -3",
+      "💸 *Debt/Eq (0.04)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.83)* → Sağlam → +2",
+      "📈 *EPS this Y (40.47)* → Pozitif → +3",
+      "🔮 *EPS next Y (33.62)* → Güzel → +3"
+    ],
+    "yorum": "AMD için analiz tamamlandı. Toplam puan: 2."
+  },
+  "AMGN": {
+    "puan": -7,
+    "detaylar": [
+      "📈 *P/E (37.9)* → Pahalı → -5",
+      "📉 *Forward P/E (13.26)* → İyi → +5",
+      "🧠 *PEG (9.04)* → Pahalı → -3",
+      "📊 *ROE (67.55)* → Güçlü → +10",
+      "💰 *Profit Margin (12.31)* → Düşük → -3",
+      "💸 *Debt/Eq (10.36)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.95)* → Zayıf → -2",
+      "📈 *EPS this Y (4.16)* → Negatif → -3",
+      "🔮 *EPS next Y (4.4)* → Zayıf → -2"
+    ],
+    "yorum": "AMGN için analiz tamamlandı. Toplam puan: -7."
+  },
+  "AMZN": {
+    "puan": 10,
+    "detaylar": [
+      "📈 *P/E (33.48)* → Pahalı → -5",
+      "📉 *Forward P/E (24.44)* → Yüksek → -3",
+      "🧠 *PEG (1.73)* → Makul → +3",
+      "📊 *ROE (24.29)* → Güçlü → +10",
+      "💰 *Profit Margin (9.29)* → Düşük → -3",
+      "💸 *Debt/Eq (0.52)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.87)* → Zayıf → -2",
+      "📈 *EPS this Y (14.08)* → Pozitif → +3",
+      "🔮 *EPS next Y (19.91)* → Güzel → +3"
+    ],
+    "yorum": "AMZN için analiz tamamlandı. Toplam puan: 10."
+  },
+  "ANSS": {
+    "puan": -3,
+    "detaylar": [
+      "📈 *P/E (45.28)* → Pahalı → -5",
+      "📉 *Forward P/E (22.96)* → Yüksek → -3",
+      "🧠 *PEG (6.25)* → Pahalı → -3",
+      "📊 *ROE (10.03)* → Zayıf → -4",
+      "💰 *Profit Margin (22.62)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.14)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (3.01)* → Sağlam → +2",
+      "📈 *EPS this Y (4.85)* → Negatif → -3",
+      "🔮 *EPS next Y (12.79)* → Güzel → +3"
+    ],
+    "yorum": "ANSS için analiz tamamlandı. Toplam puan: -3."
+  },
+  "APP": {
+    "puan": 15,
+    "detaylar": [
+      "📈 *P/E (55.05)* → Pahalı → -5",
+      "📉 *Forward P/E (25.68)* → Yüksek → -3",
+      "🧠 *PEG (1.4)* → Makul → +3",
+      "📊 *ROE (134.52)* → Güçlü → +10",
+      "💰 *Profit Margin (33.51)* → Yüksek → +6",
+      "💸 *Debt/Eq (3.26)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (2.19)* → Sağlam → +2",
+      "📈 *EPS this Y (44.58)* → Pozitif → +3",
+      "🔮 *EPS next Y (48.59)* → Güzel → +3"
+    ],
+    "yorum": "APP için analiz tamamlandı. Toplam puan: 15."
+  },
+  "ARM": {
+    "puan": 3,
+    "detaylar": [
+      "📈 *P/E (137.21)* → Pahalı → -5",
+      "📉 *Forward P/E (51.08)* → Yüksek → -3",
+      "🧠 *PEG (4.97)* → Pahalı → -3",
+      "📊 *ROE (14.11)* → Zayıf → -4",
+      "💰 *Profit Margin (21.82)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.04)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (4.96)* → Sağlam → +2",
+      "📈 *EPS this Y (27.22)* → Pozitif → +3",
+      "🔮 *EPS next Y (26.01)* → Güzel → +3"
+    ],
+    "yorum": "ARM için analiz tamamlandı. Toplam puan: 3."
+  },
+  "ASML": {
+    "puan": 19,
+    "detaylar": [
+      "📈 *P/E (32.18)* → Pahalı → -5",
+      "📉 *Forward P/E (22.28)* → Yüksek → -3",
+      "🧠 *PEG (1.5)* → Makul → +3",
+      "📊 *ROE (48.13)* → Güçlü → +10",
+      "💰 *Profit Margin (26.78)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.27)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.95)* → Zayıf → -2",
+      "📈 *EPS this Y (25.69)* → Pozitif → +3",
+      "🔮 *EPS next Y (19.06)* → Güzel → +3"
+    ],
+    "yorum": "ASML için analiz tamamlandı. Toplam puan: 19."
+  },
+  "AVGO": {
+    "puan": -9,
+    "detaylar": [
+      "📈 *P/E (87.75)* → Pahalı → -5",
+      "📉 *Forward P/E (23.25)* → Yüksek → -3",
+      "🧠 *PEG (3.79)* → Pahalı → -3",
+      "📊 *ROE (14.85)* → Zayıf → -4",
+      "💰 *Profit Margin (18.47)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.95)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.91)* → Zayıf → -2",
+      "📈 *EPS this Y (35.95)* → Pozitif → +3",
+      "🔮 *EPS next Y (18.22)* → Güzel → +3"
+    ],
+    "yorum": "AVGO için analiz tamamlandı. Toplam puan: -9."
+  },
+  "AXON": {
+    "puan": 11,
+    "detaylar": [
+      "📈 *P/E (118.86)* → Pahalı → -5",
+      "📉 *Forward P/E (76.17)* → Yüksek → -3",
+      "🧠 *PEG (8.9)* → Pahalı → -3",
+      "📊 *ROE (19.1)* → Güçlü → +10",
+      "💰 *Profit Margin (18.05)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.31)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (2.04)* → Sağlam → +2",
+      "📈 *EPS this Y (2.65)* → Negatif → -3",
+      "🔮 *EPS next Y (22.3)* → Güzel → +3"
+    ],
+    "yorum": "AXON için analiz tamamlandı. Toplam puan: 11."
+  },
+  "AZN": {
+    "puan": 12,
+    "detaylar": [
+      "📈 *P/E (29.42)* → Pahalı → -5",
+      "📉 *Forward P/E (13.06)* → İyi → +5",
+      "🧠 *PEG (2.69)* → Pahalı → -3",
+      "📊 *ROE (17.6)* → Güçlü → +10",
+      "💰 *Profit Margin (13.01)* → Düşük → -3",
+      "💸 *Debt/Eq (0.74)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.74)* → Zayıf → -2",
+      "📈 *EPS this Y (9.52)* → Pozitif → +3",
+      "🔮 *EPS next Y (12.86)* → Güzel → +3"
+    ],
+    "yorum": "AZN için analiz tamamlandı. Toplam puan: 12."
+  },
+  "BIIB": {
+    "puan": 9,
+    "detaylar": [
+      "📈 *P/E (10.3)* → Uygun → +5",
+      "📉 *Forward P/E (7.32)* → İyi → +5",
+      "📊 *ROE (10.36)* → Zayıf → -4",
+      "💰 *Profit Margin (17.61)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.4)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.9)* → Zayıf → -2",
+      "📈 *EPS this Y (-4.48)* → Negatif → -3",
+      "🔮 *EPS next Y (-0.04)* → Zayıf → -2"
+    ],
+    "yorum": "BIIB için analiz tamamlandı. Toplam puan: 9."
+  },
+  "BKNG": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (26.51)* → Pahalı → -5",
+      "📉 *Forward P/E (18.81)* → İyi → +5",
+      "🧠 *PEG (1.69)* → Makul → +3",
+      "💰 *Profit Margin (24.78)* → Yüksek → +6",
+      "🚨 *Quick Ratio (1.31)* → Sağlam → +2",
+      "📈 *EPS this Y (11.84)* → Pozitif → +3",
+      "🔮 *EPS next Y (16.53)* → Güzel → +3"
+    ],
+    "yorum": "BKNG için analiz tamamlandı. Toplam puan: 17."
+  },
+  "BKR": {
+    "puan": 28,
+    "detaylar": [
+      "📈 *P/E (12.73)* → Uygun → +5",
+      "📉 *Forward P/E (12.87)* → İyi → +5",
+      "🧠 *PEG (1.15)* → Makul → +3",
+      "📊 *ROE (18.47)* → Güçlü → +10",
+      "💰 *Profit Margin (10.7)* → Düşük → -3",
+      "💸 *Debt/Eq (0.4)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.94)* → Zayıf → -2",
+      "📈 *EPS this Y (8.95)* → Pozitif → +3",
+      "🔮 *EPS next Y (15.11)* → Güzel → +3"
+    ],
+    "yorum": "BKR için analiz tamamlandı. Toplam puan: 28."
+  },
+  "CCEP": {
+    "puan": -1,
+    "detaylar": [
+      "📈 *P/E (26.03)* → Pahalı → -5",
+      "📉 *Forward P/E (17.13)* → İyi → +5",
+      "🧠 *PEG (3.28)* → Pahalı → -3",
+      "📊 *ROE (17.43)* → Güçlü → +10",
+      "💰 *Profit Margin (6.94)* → Düşük → -3",
+      "💸 *Debt/Eq (1.33)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.62)* → Zayıf → -2",
+      "📈 *EPS this Y (5.0)* → Pozitif → +3",
+      "🔮 *EPS next Y (8.49)* → Zayıf → -2"
+    ],
+    "yorum": "CCEP için analiz tamamlandı. Toplam puan: -1."
+  },
+  "CDNS": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (67.33)* → Pahalı → -5",
+      "📉 *Forward P/E (33.69)* → Yüksek → -3",
+      "🧠 *PEG (4.81)* → Pahalı → -3",
+      "📊 *ROE (26.13)* → Güçlü → +10",
+      "💰 *Profit Margin (22.74)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.56)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (2.74)* → Sağlam → +2",
+      "📈 *EPS this Y (12.48)* → Pozitif → +3",
+      "🔮 *EPS next Y (14.69)* → Güzel → +3"
+    ],
+    "yorum": "CDNS için analiz tamamlandı. Toplam puan: 17."
+  },
+  "CDW": {
+    "puan": 7,
+    "detaylar": [
+      "📈 *P/E (18.66)* → Uygun → +5",
+      "📉 *Forward P/E (14.21)* → İyi → +5",
+      "🧠 *PEG (3.08)* → Pahalı → -3",
+      "📊 *ROE (49.04)* → Güçlü → +10",
+      "💰 *Profit Margin (5.13)* → Düşük → -3",
+      "💸 *Debt/Eq (2.71)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (1.24)* → Sağlam → +2",
+      "📈 *EPS this Y (2.1)* → Negatif → -3",
+      "🔮 *EPS next Y (7.74)* → Zayıf → -2"
+    ],
+    "yorum": "CDW için analiz tamamlandı. Toplam puan: 7."
+  },
+  "CEG": {
+    "puan": 41,
+    "detaylar": [
+      "📈 *P/E (17.52)* → Uygun → +5",
+      "📉 *Forward P/E (19.61)* → İyi → +5",
+      "🧠 *PEG (1.61)* → Makul → +3",
+      "📊 *ROE (31.12)* → Güçlü → +10",
+      "💰 *Profit Margin (15.9)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.68)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.34)* → Sağlam → +2",
+      "📈 *EPS this Y (7.9)* → Pozitif → +3",
+      "🔮 *EPS next Y (13.53)* → Güzel → +3"
+    ],
+    "yorum": "CEG için analiz tamamlandı. Toplam puan: 41."
+  },
+  "CHTR": {
+    "puan": 20,
+    "detaylar": [
+      "📈 *P/E (9.5)* → Uygun → +5",
+      "📉 *Forward P/E (7.8)* → İyi → +5",
+      "🧠 *PEG (0.82)* → Makul → +3",
+      "📊 *ROE (38.11)* → Güçlü → +10",
+      "💰 *Profit Margin (9.23)* → Düşük → -3",
+      "💸 *Debt/Eq (6.17)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.31)* → Zayıf → -2",
+      "📈 *EPS this Y (6.51)* → Pozitif → +3",
+      "🔮 *EPS next Y (15.04)* → Güzel → +3"
+    ],
+    "yorum": "CHTR için analiz tamamlandı. Toplam puan: 20."
+  },
+  "CMCSA": {
+    "puan": 14,
+    "detaylar": [
+      "📈 *P/E (8.13)* → Uygun → +5",
+      "📉 *Forward P/E (7.09)* → İyi → +5",
+      "🧠 *PEG (1.27)* → Makul → +3",
+      "📊 *ROE (19.24)* → Güçlü → +10",
+      "💰 *Profit Margin (13.09)* → Düşük → -3",
+      "💸 *Debt/Eq (1.23)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.68)* → Zayıf → -2",
+      "📈 *EPS this Y (-1.23)* → Negatif → -3",
+      "🔮 *EPS next Y (11.19)* → Güzel → +3"
+    ],
+    "yorum": "CMCSA için analiz tamamlandı. Toplam puan: 14."
+  },
+  "COST": {
+    "puan": 4,
+    "detaylar": [
+      "📈 *P/E (56.24)* → Pahalı → -5",
+      "📉 *Forward P/E (48.38)* → Yüksek → -3",
+      "🧠 *PEG (5.76)* → Pahalı → -3",
+      "📊 *ROE (32.89)* → Güçlü → +10",
+      "💰 *Profit Margin (2.89)* → Düşük → -3",
+      "💸 *Debt/Eq (0.32)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.49)* → Zayıf → -2",
+      "📈 *EPS this Y (8.96)* → Pozitif → +3",
+      "🔮 *EPS next Y (10.36)* → Güzel → +3"
+    ],
+    "yorum": "COST için analiz tamamlandı. Toplam puan: 4."
+  },
+  "CPRT": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (40.19)* → Pahalı → -5",
+      "📉 *Forward P/E (33.53)* → Yüksek → -3",
+      "🧠 *PEG (2.69)* → Pahalı → -3",
+      "📊 *ROE (19.28)* → Güçlü → +10",
+      "💰 *Profit Margin (32.27)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.01)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (7.57)* → Sağlam → +2",
+      "📈 *EPS this Y (12.54)* → Pozitif → +3",
+      "🔮 *EPS next Y (13.26)* → Güzel → +3"
+    ],
+    "yorum": "CPRT için analiz tamamlandı. Toplam puan: 17."
+  },
+  "CRWD": {
+    "puan": -4,
+    "detaylar": [
+      "📉 *Forward P/E (82.38)* → Yüksek → -3",
+      "📊 *ROE (-0.69)* → Zayıf → -4",
+      "💰 *Profit Margin (-0.49)* → Düşük → -3",
+      "💸 *Debt/Eq (0.24)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.67)* → Sağlam → +2",
+      "📈 *EPS this Y (-11.5)* → Negatif → -3",
+      "🔮 *EPS next Y (31.89)* → Güzel → +3"
+    ],
+    "yorum": "CRWD için analiz tamamlandı. Toplam puan: -4."
+  },
+  "CSCO": {
+    "puan": 10,
+    "detaylar": [
+      "📈 *P/E (25.12)* → Pahalı → -5",
+      "📉 *Forward P/E (14.41)* → İyi → +5",
+      "🧠 *PEG (5.31)* → Pahalı → -3",
+      "📊 *ROE (20.02)* → Güçlü → +10",
+      "💰 *Profit Margin (16.96)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.71)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.79)* → Zayıf → -2",
+      "📈 *EPS this Y (-0.35)* → Negatif → -3",
+      "🔮 *EPS next Y (7.0)* → Zayıf → -2"
+    ],
+    "yorum": "CSCO için analiz tamamlandı. Toplam puan: 10."
+  },
+  "CSGP": {
+    "puan": -6,
+    "detaylar": [
+      "📈 *P/E (227.68)* → Pahalı → -5",
+      "📉 *Forward P/E (51.62)* → Yüksek → -3",
+      "🧠 *PEG (6.21)* → Pahalı → -3",
+      "📊 *ROE (1.86)* → Zayıf → -4",
+      "💰 *Profit Margin (5.07)* → Düşük → -3",
+      "💸 *Debt/Eq (0.14)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (8.96)* → Sağlam → +2",
+      "📈 *EPS this Y (15.85)* → Pozitif → +3",
+      "🔮 *EPS next Y (60.97)* → Güzel → +3"
+    ],
+    "yorum": "CSGP için analiz tamamlandı. Toplam puan: -6."
+  },
+  "CSX": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (15.63)* → Uygun → +5",
+      "📉 *Forward P/E (13.78)* → İyi → +5",
+      "🧠 *PEG (2.35)* → Pahalı → -3",
+      "📊 *ROE (28.28)* → Güçlü → +10",
+      "💰 *Profit Margin (23.95)* → Yüksek → +6",
+      "💸 *Debt/Eq (1.52)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.73)* → Zayıf → -2",
+      "📈 *EPS this Y (-3.05)* → Negatif → -3",
+      "🔮 *EPS next Y (14.57)* → Güzel → +3"
+    ],
+    "yorum": "CSX için analiz tamamlandı. Toplam puan: 17."
+  },
+  "CTAS": {
+    "puan": 13,
+    "detaylar": [
+      "📈 *P/E (47.81)* → Pahalı → -5",
+      "📉 *Forward P/E (42.55)* → Yüksek → -3",
+      "🧠 *PEG (4.01)* → Pahalı → -3",
+      "📊 *ROE (40.15)* → Güçlü → +10",
+      "💰 *Profit Margin (17.47)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.59)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.89)* → Zayıf → -2",
+      "📈 *EPS this Y (15.69)* → Pozitif → +3",
+      "🔮 *EPS next Y (10.5)* → Güzel → +3"
+    ],
+    "yorum": "CTAS için analiz tamamlandı. Toplam puan: 13."
+  },
+  "CTSH": {
+    "puan": 21,
+    "detaylar": [
+      "📈 *P/E (15.57)* → Uygun → +5",
+      "📉 *Forward P/E (13.07)* → İyi → +5",
+      "🧠 *PEG (2.12)* → Pahalı → -3",
+      "📊 *ROE (16.21)* → Güçlü → +10",
+      "💰 *Profit Margin (11.35)* → Düşük → -3",
+      "💸 *Debt/Eq (0.1)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (2.09)* → Sağlam → +2",
+      "📈 *EPS this Y (5.12)* → Pozitif → +3",
+      "🔮 *EPS next Y (7.54)* → Zayıf → -2"
+    ],
+    "yorum": "CTSH için analiz tamamlandı. Toplam puan: 21."
+  },
+  "DASH": {
+    "puan": -6,
+    "detaylar": [
+      "📈 *P/E (681.09)* → Pahalı → -5",
+      "📉 *Forward P/E (49.34)* → Yüksek → -3",
+      "🧠 *PEG (4.1)* → Pahalı → -3",
+      "📊 *ROE (1.68)* → Zayıf → -4",
+      "💰 *Profit Margin (1.15)* → Düşük → -3",
+      "💸 *Debt/Eq (0.07)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.65)* → Sağlam → +2",
+      "📈 *EPS this Y (660.65)* → Pozitif → +3",
+      "🔮 *EPS next Y (65.85)* → Güzel → +3"
+    ],
+    "yorum": "DASH için analiz tamamlandı. Toplam puan: -6."
+  },
+  "DDOG": {
+    "puan": -12,
+    "detaylar": [
+      "📈 *P/E (179.2)* → Pahalı → -5",
+      "📉 *Forward P/E (43.91)* → Yüksek → -3",
+      "🧠 *PEG (12.9)* → Pahalı → -3",
+      "📊 *ROE (7.75)* → Zayıf → -4",
+      "💰 *Profit Margin (6.85)* → Düşük → -3",
+      "💸 *Debt/Eq (0.68)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (2.61)* → Sağlam → +2",
+      "📈 *EPS this Y (-5.16)* → Negatif → -3",
+      "🔮 *EPS next Y (21.41)* → Güzel → +3"
+    ],
+    "yorum": "DDOG için analiz tamamlandı. Toplam puan: -12."
+  },
+  "DXCM": {
+    "puan": 0,
+    "detaylar": [
+      "📈 *P/E (46.43)* → Pahalı → -5",
+      "📉 *Forward P/E (26.68)* → Yüksek → -3",
+      "🧠 *PEG (2.03)* → Pahalı → -3",
+      "📊 *ROE (27.63)* → Güçlü → +10",
+      "💰 *Profit Margin (14.29)* → Düşük → -3",
+      "💸 *Debt/Eq (1.23)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (1.28)* → Sağlam → +2",
+      "📈 *EPS this Y (23.36)* → Pozitif → +3",
+      "🔮 *EPS next Y (22.52)* → Güzel → +3"
+    ],
+    "yorum": "DXCM için analiz tamamlandı. Toplam puan: 0."
+  },
+  "EA": {
+    "puan": -4,
+    "detaylar": [
+      "📈 *P/E (36.37)* → Pahalı → -5",
+      "📉 *Forward P/E (18.96)* → İyi → +5",
+      "🧠 *PEG (4.6)* → Pahalı → -3",
+      "📊 *ROE (14.04)* → Zayıf → -4",
+      "💰 *Profit Margin (14.29)* → Düşük → -3",
+      "💸 *Debt/Eq (0.26)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.38)* → Sağlam → +2",
+      "📈 *EPS this Y (-4.94)* → Negatif → -3",
+      "🔮 *EPS next Y (14.65)* → Güzel → +3"
+    ],
+    "yorum": "EA için analiz tamamlandı. Toplam puan: -4."
+  },
+  "EXC": {
+    "puan": -5,
+    "detaylar": [
+      "📈 *P/E (18.75)* → Uygun → +5",
+      "📉 *Forward P/E (16.38)* → İyi → +5",
+      "🧠 *PEG (3.07)* → Pahalı → -3",
+      "📊 *ROE (9.34)* → Zayıf → -4",
+      "💰 *Profit Margin (10.68)* → Düşük → -3",
+      "💸 *Debt/Eq (1.75)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.78)* → Zayıf → -2",
+      "📈 *EPS this Y (7.47)* → Pozitif → +3",
+      "🔮 *EPS next Y (4.54)* → Zayıf → -2"
+    ],
+    "yorum": "EXC için analiz tamamlandı. Toplam puan: -5."
+  },
+  "FANG": {
+    "puan": 6,
+    "detaylar": [
+      "📈 *P/E (8.17)* → Uygun → +5",
+      "📉 *Forward P/E (8.66)* → İyi → +5",
+      "🧠 *PEG (90.78)* → Pahalı → -3",
+      "📊 *ROE (12.2)* → Zayıf → -4",
+      "💰 *Profit Margin (29.97)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.35)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.41)* → Zayıf → -2",
+      "📈 *EPS this Y (-10.19)* → Negatif → -3",
+      "🔮 *EPS next Y (0.13)* → Zayıf → -2"
+    ],
+    "yorum": "FANG için analiz tamamlandı. Toplam puan: 6."
+  },
+  "FAST": {
+    "puan": 12,
+    "detaylar": [
+      "📈 *P/E (40.22)* → Pahalı → -5",
+      "📉 *Forward P/E (33.95)* → Yüksek → -3",
+      "🧠 *PEG (4.86)* → Pahalı → -3",
+      "📊 *ROE (32.35)* → Güçlü → +10",
+      "💰 *Profit Margin (15.13)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.13)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (2.14)* → Sağlam → +2",
+      "📈 *EPS this Y (8.44)* → Pozitif → +3",
+      "🔮 *EPS next Y (9.51)* → Zayıf → -2"
+    ],
+    "yorum": "FAST için analiz tamamlandı. Toplam puan: 12."
+  },
+  "FTNT": {
+    "puan": 11,
+    "detaylar": [
+      "📈 *P/E (43.24)* → Pahalı → -5",
+      "📉 *Forward P/E (35.43)* → Yüksek → -3",
+      "🧠 *PEG (4.52)* → Pahalı → -3",
+      "📊 *ROE (338.74)* → Güçlü → +10",
+      "💰 *Profit Margin (29.3)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.72)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.39)* → Sağlam → +2",
+      "📈 *EPS this Y (3.68)* → Negatif → -3",
+      "🔮 *EPS next Y (12.27)* → Güzel → +3"
+    ],
+    "yorum": "FTNT için analiz tamamlandı. Toplam puan: 11."
+  },
+  "GEHC": {
+    "puan": 14,
+    "detaylar": [
+      "📈 *P/E (14.47)* → Uygun → +5",
+      "📉 *Forward P/E (11.96)* → İyi → +5",
+      "🧠 *PEG (1.55)* → Makul → +3",
+      "📊 *ROE (25.6)* → Güçlü → +10",
+      "💰 *Profit Margin (10.13)* → Düşük → -3",
+      "💸 *Debt/Eq (1.11)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.79)* → Zayıf → -2",
+      "📈 *EPS this Y (4.81)* → Negatif → -3",
+      "🔮 *EPS next Y (11.61)* → Güzel → +3"
+    ],
+    "yorum": "GEHC için analiz tamamlandı. Toplam puan: 14."
+  },
+  "GFS": {
+    "puan": 10,
+    "detaylar": [
+      "📉 *Forward P/E (13.71)* → İyi → +5",
+      "📊 *ROE (-2.42)* → Zayıf → -4",
+      "💰 *Profit Margin (-3.93)* → Düşük → -3",
+      "💸 *Debt/Eq (0.22)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.57)* → Sağlam → +2",
+      "📈 *EPS this Y (9.22)* → Pozitif → +3",
+      "🔮 *EPS next Y (42.72)* → Güzel → +3"
+    ],
+    "yorum": "GFS için analiz tamamlandı. Toplam puan: 10."
+  },
+  "GILD": {
+    "puan": -11,
+    "detaylar": [
+      "📈 *P/E (282.29)* → Pahalı → -5",
+      "📉 *Forward P/E (12.27)* → İyi → +5",
+      "🧠 *PEG (11.34)* → Pahalı → -3",
+      "📊 *ROE (2.28)* → Zayıf → -4",
+      "💰 *Profit Margin (1.67)* → Düşük → -3",
+      "💸 *Debt/Eq (1.41)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (1.45)* → Sağlam → +2",
+      "📈 *EPS this Y (72.25)* → Pozitif → +3",
+      "🔮 *EPS next Y (6.12)* → Zayıf → -2"
+    ],
+    "yorum": "GILD için analiz tamamlandı. Toplam puan: -11."
+  },
+  "GOOG": {
+    "puan": 41,
+    "detaylar": [
+      "📈 *P/E (19.81)* → Uygun → +5",
+      "📉 *Forward P/E (15.75)* → İyi → +5",
+      "🧠 *PEG (1.51)* → Makul → +3",
+      "📊 *ROE (32.91)* → Güçlü → +10",
+      "💰 *Profit Margin (28.62)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.09)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.84)* → Sağlam → +2",
+      "📈 *EPS this Y (10.16)* → Pozitif → +3",
+      "🔮 *EPS next Y (14.29)* → Güzel → +3"
+    ],
+    "yorum": "GOOG için analiz tamamlandı. Toplam puan: 41."
+  },
+  "GOOGL": {
+    "puan": 41,
+    "detaylar": [
+      "📈 *P/E (19.53)* → Uygun → +5",
+      "📉 *Forward P/E (15.52)* → İyi → +5",
+      "🧠 *PEG (1.5)* → Makul → +3",
+      "📊 *ROE (32.91)* → Güçlü → +10",
+      "💰 *Profit Margin (28.62)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.09)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.84)* → Sağlam → +2",
+      "📈 *EPS this Y (10.18)* → Pozitif → +3",
+      "🔮 *EPS next Y (14.29)* → Güzel → +3"
+    ],
+    "yorum": "GOOGL için analiz tamamlandı. Toplam puan: 41."
+  },
+  "HON": {
+    "puan": 13,
+    "detaylar": [
+      "📈 *P/E (22.79)* → Uygun → +5",
+      "📉 *Forward P/E (17.34)* → İyi → +5",
+      "🧠 *PEG (2.8)* → Pahalı → -3",
+      "📊 *ROE (33.1)* → Güçlü → +10",
+      "💰 *Profit Margin (14.82)* → Düşük → -3",
+      "💸 *Debt/Eq (1.73)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (1.01)* → Sağlam → +2",
+      "📈 *EPS this Y (5.55)* → Pozitif → +3",
+      "🔮 *EPS next Y (9.71)* → Zayıf → -2"
+    ],
+    "yorum": "HON için analiz tamamlandı. Toplam puan: 13."
+  },
+  "IDXX": {
+    "puan": 13,
+    "detaylar": [
+      "📈 *P/E (36.65)* → Pahalı → -5",
+      "📉 *Forward P/E (28.92)* → Yüksek → -3",
+      "🧠 *PEG (2.83)* → Pahalı → -3",
+      "📊 *ROE (57.66)* → Güçlü → +10",
+      "💰 *Profit Margin (22.78)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.62)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.9)* → Zayıf → -2",
+      "📈 *EPS this Y (12.26)* → Pozitif → +3",
+      "🔮 *EPS next Y (12.87)* → Güzel → +3"
+    ],
+    "yorum": "IDXX için analiz tamamlandı. Toplam puan: 13."
+  },
+  "INTC": {
+    "puan": 6,
+    "detaylar": [
+      "📉 *Forward P/E (16.68)* → İyi → +5",
+      "📊 *ROE (-18.31)* → Zayıf → -4",
+      "💰 *Profit Margin (-35.32)* → Düşük → -3",
+      "💸 *Debt/Eq (0.51)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.98)* → Zayıf → -2",
+      "📈 *EPS this Y (486.59)* → Pozitif → +3",
+      "🔮 *EPS next Y (135.42)* → Güzel → +3"
+    ],
+    "yorum": "INTC için analiz tamamlandı. Toplam puan: 6."
+  },
+  "INTU": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (54.86)* → Pahalı → -5",
+      "📉 *Forward P/E (26.46)* → Yüksek → -3",
+      "🧠 *PEG (3.87)* → Pahalı → -3",
+      "📊 *ROE (17.43)* → Güçlü → +10",
+      "💰 *Profit Margin (17.69)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.38)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.27)* → Sağlam → +2",
+      "📈 *EPS this Y (14.41)* → Pozitif → +3",
+      "🔮 *EPS next Y (14.47)* → Güzel → +3"
+    ],
+    "yorum": "INTU için analiz tamamlandı. Toplam puan: 17."
+  },
+  "ISRG": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (76.96)* → Pahalı → -5",
+      "📉 *Forward P/E (52.43)* → Yüksek → -3",
+      "🧠 *PEG (5.27)* → Pahalı → -3",
+      "📊 *ROE (15.62)* → Güçlü → +10",
+      "💰 *Profit Margin (27.81)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.01)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (3.22)* → Sağlam → +2",
+      "📈 *EPS this Y (9.34)* → Pozitif → +3",
+      "🔮 *EPS next Y (17.31)* → Güzel → +3"
+    ],
+    "yorum": "ISRG için analiz tamamlandı. Toplam puan: 17."
+  },
+  "KDP": {
+    "puan": -7,
+    "detaylar": [
+      "📈 *P/E (33.43)* → Pahalı → -5",
+      "📉 *Forward P/E (16.17)* → İyi → +5",
+      "🧠 *PEG (4.97)* → Pahalı → -3",
+      "📊 *ROE (5.77)* → Zayıf → -4",
+      "💰 *Profit Margin (9.39)* → Düşük → -3",
+      "💸 *Debt/Eq (0.71)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.32)* → Zayıf → -2",
+      "📈 *EPS this Y (5.69)* → Pozitif → +3",
+      "🔮 *EPS next Y (7.13)* → Zayıf → -2"
+    ],
+    "yorum": "KDP için analiz tamamlandı. Toplam puan: -7."
+  },
+  "KHC": {
+    "puan": 0,
+    "detaylar": [
+      "📈 *P/E (12.95)* → Uygun → +5",
+      "📉 *Forward P/E (10.46)* → İyi → +5",
+      "📊 *ROE (5.56)* → Zayıf → -4",
+      "💰 *Profit Margin (10.62)* → Düşük → -3",
+      "💸 *Debt/Eq (0.42)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.59)* → Zayıf → -2",
+      "📈 *EPS this Y (-12.49)* → Negatif → -3",
+      "🔮 *EPS next Y (4.76)* → Zayıf → -2"
+    ],
+    "yorum": "KHC için analiz tamamlandı. Toplam puan: 0."
+  },
+  "KLAC": {
+    "puan": 18,
+    "detaylar": [
+      "📈 *P/E (28.19)* → Pahalı → -5",
+      "📉 *Forward P/E (20.65)* → İyi → +5",
+      "🧠 *PEG (1.78)* → Makul → +3",
+      "📊 *ROE (96.81)* → Güçlü → +10",
+      "💰 *Profit Margin (29.61)* → Yüksek → +6",
+      "💸 *Debt/Eq (1.69)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (1.56)* → Sağlam → +2",
+      "📈 *EPS this Y (33.1)* → Pozitif → +3",
+      "🔮 *EPS next Y (2.73)* → Zayıf → -2"
+    ],
+    "yorum": "KLAC için analiz tamamlandı. Toplam puan: 18."
+  },
+  "LIN": {
+    "puan": 8,
+    "detaylar": [
+      "📈 *P/E (32.45)* → Pahalı → -5",
+      "📉 *Forward P/E (24.45)* → Yüksek → -3",
+      "🧠 *PEG (3.82)* → Pahalı → -3",
+      "📊 *ROE (16.87)* → Güçlü → +10",
+      "💰 *Profit Margin (19.89)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.59)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.76)* → Zayıf → -2",
+      "📈 *EPS this Y (6.2)* → Pozitif → +3",
+      "🔮 *EPS next Y (9.72)* → Zayıf → -2"
+    ],
+    "yorum": "LIN için analiz tamamlandı. Toplam puan: 8."
+  },
+  "LRCX": {
+    "puan": 36,
+    "detaylar": [
+      "📈 *P/E (20.51)* → Uygun → +5",
+      "📉 *Forward P/E (17.45)* → İyi → +5",
+      "🧠 *PEG (1.37)* → Makul → +3",
+      "📊 *ROE (50.42)* → Güçlü → +10",
+      "💰 *Profit Margin (26.49)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.57)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.73)* → Sağlam → +2",
+      "📈 *EPS this Y (23.96)* → Pozitif → +3",
+      "🔮 *EPS next Y (2.98)* → Zayıf → -2"
+    ],
+    "yorum": "LRCX için analiz tamamlandı. Toplam puan: 36."
+  },
+  "LULU": {
+    "puan": 24,
+    "detaylar": [
+      "📈 *P/E (17.72)* → Uygun → +5",
+      "📉 *Forward P/E (16.1)* → İyi → +5",
+      "🧠 *PEG (3.23)* → Pahalı → -3",
+      "📊 *ROE (42.42)* → Güçlü → +10",
+      "💰 *Profit Margin (17.14)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.36)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.38)* → Sağlam → +2",
+      "📈 *EPS this Y (1.72)* → Negatif → -3",
+      "🔮 *EPS next Y (8.9)* → Zayıf → -2"
+    ],
+    "yorum": "LULU için analiz tamamlandı. Toplam puan: 24."
+  },
+  "MAR": {
+    "puan": 0,
+    "detaylar": [
+      "📈 *P/E (27.07)* → Pahalı → -5",
+      "📉 *Forward P/E (19.59)* → İyi → +5",
+      "🧠 *PEG (2.37)* → Pahalı → -3",
+      "💰 *Profit Margin (9.46)* → Düşük → -3",
+      "📈 *EPS this Y (9.22)* → Pozitif → +3",
+      "🔮 *EPS next Y (12.83)* → Güzel → +3"
+    ],
+    "yorum": "MAR için analiz tamamlandı. Toplam puan: 0."
+  },
+  "MCHP": {
+    "puan": -22,
+    "detaylar": [
+      "📈 *P/E (68.26)* → Pahalı → -5",
+      "📉 *Forward P/E (31.19)* → Yüksek → -3",
+      "📊 *ROE (4.71)* → Zayıf → -4",
+      "💰 *Profit Margin (6.49)* → Düşük → -3",
+      "💸 *Debt/Eq (1.12)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (1.23)* → Sağlam → +2",
+      "📈 *EPS this Y (-73.62)* → Negatif → -3",
+      "🔮 *EPS next Y (-4.38)* → Zayıf → -2"
+    ],
+    "yorum": "MCHP için analiz tamamlandı. Toplam puan: -22."
+  },
+  "MDB": {
+    "puan": -4,
+    "detaylar": [
+      "📉 *Forward P/E (47.88)* → Yüksek → -3",
+      "📊 *ROE (-6.7)* → Zayıf → -4",
+      "💰 *Profit Margin (-6.43)* → Düşük → -3",
+      "💸 *Debt/Eq (0.03)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (5.0)* → Sağlam → +2",
+      "📈 *EPS this Y (-28.55)* → Negatif → -3",
+      "🔮 *EPS next Y (29.58)* → Güzel → +3"
+    ],
+    "yorum": "MDB için analiz tamamlandı. Toplam puan: -4."
+  },
+  "MDLZ": {
+    "puan": 16,
+    "detaylar": [
+      "📈 *P/E (19.58)* → Uygun → +5",
+      "📉 *Forward P/E (20.72)* → İyi → +5",
+      "🧠 *PEG (10.04)* → Pahalı → -3",
+      "📊 *ROE (16.69)* → Güçlü → +10",
+      "💰 *Profit Margin (12.65)* → Düşük → -3",
+      "💸 *Debt/Eq (0.69)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.48)* → Zayıf → -2",
+      "📈 *EPS this Y (-13.5)* → Negatif → -3",
+      "🔮 *EPS next Y (11.37)* → Güzel → +3"
+    ],
+    "yorum": "MDLZ için analiz tamamlandı. Toplam puan: 16."
+  },
+  "MELI": {
+    "puan": 6,
+    "detaylar": [
+      "📈 *P/E (52.98)* → Pahalı → -5",
+      "📉 *Forward P/E (30.35)* → Yüksek → -3",
+      "🧠 *PEG (1.7)* → Makul → +3",
+      "📊 *ROE (51.5)* → Güçlü → +10",
+      "💰 *Profit Margin (9.2)* → Düşük → -3",
+      "💸 *Debt/Eq (2.03)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (1.19)* → Sağlam → +2",
+      "📈 *EPS this Y (24.32)* → Pozitif → +3",
+      "🔮 *EPS next Y (40.42)* → Güzel → +3"
+    ],
+    "yorum": "MELI için analiz tamamlandı. Toplam puan: 6."
+  },
+  "META": {
+    "puan": 29,
+    "detaylar": [
+      "📈 *P/E (22.72)* → Uygun → +5",
+      "📉 *Forward P/E (19.14)* → İyi → +5",
+      "🧠 *PEG (2.1)* → Pahalı → -3",
+      "📊 *ROE (37.14)* → Güçlü → +10",
+      "💰 *Profit Margin (37.91)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.27)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (2.98)* → Sağlam → +2",
+      "📈 *EPS this Y (4.45)* → Negatif → -3",
+      "🔮 *EPS next Y (13.94)* → Güzel → +3"
+    ],
+    "yorum": "META için analiz tamamlandı. Toplam puan: 29."
+  },
+  "MNST": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (39.19)* → Pahalı → -5",
+      "📉 *Forward P/E (28.7)* → Yüksek → -3",
+      "🧠 *PEG (3.38)* → Pahalı → -3",
+      "📊 *ROE (21.27)* → Güçlü → +10",
+      "💰 *Profit Margin (20.14)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.07)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (2.65)* → Sağlam → +2",
+      "📈 *EPS this Y (12.84)* → Pozitif → +3",
+      "🔮 *EPS next Y (10.84)* → Güzel → +3"
+    ],
+    "yorum": "MNST için analiz tamamlandı. Toplam puan: 17."
+  },
+  "MRVL": {
+    "puan": 10,
+    "detaylar": [
+      "📉 *Forward P/E (14.44)* → İyi → +5",
+      "📊 *ROE (-6.26)* → Zayıf → -4",
+      "💰 *Profit Margin (-15.35)* → Düşük → -3",
+      "💸 *Debt/Eq (0.35)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.03)* → Sağlam → +2",
+      "📈 *EPS this Y (79.25)* → Pozitif → +3",
+      "🔮 *EPS next Y (31.39)* → Güzel → +3"
+    ],
+    "yorum": "MRVL için analiz tamamlandı. Toplam puan: 10."
+  },
+  "MSFT": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (31.29)* → Pahalı → -5",
+      "📉 *Forward P/E (26.04)* → Yüksek → -3",
+      "🧠 *PEG (2.19)* → Pahalı → -3",
+      "📊 *ROE (34.29)* → Güçlü → +10",
+      "💰 *Profit Margin (35.43)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.34)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.34)* → Sağlam → +2",
+      "📈 *EPS this Y (11.53)* → Pozitif → +3",
+      "🔮 *EPS next Y (13.35)* → Güzel → +3"
+    ],
+    "yorum": "MSFT için analiz tamamlandı. Toplam puan: 17."
+  },
+  "MSTR": {
+    "puan": -4,
+    "detaylar": [
+      "📊 *ROE (-11.44)* → Zayıf → -4",
+      "💰 *Profit Margin (-251.73)* → Düşük → -3",
+      "💸 *Debt/Eq (0.4)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.71)* → Zayıf → -2",
+      "📈 *EPS this Y (93.26)* → Pozitif → +3",
+      "🔮 *EPS next Y (2.04)* → Zayıf → -2"
+    ],
+    "yorum": "MSTR için analiz tamamlandı. Toplam puan: -4."
+  },
+  "MU": {
+    "puan": 18,
+    "detaylar": [
+      "📈 *P/E (16.72)* → Uygun → +5",
+      "📉 *Forward P/E (6.25)* → İyi → +5",
+      "🧠 *PEG (0.16)* → Makul → +3",
+      "📊 *ROE (10.1)* → Zayıf → -4",
+      "💰 *Profit Margin (14.92)* → Düşük → -3",
+      "💸 *Debt/Eq (0.31)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.99)* → Sağlam → +2",
+      "📈 *EPS this Y (435.95)* → Pozitif → +3",
+      "🔮 *EPS next Y (59.67)* → Güzel → +3"
+    ],
+    "yorum": "MU için analiz tamamlandı. Toplam puan: 18."
+  },
+  "NFLX": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (46.31)* → Pahalı → -5",
+      "📉 *Forward P/E (30.45)* → Yüksek → -3",
+      "🧠 *PEG (2.05)* → Pahalı → -3",
+      "📊 *ROE (38.43)* → Güçlü → +10",
+      "💰 *Profit Margin (22.41)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.73)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.22)* → Sağlam → +2",
+      "📈 *EPS this Y (24.49)* → Pozitif → +3",
+      "🔮 *EPS next Y (22.18)* → Güzel → +3"
+    ],
+    "yorum": "NFLX için analiz tamamlandı. Toplam puan: 17."
+  },
+  "NVDA": {
+    "puan": 31,
+    "detaylar": [
+      "📈 *P/E (37.74)* → Pahalı → -5",
+      "📉 *Forward P/E (19.41)* → İyi → +5",
+      "🧠 *PEG (1.25)* → Makul → +3",
+      "📊 *ROE (119.18)* → Güçlü → +10",
+      "💰 *Profit Margin (55.85)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.13)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (3.88)* → Sağlam → +2",
+      "📈 *EPS this Y (51.57)* → Pozitif → +3",
+      "🔮 *EPS next Y (26.13)* → Güzel → +3"
+    ],
+    "yorum": "NVDA için analiz tamamlandı. Toplam puan: 31."
+  },
+  "NXPI": {
+    "puan": 21,
+    "detaylar": [
+      "📈 *P/E (17.36)* → Uygun → +5",
+      "📉 *Forward P/E (11.86)* → İyi → +5",
+      "🧠 *PEG (2.01)* → Pahalı → -3",
+      "📊 *ROE (28.16)* → Güçlü → +10",
+      "💰 *Profit Margin (19.9)* → Yüksek → +6",
+      "💸 *Debt/Eq (1.21)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (1.6)* → Sağlam → +2",
+      "📈 *EPS this Y (-9.2)* → Negatif → -3",
+      "🔮 *EPS next Y (19.7)* → Güzel → +3"
+    ],
+    "yorum": "NXPI için analiz tamamlandı. Toplam puan: 21."
+  },
+  "ODFL": {
+    "puan": 11,
+    "detaylar": [
+      "📈 *P/E (27.79)* → Pahalı → -5",
+      "📉 *Forward P/E (24.04)* → Yüksek → -3",
+      "🧠 *PEG (2.92)* → Pahalı → -3",
+      "📊 *ROE (27.9)* → Güçlü → +10",
+      "💰 *Profit Margin (20.4)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.04)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.33)* → Sağlam → +2",
+      "📈 *EPS this Y (-1.55)* → Negatif → -3",
+      "🔮 *EPS next Y (17.39)* → Güzel → +3"
+    ],
+    "yorum": "ODFL için analiz tamamlandı. Toplam puan: 11."
+  },
+  "ON": {
+    "puan": 35,
+    "detaylar": [
+      "📈 *P/E (9.65)* → Uygun → +5",
+      "📉 *Forward P/E (9.36)* → İyi → +5",
+      "🧠 *PEG (0.84)* → Makul → +3",
+      "📊 *ROE (18.97)* → Güçlü → +10",
+      "💰 *Profit Margin (22.21)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.41)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (3.38)* → Sağlam → +2",
+      "📈 *EPS this Y (-37.21)* → Negatif → -3",
+      "🔮 *EPS next Y (49.88)* → Güzel → +3"
+    ],
+    "yorum": "ON için analiz tamamlandı. Toplam puan: 35."
+  },
+  "ORLY": {
+    "puan": -10,
+    "detaylar": [
+      "📈 *P/E (34.18)* → Pahalı → -5",
+      "📉 *Forward P/E (28.01)* → Yüksek → -3",
+      "🧠 *PEG (3.11)* → Pahalı → -3",
+      "💰 *Profit Margin (14.28)* → Düşük → -3",
+      "🚨 *Quick Ratio (0.09)* → Zayıf → -2",
+      "📈 *EPS this Y (8.8)* → Pozitif → +3",
+      "🔮 *EPS next Y (12.15)* → Güzel → +3"
+    ],
+    "yorum": "ORLY için analiz tamamlandı. Toplam puan: -10."
+  },
+  "PANW": {
+    "puan": 4,
+    "detaylar": [
+      "📈 *P/E (95.1)* → Pahalı → -5",
+      "📉 *Forward P/E (45.94)* → Yüksek → -3",
+      "🧠 *PEG (6.59)* → Pahalı → -3",
+      "📊 *ROE (23.38)* → Güçlü → +10",
+      "💰 *Profit Margin (14.64)* → Düşük → -3",
+      "💸 *Debt/Eq (0.14)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.79)* → Zayıf → -2",
+      "📈 *EPS this Y (13.77)* → Pozitif → +3",
+      "🔮 *EPS next Y (13.6)* → Güzel → +3"
+    ],
+    "yorum": "PANW için analiz tamamlandı. Toplam puan: 4."
+  },
+  "PAYX": {
+    "puan": 12,
+    "detaylar": [
+      "📈 *P/E (30.52)* → Pahalı → -5",
+      "📉 *Forward P/E (27.63)* → Yüksek → -3",
+      "🧠 *PEG (4.7)* → Pahalı → -3",
+      "📊 *ROE (44.25)* → Güçlü → +10",
+      "💰 *Profit Margin (31.99)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.21)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.39)* → Sağlam → +2",
+      "📈 *EPS this Y (5.86)* → Pozitif → +3",
+      "🔮 *EPS next Y (6.3)* → Zayıf → -2"
+    ],
+    "yorum": "PAYX için analiz tamamlandı. Toplam puan: 12."
+  },
+  "PCAR": {
+    "puan": 11,
+    "detaylar": [
+      "📈 *P/E (11.44)* → Uygun → +5",
+      "📉 *Forward P/E (10.99)* → İyi → +5",
+      "📊 *ROE (24.93)* → Güçlü → +10",
+      "💰 *Profit Margin (12.37)* → Düşük → -3",
+      "💸 *Debt/Eq (0.91)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.93)* → Zayıf → -2",
+      "📈 *EPS this Y (-10.07)* → Negatif → -3",
+      "🔮 *EPS next Y (15.9)* → Güzel → +3"
+    ],
+    "yorum": "PCAR için analiz tamamlandı. Toplam puan: 11."
+  },
+  "PDD": {
+    "puan": 41,
+    "detaylar": [
+      "📈 *P/E (8.57)* → Uygun → +5",
+      "📉 *Forward P/E (6.13)* → İyi → +5",
+      "🧠 *PEG (0.58)* → Makul → +3",
+      "📊 *ROE (45.06)* → Güçlü → +10",
+      "💰 *Profit Margin (28.54)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.03)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (2.15)* → Sağlam → +2",
+      "📈 *EPS this Y (6.29)* → Pozitif → +3",
+      "🔮 *EPS next Y (22.83)* → Güzel → +3"
+    ],
+    "yorum": "PDD için analiz tamamlandı. Toplam puan: 41."
+  },
+  "PEP": {
+    "puan": 3,
+    "detaylar": [
+      "📈 *P/E (20.79)* → Uygun → +5",
+      "📉 *Forward P/E (16.42)* → İyi → +5",
+      "🧠 *PEG (4.51)* → Pahalı → -3",
+      "📊 *ROE (52.42)* → Güçlü → +10",
+      "💰 *Profit Margin (10.43)* → Düşük → -3",
+      "💸 *Debt/Eq (2.65)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.65)* → Zayıf → -2",
+      "📈 *EPS this Y (1.34)* → Negatif → -3",
+      "🔮 *EPS next Y (6.37)* → Zayıf → -2"
+    ],
+    "yorum": "PEP için analiz tamamlandı. Toplam puan: 3."
+  },
+  "PLTR": {
+    "puan": 3,
+    "detaylar": [
+      "📈 *P/E (468.27)* → Pahalı → -5",
+      "📉 *Forward P/E (130.15)* → Yüksek → -3",
+      "🧠 *PEG (15.53)* → Pahalı → -3",
+      "📊 *ROE (10.9)* → Zayıf → -4",
+      "💰 *Profit Margin (16.13)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.05)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (5.96)* → Sağlam → +2",
+      "📈 *EPS this Y (32.46)* → Pozitif → +3",
+      "🔮 *EPS next Y (25.27)* → Güzel → +3"
+    ],
+    "yorum": "PLTR için analiz tamamlandı. Toplam puan: 3."
+  },
+  "PYPL": {
+    "puan": 32,
+    "detaylar": [
+      "📈 *P/E (15.66)* → Uygun → +5",
+      "📉 *Forward P/E (11.14)* → İyi → +5",
+      "🧠 *PEG (1.4)* → Makul → +3",
+      "📊 *ROE (20.0)* → Güçlü → +10",
+      "💰 *Profit Margin (13.05)* → Düşük → -3",
+      "💸 *Debt/Eq (0.58)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.26)* → Sağlam → +2",
+      "📈 *EPS this Y (8.08)* → Pozitif → +3",
+      "🔮 *EPS next Y (11.75)* → Güzel → +3"
+    ],
+    "yorum": "PYPL için analiz tamamlandı. Toplam puan: 32."
+  },
+  "QCOM": {
+    "puan": 30,
+    "detaylar": [
+      "📈 *P/E (14.88)* → Uygun → +5",
+      "📉 *Forward P/E (11.34)* → İyi → +5",
+      "🧠 *PEG (2.12)* → Pahalı → -3",
+      "📊 *ROE (41.96)* → Güçlü → +10",
+      "💰 *Profit Margin (25.94)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.54)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.99)* → Sağlam → +2",
+      "📈 *EPS this Y (15.31)* → Pozitif → +3",
+      "🔮 *EPS next Y (4.23)* → Zayıf → -2"
+    ],
+    "yorum": "QCOM için analiz tamamlandı. Toplam puan: 30."
+  },
+  "REGN": {
+    "puan": 29,
+    "detaylar": [
+      "📈 *P/E (14.47)* → Uygun → +5",
+      "📉 *Forward P/E (12.23)* → İyi → +5",
+      "🧠 *PEG (2.81)* → Pahalı → -3",
+      "📊 *ROE (15.95)* → Güçlü → +10",
+      "💰 *Profit Margin (31.07)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.1)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (3.95)* → Sağlam → +2",
+      "📈 *EPS this Y (-10.26)* → Negatif → -3",
+      "🔮 *EPS next Y (10.7)* → Güzel → +3"
+    ],
+    "yorum": "REGN için analiz tamamlandı. Toplam puan: 29."
+  },
+  "ROST": {
+    "puan": 7,
+    "detaylar": [
+      "📈 *P/E (22.39)* → Uygun → +5",
+      "📉 *Forward P/E (20.23)* → İyi → +5",
+      "🧠 *PEG (3.61)* → Pahalı → -3",
+      "📊 *ROE (40.28)* → Güçlü → +10",
+      "💰 *Profit Margin (9.89)* → Düşük → -3",
+      "💸 *Debt/Eq (1.03)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (1.09)* → Sağlam → +2",
+      "📈 *EPS this Y (2.08)* → Negatif → -3",
+      "🔮 *EPS next Y (8.45)* → Zayıf → -2"
+    ],
+    "yorum": "ROST için analiz tamamlandı. Toplam puan: 7."
+  },
+  "SBUX": {
+    "puan": -16,
+    "detaylar": [
+      "📈 *P/E (27.61)* → Pahalı → -5",
+      "📉 *Forward P/E (23.71)* → Yüksek → -3",
+      "🧠 *PEG (3.27)* → Pahalı → -3",
+      "💰 *Profit Margin (9.74)* → Düşük → -3",
+      "🚨 *Quick Ratio (0.57)* → Zayıf → -2",
+      "📈 *EPS this Y (-11.31)* → Negatif → -3",
+      "🔮 *EPS next Y (22.75)* → Güzel → +3"
+    ],
+    "yorum": "SBUX için analiz tamamlandı. Toplam puan: -16."
+  },
+  "SNPS": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (31.15)* → Pahalı → -5",
+      "📉 *Forward P/E (24.8)* → Yüksek → -3",
+      "🧠 *PEG (2.14)* → Pahalı → -3",
+      "📊 *ROE (16.27)* → Güçlü → +10",
+      "💰 *Profit Margin (34.78)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.07)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (2.51)* → Sağlam → +2",
+      "📈 *EPS this Y (12.85)* → Pozitif → +3",
+      "🔮 *EPS next Y (14.0)* → Güzel → +3"
+    ],
+    "yorum": "SNPS için analiz tamamlandı. Toplam puan: 17."
+  },
+  "TEAM": {
+    "puan": -6,
+    "detaylar": [
+      "📉 *Forward P/E (47.07)* → Yüksek → -3",
+      "📊 *ROE (-32.59)* → Zayıf → -4",
+      "💰 *Profit Margin (-7.22)* → Düşük → -3",
+      "💸 *Debt/Eq (1.02)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (1.22)* → Sağlam → +2",
+      "📈 *EPS this Y (18.69)* → Pozitif → +3",
+      "🔮 *EPS next Y (21.17)* → Güzel → +3"
+    ],
+    "yorum": "TEAM için analiz tamamlandı. Toplam puan: -6."
+  },
+  "TMUS": {
+    "puan": 10,
+    "detaylar": [
+      "📈 *P/E (26.73)* → Pahalı → -5",
+      "📉 *Forward P/E (20.21)* → İyi → +5",
+      "🧠 *PEG (1.63)* → Makul → +3",
+      "📊 *ROE (17.93)* → Güçlü → +10",
+      "💰 *Profit Margin (13.93)* → Düşük → -3",
+      "💸 *Debt/Eq (1.85)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.83)* → Zayıf → -2",
+      "📈 *EPS this Y (9.94)* → Pozitif → +3",
+      "🔮 *EPS next Y (20.49)* → Güzel → +3"
+    ],
+    "yorum": "TMUS için analiz tamamlandı. Toplam puan: 10."
+  },
+  "TSLA": {
+    "puan": -6,
+    "detaylar": [
+      "📈 *P/E (123.78)* → Pahalı → -5",
+      "📉 *Forward P/E (68.93)* → Yüksek → -3",
+      "🧠 *PEG (4.79)* → Pahalı → -3",
+      "📊 *ROE (10.52)* → Zayıf → -4",
+      "💰 *Profit Margin (7.3)* → Düşük → -3",
+      "💸 *Debt/Eq (0.19)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.61)* → Sağlam → +2",
+      "📈 *EPS this Y (9.66)* → Pozitif → +3",
+      "🔮 *EPS next Y (37.92)* → Güzel → +3"
+    ],
+    "yorum": "TSLA için analiz tamamlandı. Toplam puan: -6."
+  },
+  "TTD": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (63.78)* → Pahalı → -5",
+      "📉 *Forward P/E (22.84)* → Yüksek → -3",
+      "🧠 *PEG (3.92)* → Pahalı → -3",
+      "📊 *ROE (15.37)* → Güçlü → +10",
+      "💰 *Profit Margin (16.08)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.11)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.86)* → Sağlam → +2",
+      "📈 *EPS this Y (7.86)* → Pozitif → +3",
+      "🔮 *EPS next Y (21.75)* → Güzel → +3"
+    ],
+    "yorum": "TTD için analiz tamamlandı. Toplam puan: 17."
+  },
+  "TTWO": {
+    "puan": -8,
+    "detaylar": [
+      "📉 *Forward P/E (28.26)* → Yüksek → -3",
+      "📊 *ROE (-51.45)* → Zayıf → -4",
+      "💰 *Profit Margin (-67.07)* → Düşük → -3",
+      "💸 *Debt/Eq (0.72)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (0.83)* → Zayıf → -2",
+      "📈 *EPS this Y (0.02)* → Negatif → -3",
+      "🔮 *EPS next Y (204.29)* → Güzel → +3"
+    ],
+    "yorum": "TTWO için analiz tamamlandı. Toplam puan: -8."
+  },
+  "TXN": {
+    "puan": 17,
+    "detaylar": [
+      "📈 *P/E (28.4)* → Pahalı → -5",
+      "📉 *Forward P/E (21.58)* → İyi → +5",
+      "🧠 *PEG (1.83)* → Makul → +3",
+      "📊 *ROE (28.25)* → Güçlü → +10",
+      "💰 *Profit Margin (30.53)* → Yüksek → +6",
+      "💸 *Debt/Eq (0.85)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (2.88)* → Sağlam → +2",
+      "📈 *EPS this Y (3.23)* → Negatif → -3",
+      "🔮 *EPS next Y (27.44)* → Güzel → +3"
+    ],
+    "yorum": "TXN için analiz tamamlandı. Toplam puan: 17."
+  },
+  "VRSK": {
+    "puan": 5,
+    "detaylar": [
+      "📈 *P/E (43.53)* → Pahalı → -5",
+      "📉 *Forward P/E (37.1)* → Yüksek → -3",
+      "🧠 *PEG (4.43)* → Pahalı → -3",
+      "📊 *ROE (463.98)* → Güçlü → +10",
+      "💰 *Profit Margin (33.25)* → Yüksek → +6",
+      "💸 *Debt/Eq (32.43)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.74)* → Zayıf → -2",
+      "📈 *EPS this Y (5.94)* → Pozitif → +3",
+      "🔮 *EPS next Y (11.84)* → Güzel → +3"
+    ],
+    "yorum": "VRSK için analiz tamamlandı. Toplam puan: 5."
+  },
+  "VRTX": {
+    "puan": 2,
+    "detaylar": [
+      "📉 *Forward P/E (23.32)* → Yüksek → -3",
+      "📊 *ROE (-3.15)* → Zayıf → -4",
+      "💰 *Profit Margin (-4.88)* → Düşük → -3",
+      "💸 *Debt/Eq (0.11)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (2.35)* → Sağlam → +2",
+      "📈 *EPS this Y (4172.42)* → Pozitif → +3",
+      "🔮 *EPS next Y (15.72)* → Güzel → +3"
+    ],
+    "yorum": "VRTX için analiz tamamlandı. Toplam puan: 2."
+  },
+  "WBD": {
+    "puan": -7,
+    "detaylar": [
+      "📊 *ROE (-28.54)* → Zayıf → -4",
+      "💰 *Profit Margin (-28.79)* → Düşük → -3",
+      "💸 *Debt/Eq (1.26)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.89)* → Zayıf → -2",
+      "📈 *EPS this Y (92.53)* → Pozitif → +3",
+      "🔮 *EPS next Y (33.96)* → Güzel → +3"
+    ],
+    "yorum": "WBD için analiz tamamlandı. Toplam puan: -7."
+  },
+  "WDAY": {
+    "puan": -6,
+    "detaylar": [
+      "📈 *P/E (115.84)* → Pahalı → -5",
+      "📉 *Forward P/E (22.44)* → Yüksek → -3",
+      "🧠 *PEG (7.01)* → Pahalı → -3",
+      "📊 *ROE (6.15)* → Zayıf → -4",
+      "💰 *Profit Margin (6.25)* → Düşük → -3",
+      "💸 *Debt/Eq (0.37)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.85)* → Sağlam → +2",
+      "📈 *EPS this Y (16.79)* → Pozitif → +3",
+      "🔮 *EPS next Y (18.39)* → Güzel → +3"
+    ],
+    "yorum": "WDAY için analiz tamamlandı. Toplam puan: -6."
+  },
+  "XEL": {
+    "puan": -5,
+    "detaylar": [
+      "📈 *P/E (20.26)* → Uygun → +5",
+      "📉 *Forward P/E (16.83)* → İyi → +5",
+      "🧠 *PEG (2.4)* → Pahalı → -3",
+      "📊 *ROE (10.43)* → Zayıf → -4",
+      "💰 *Profit Margin (14.37)* → Düşük → -3",
+      "💸 *Debt/Eq (1.55)* → Yüksek borç → -4",
+      "🚨 *Quick Ratio (0.57)* → Zayıf → -2",
+      "📈 *EPS this Y (9.05)* → Pozitif → +3",
+      "🔮 *EPS next Y (8.3)* → Zayıf → -2"
+    ],
+    "yorum": "XEL için analiz tamamlandı. Toplam puan: -5."
+  },
+  "ZS": {
+    "puan": -4,
+    "detaylar": [
+      "📉 *Forward P/E (55.52)* → Yüksek → -3",
+      "📊 *ROE (-1.21)* → Zayıf → -4",
+      "💰 *Profit Margin (-0.64)* → Düşük → -3",
+      "💸 *Debt/Eq (0.77)* → Düşük borç → +4",
+      "🚨 *Quick Ratio (1.15)* → Sağlam → +2",
+      "📈 *EPS this Y (-3.38)* → Negatif → -3",
+      "🔮 *EPS next Y (15.75)* → Güzel → +3"
+    ],
+    "yorum": "ZS için analiz tamamlandı. Toplam puan: -4."
+  }
+}
