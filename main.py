@@ -217,17 +217,26 @@ def generate_summary(keyword=None):
             except:
                 continue
 
-    msg = "📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\n\n"
-    msg += "\n".join(summary["güçlü"]) or "Yok"
+    # Sadece dolu olan kategorileri mesajda göster
+    msg_parts = []
+    if summary["güçlü"]:
+        msg_parts.append("📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\n" + "\n".join(summary["güçlü"]))
+    if summary["kairi_-30"]:
+        msg_parts.append("🔴 KAIRI ≤ -30:\n" + "\n".join(summary["kairi_-30"]))
+    if summary["kairi_-20"]:
+        msg_parts.append("🟠 KAIRI ≤ -20:\n" + "\n".join(summary["kairi_-20"]))
+    if summary["mükemmel_alış"]:
+        msg_parts.append("🟢 Mükemmel Alış:\n" + "\n".join(summary["mükemmel_alış"]))
+    if summary["alış_sayımı"]:
+        msg_parts.append("📈 Alış Sayımı Tamamlananlar:\n" + "\n".join(summary["alış_sayımı"]))
+    if summary["mükemmel_satış"]:
+        msg_parts.append("🔵 Mükemmel Satış:\n" + "\n".join(summary["mükemmel_satış"]))
+    if summary["satış_sayımı"]:
+        msg_parts.append("📉 Satış Sayımı Tamamlananlar:\n" + "\n".join(summary["satış_sayımı"]))
+    if summary["matisay_-25"]:
+        msg_parts.append("🟣 Matisay < -25:\n" + "\n".join(summary["matisay_-25"]))
 
-    msg += "\n\n🔴 KAIRI ≤ -30:\n" + ("\n".join(summary["kairi_-30"]) or "Yok")
-    msg += "\n\n🟠 KAIRI ≤ -20:\n" + ("\n".join(summary["kairi_-20"]) or "Yok")
-    msg += "\n\n🟢 Mükemmel Alış:\n" + ("\n".join(summary["mükemmel_alış"]) or "Yok")
-    msg += "\n\n📈 Alış Sayımı Tamamlananlar:\n" + ("\n".join(summary["alış_sayımı"]) or "Yok")
-    msg += "\n\n🔵 Mükemmel Satış:\n" + ("\n".join(summary["mükemmel_satış"]) or "Yok")
-    msg += "\n\n🟣 Matisay < -25:\n" + ("\n".join(summary["matisay_-25"]) or "Yok")
-
-    return msg
+    return "\n\n".join(msg_parts) if msg_parts else "📊 Gösterilecek sinyal bulunamadı."
 
 def clear_signals():
     if os.path.exists(SIGNALS_FILE):
