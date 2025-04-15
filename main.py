@@ -63,11 +63,6 @@ def receive_signal():
             else:
                 data = {"symbol": "Bilinmiyor", "exchange": "Bilinmiyor", "signal": raw.strip()}
 
-        # Dinamik yerleştirme (örneğin, {{plot(...)}} gibi ifadeleri işleme)
-        signal = data.get("signal", "")
-        signal = re.sub(r"{{plot\(\"matisay trend direction\"\)}}", "-25", signal)  # Örnek olarak -25 yerleştirildi
-        data["signal"] = signal
-
         # Zaman damgası ekle
         data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open(SIGNALS_FILE, "a", encoding="utf-8") as f:
@@ -209,17 +204,24 @@ def generate_summary(keyword=None):
             except:
                 continue
 
-    msg = "📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\n\n"
-    msg += "\n".join(summary["güçlü"]) or "Yok"
+    # Dinamik mesaj oluşturma (boş kategorileri kaldır)
+    categories = {
+        "📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\n\n": summary["güçlü"],
+        "🔴 KAIRI ≤ -30:\n": summary["kairi_-30"],
+        "🟠 KAIRI ≤ -20:\n": summary["kairi_-20"],
+        "🟢 Mükemmel Alış:\n": summary["mükemmel_alış"],
+        "📈 Alış Sayımı Tamamlananlar:\n": summary["alış_sayımı"],
+        "🔵 Mükemmel Satış:\n": summary["mükemmel_satış"],
+        "📉 Satış Sayımı Tamamlananlar:\n": summary["satış_sayımı"],
+        "🟣 Matisay < -25:\n": summary["matisay_-25"]
+    }
 
-    msg += "\n\n🔴 KAIRI ≤ -30:\n" + ("\n".join(summary["kairi_-30"]) or "Yok")
-    msg += "\n\n🟠 KAIRI ≤ -20:\n" + ("\n".join(summary["kairi_-20"]) or "Yok")
-    msg += "\n\n🟢 Mükemmel Alış:\n" + ("\n".join(summary["mükemmel_alış"]) or "Yok")
-    msg += "\n\n📈 Alış Sayımı Tamamlananlar:\n" + ("\n".join(summary["alış_sayımı"]) or "Yok")
-    msg += "\n\n🔵 Mükemmel Satış:\n" + ("\n".join(summary["mükemmel_satış"]) or "Yok")
-    msg += "\n\n🟣 Matisay < -25:\n" + ("\n".join(summary["matisay_-25"]) or "Yok")
+    msg = ""
+    for title, items in categories.items():
+        if items:  # Eğer kategori boş değilse ekle
+            msg += title + "\n" + "\n".join(items) + "\n\n"
 
-    return msg
+    return msg.strip()
 
 def clear_signals():
     if os.path.exists(SIGNALS_FILE):
