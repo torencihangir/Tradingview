@@ -144,18 +144,42 @@ def load_analiz_json():
         return {}
 
 def generate_analiz_response(tickers):
-    analiz_verileri = load_analiz_json()  # analiz.json dosyasını yüklemek için mevcut fonksiyonu çağırıyoruz
+    analiz_verileri = load_analiz_json()  # analiz.json dosyasını yükleme
+    analiz_listesi = []
 
-    response_lines = []
+    # Hisselerin analizlerini topla
     for ticker in tickers:
         analiz = analiz_verileri.get(ticker.upper())  # Hisse kodlarını büyük harfe çevirerek kontrol
         if analiz:
-            # Detayları ve yorumları formatla
-            detaylar = "\n".join(analiz["detaylar"])
+            puan = analiz.get("puan", 0)  # Eğer puan yoksa varsayılan olarak 0 kullanılır
+            detaylar = "\n".join(analiz["detaylar"])  # Detayları birleştir
             yorum = analiz["yorum"]
-            response_lines.append(f"📊 *{ticker} Analiz Sonuçları:*\n{detaylar}\n\n{yorum}")
+            analiz_listesi.append({
+                "ticker": ticker.upper(),
+                "puan": puan,
+                "detaylar": detaylar,
+                "yorum": yorum
+            })
         else:
-            response_lines.append(f"❌ {ticker} için analiz bulunamadı.")
+            analiz_listesi.append({
+                "ticker": ticker.upper(),
+                "puan": None,
+                "detaylar": None,
+                "yorum": f"❌ {ticker.upper()} için analiz bulunamadı."
+            })
+
+    # Puanlara göre büyükten küçüğe sıralama
+    analiz_listesi.sort(key=lambda x: (x["puan"] is not None, x["puan"]), reverse=True)
+
+    # Mesajları formatla
+    response_lines = []
+    for analiz in analiz_listesi:
+        if analiz["puan"] is not None:
+            response_lines.append(
+                f"📊 *{analiz['ticker']} Analiz Sonuçları (Puan: {analiz['puan']}):*\n{analiz['detaylar']}\n\n{analiz['yorum']}"
+            )
+        else:
+            response_lines.append(analiz["yorum"])
 
     return "\n\n".join(response_lines)
 
