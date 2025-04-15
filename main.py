@@ -17,7 +17,7 @@ app = Flask(__name__)
 # .env dosyasından değerleri al
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
-SIGNALS_FILE = "signals.json"
+SIGNALS_FILE = "C:\\Users\\Administrator\\Desktop\\tradingview-telegram-bot\\signals.json"
 ANALIZ_FILE = "analiz.json"
 
 def escape_markdown(text):
@@ -116,6 +116,14 @@ def telegram_webhook():
             send_telegram_message(response)
 
     return "ok", 200
+
+@app.route("/clear_signals", methods=["POST"])
+def clear_signals_endpoint():
+    try:
+        clear_signals()
+        return "📁 signals.json dosyası temizlendi!", 200
+    except Exception as e:
+        return str(e), 500
 
 def parse_signal_line(line):
     try:
