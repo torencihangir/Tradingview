@@ -63,9 +63,9 @@ def receive_signal():
             else:
                 data = {"symbol": "Bilinmiyor", "exchange": "Bilinmiyor", "signal": raw.strip()}
 
-        # Dinamik yerleştirme
+        # Dinamik yerleştirme (örneğin, {{plot(...)}} gibi ifadeleri işleme)
         signal = data.get("signal", "")
-        signal = re.sub(r"{{plot\\(\"matisay trend direction\"\\)}}", "-25", signal)
+        signal = re.sub(r"{{plot\(\"matisay trend direction\"\)}}", "-25", signal)  # Örnek olarak -25 yerleştirildi
         data["signal"] = signal
 
         # Zaman damgası ekle
@@ -96,11 +96,12 @@ def telegram_webhook():
         print(">>> /ozet komutu alındı")
         keyword = text[6:].strip().lower() if len(text) > 6 else None
 
+        # Anahtar kelime kontrolü ekliyoruz
         if keyword in ["bats", "nasdaq", "bist_dly", "binance"]:
             print(f">>> /ozet komutu için anahtar kelime: {keyword}")
             summary = generate_summary(keyword)
         else:
-            summary = generate_summary()
+            summary = generate_summary()  # Varsayılan tüm sinyaller için özet
 
         send_telegram_message(summary)
 
@@ -141,44 +142,6 @@ def load_analiz_json():
         print("analiz.json dosyası geçerli bir JSON formatında değil.")
         return {}
 
-def generate_analiz_response(tickers):
-    analiz_path = "C:\\Users\\Administrator\\Desktop\\tradingview-telegram-bot\\analiz.json"
-    try:
-        with open(analiz_path, "r", encoding="utf-8") as f:
-            analiz_data = json.load(f)
-    except FileNotFoundError:
-        return "❌ analiz.json dosyası bulunamadı."
-    except json.JSONDecodeError:
-        return "❌ analiz.json geçerli bir JSON formatında değil."
-
-    found = []
-    not_found = []
-
-    for ticker in tickers:
-        key = ticker.strip().upper()
-        data = analiz_data.get(key)
-
-        if data:
-            puan = data.get("puan", "Yok")
-            detaylar = data.get("detaylar", [])
-            yorum = data.get("yorum", "Yorum bulunamadı")
-
-            detay_text = "\n".join(detaylar)
-            msg = f"*{key}* için analiz sonucu:\n\n📊 Toplam Puan: *{puan}*/100\n\n{detay_text}\n\n🧠 _{yorum}_"
-            found.append(msg)
-        else:
-            not_found.append(key)
-
-    if not found:
-        return "⚠️ Hiçbir analiz verisi bulunamadı."
-
-    response = "\n\n".join(found)
-
-    if not_found:
-        response += f"\n\n🚫 Bulunamayanlar: {', '.join(not_found)}"
-
-    return response
-
 def generate_summary(keyword=None):
     if not os.path.exists(SIGNALS_FILE):
         return "📊 Henüz hiç sinyal kaydedilmedi."
@@ -194,12 +157,13 @@ def generate_summary(keyword=None):
         "alış_sayımı": set(),
         "mükemmel_satış": set(),
         "satış_sayımı": set(),
-        "matisay_-25": set()
+        "matisay_-25": set()  # Yeni kategori
     }
 
     parsed_lines = [parse_signal_line(line) for line in lines]
     parsed_lines = [s for s in parsed_lines if s]
 
+    # Anahtar kelimelere göre filtreleme yap
     keyword_map = {
         "bist": "bist_dly",
         "nasdaq": "bats",
@@ -216,6 +180,7 @@ def generate_summary(keyword=None):
         exchange = signal_data.get("exchange", "")
         signal = signal_data.get("signal", "")
         key = f"{symbol} ({exchange})"
+
         signal_lower = signal.lower()
 
         if "kairi" in signal_lower:
@@ -225,6 +190,7 @@ def generate_summary(keyword=None):
                     summary["kairi_-30"].add(f"{key}: KAIRI {kairi_value}")
                 elif kairi_value <= -20:
                     summary["kairi_-20"].add(f"{key}: KAIRI {kairi_value}")
+
                 for other in parsed_lines:
                     if (
                         other.get("symbol") == symbol and
@@ -234,6 +200,7 @@ def generate_summary(keyword=None):
                         break
             except:
                 continue
+
         elif re.search(r"mükemmel alış", signal, re.IGNORECASE):
             summary["mükemmel_alış"].add(key)
         elif re.search(r"alış sayımı", signal, re.IGNORECASE):
@@ -250,6 +217,7 @@ def generate_summary(keyword=None):
             except:
                 continue
 
+    # Sadece dolu olan kategorileri mesajda göster
     msg_parts = []
     if summary["güçlü"]:
         msg_parts.append("📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\n" + "\n".join(summary["güçlü"]))
