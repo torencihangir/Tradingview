@@ -108,7 +108,7 @@ def telegram_webhook():
     elif text.startswith("/analiz"):
         print(">>> /analiz komutu alındı")
         tickers_input = text[8:].strip()
-        tickers = [ticker.strip() for ticker in tickers_input.split(",")]
+        tickers = [ticker.strip() for ticker in tickers_input.split(",") if ticker.strip()]
         if not tickers:
             send_telegram_message("Lütfen bir veya daha fazla hisse kodu belirtin. Örnek: /analiz AAPL,MSFT,AMD")
         else:
@@ -141,6 +141,25 @@ def load_analiz_json():
     except json.JSONDecodeError:
         print("analiz.json dosyası geçerli bir JSON formatında değil.")
         return {}
+
+def generate_analiz_response(tickers):
+    """
+    Verilen hisse ticker'larına karşılık analiz bilgilerini döndürür.
+    analiz.json dosyasında ticker'lardan anahtar olarak analiz sonuçlarının bulunduğunu varsayar.
+    """
+    analiz_data = load_analiz_json()  # analiz.json içeriğini yükleyen fonksiyonunuz
+    result_lines = []
+    
+    for ticker in tickers:
+        ticker = ticker.upper()  # Büyük harfe çevirerek tutarlılık sağlayabiliriz
+        # Dosyada ticker varsa, veriyi ekle; yoksa bilgilendirici bir mesaj yaz
+        if ticker in analiz_data:
+            analysis = analiz_data[ticker]
+            result_lines.append(f"{ticker}: {analysis}")
+        else:
+            result_lines.append(f"{ticker}: Analiz bulunamadı.")
+    
+    return "\n".join(result_lines)
 
 def generate_summary(keyword=None):
     if not os.path.exists(SIGNALS_FILE):
