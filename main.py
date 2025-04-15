@@ -65,7 +65,7 @@ def receive_signal():
 
         # Dinamik yerleştirme
         signal = data.get("signal", "")
-        signal = re.sub(r"{{plot\(\"matisay trend direction\"\)}}", "-25", signal)
+        signal = re.sub(r"{{plot\\(\"matisay trend direction\"\\)}}", "-25", signal)
         data["signal"] = signal
 
         # Zaman damgası ekle
@@ -160,9 +160,12 @@ def generate_analiz_response(tickers):
 
         if data:
             puan = data.get("puan", "Yok")
-            sektor = data.get("sektor", "Bilinmiyor")
+            detaylar = data.get("detaylar", [])
             yorum = data.get("yorum", "Yorum bulunamadı")
-            found.append(f"*{key}* ({sektor})\n📊 Puan: *{puan}*/100\n🧠 _{yorum}_")
+
+            detay_text = "\n".join(detaylar)
+            msg = f"*{key}* için analiz sonucu:\n\n📊 Toplam Puan: *{puan}*/100\n\n{detay_text}\n\n🧠 _{yorum}_"
+            found.append(msg)
         else:
             not_found.append(key)
 
