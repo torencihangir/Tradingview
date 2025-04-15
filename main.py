@@ -8,6 +8,11 @@ import threading
 from datetime import datetime
 import pytz
 from dotenv import load_dotenv
+import sys
+import io
+
+# Standart çıktının kodlamasını UTF-8 olarak ayarla
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # .env dosyasını yükle
 load_dotenv()
