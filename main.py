@@ -22,7 +22,7 @@ ANALIZ_FILE = "analiz.json"
 
 def escape_markdown(text):
     # Sadece özel karakterlerden bazılarını kaçır
-    escape_chars = r"*_[~`>|{}"
+    escape_chars = r"*_[~>|{}"
     return re.sub(r"([{}])".format(re.escape(escape_chars)), r"\\\1", text)
 
 def send_telegram_message(message):
