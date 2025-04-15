@@ -112,6 +112,14 @@ def telegram_webhook():
 
     return "ok", 200
 
+@app.route("/clear_signals", methods=["POST"])
+def clear_signals_endpoint():
+    try:
+        clear_signals()  # signals.json dosyasını temizler
+        return "signals.json dosyası temizlendi!", 200
+    except Exception as e:
+        return str(e), 500
+
 def parse_signal_line(line):
     try:
         return json.loads(line)
@@ -149,60 +157,6 @@ def generate_summary(keyword=None):
 
     parsed_lines = [parse_signal_line(line) for line in lines]
     parsed_lines = [s for s in parsed_lines if s]
-
-    # Anahtar kelimelere göre filtreleme yap
-    keyword_map = {
-        "bist": "bist_dly",
-        "nasdaq": "bats",
-        "binance": "binance"
-    }
-    if keyword:
-        keyword_mapped = keyword_map.get(keyword.lower(), keyword.lower())
-        parsed_lines = [
-            s for s in parsed_lines if keyword_mapped in s.get("exchange", "").lower()
-        ]
-
-    for signal_data in parsed_lines:
-        symbol = signal_data.get("symbol", "")
-        exchange = signal_data.get("exchange", "")
-        signal = signal_data.get("signal", "")
-        key = f"{symbol} ({exchange})"
-
-        signal_lower = signal.lower()
-
-        if "kairi" in signal_lower:
-            try:
-                kairi_value = round(float(re.findall(r"[-+]?[0-9]*\.?[0-9]+", signal_lower)[0]), 2)
-                if kairi_value <= -30:
-                    summary["kairi_-30"].add(f"{key}: KAIRI {kairi_value}")
-                elif kairi_value <= -20:
-                    summary["kairi_-20"].add(f"{key}: KAIRI {kairi_value}")
-
-                for other in parsed_lines:
-                    if (
-                        other.get("symbol") == symbol and
-                        re.search(r"(mükemmel alış|alış sayımı)", other.get("signal", ""), re.IGNORECASE)
-                    ):
-                        summary["güçlü"].add(f"✅ {key} - KAIRI: {kairi_value} ve Alış sinyali birlikte geldi")
-                        break
-            except:
-                continue
-
-        elif re.search(r"mükemmel alış", signal, re.IGNORECASE):
-            summary["mükemmel_alış"].add(key)
-        elif re.search(r"alış sayımı", signal, re.IGNORECASE):
-            summary["alış_sayımı"].add(key)
-        elif re.search(r"mükemmel satış", signal, re.IGNORECASE):
-            summary["mükemmel_satış"].add(key)
-        elif re.search(r"satış sayımı", signal, re.IGNORECASE):
-            summary["satış_sayımı"].add(key)
-        elif "matisay" in signal_lower:
-            try:
-                matisay_value = round(float(re.findall(r"[-+]?[0-9]*\.?[0-9]+", signal_lower)[0]), 2)
-                if matisay_value < -25:
-                    summary["matisay_-25"].add(f"{key}: Matisay {matisay_value}")
-            except:
-                continue
 
     # Dinamik mesaj oluşturma (boş kategorileri kaldır)
     categories = {
