@@ -108,7 +108,7 @@ def telegram_webhook():
     elif text.startswith("/analiz"):
         print(">>> /analiz komutu alındı")
         tickers_input = text[8:].strip()
-        tickers = [ticker.strip() for ticker in tickers_input.split(",")]
+        tickers = [ticker.strip().upper() for ticker in tickers_input.split(",") if ticker.strip()]
         if not tickers:
             send_telegram_message("Lütfen bir veya daha fazla hisse kodu belirtin. Örnek: /analiz AAPL,MSFT,AMD")
         else:
@@ -116,6 +116,7 @@ def telegram_webhook():
             send_telegram_message(response)
 
     return "ok", 200
+
 
 @app.route("/clear_signals", methods=["POST"])
 def clear_signals_endpoint():
