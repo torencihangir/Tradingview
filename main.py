@@ -128,40 +128,6 @@ def load_analiz_json():
         print("analiz.json dosyası geçerli bir JSON formatında değil.")
         return {}
 
-def generate_analiz_response(tickers):
-    analiz_data = load_analiz_json()
-    response = []
-    not_found = []
-
-    for ticker in tickers:
-        ticker = ticker.upper()
-        if ticker in analiz_data:
-            data = analiz_data[ticker]
-            detaylar = "\n".join(data["detaylar"])
-            response.append({
-                "ticker": ticker,
-                "puan": data["puan"],
-                "detaylar": detaylar,
-                "yorum": data["yorum"]
-            })
-        else:
-            not_found.append(ticker)
-
-    # Puanlara göre azalan sırada sıralama
-    response = sorted(response, key=lambda x: x["puan"], reverse=True)
-
-    # Yanıt mesajını oluştur
-    result_message = "📊 Hisse Analizleri (En Yüksek Puanlıdan Başlayarak):\n\n"
-    for idx, item in enumerate(response, 1):
-        result_message += f"{idx}. *{item['ticker']}* - Puan: {item['puan']}\n"
-        result_message += f"{item['detaylar']}\n\n"
-        result_message += f"💬 {item['yorum']}\n\n"
-
-    if not_found:
-        result_message += "❌ Analiz bulunamayan hisseler: " + ", ".join(not_found) + "\n"
-
-    return result_message.strip()
-
 def generate_summary(keyword=None):
     if not os.path.exists(SIGNALS_FILE):
         return "📊 Henüz hiç sinyal kaydedilmedi."
@@ -177,7 +143,7 @@ def generate_summary(keyword=None):
         "alış_sayımı": set(),
         "mükemmel_satış": set(),
         "satış_sayımı": set(),
-        "matisay": set()
+        "matisay_-25": set()  # Yeni kategori
     }
 
     parsed_lines = [parse_signal_line(line) for line in lines]
@@ -229,8 +195,13 @@ def generate_summary(keyword=None):
             summary["mükemmel_satış"].add(key)
         elif re.search(r"satış sayımı", signal, re.IGNORECASE):
             summary["satış_sayımı"].add(key)
-        elif "fib0" in signal_lower:
-            summary["matisay"].add(key)
+        elif "matisay" in signal_lower:
+            try:
+                matisay_value = round(float(re.findall(r"[-+]?[0-9]*\.?[0-9]+", signal_lower)[0]), 2)
+                if matisay_value < -25:
+                    summary["matisay_-25"].add(f"{key}: Matisay {matisay_value}")
+            except:
+                continue
 
     msg = "📊 GÜÇLÜ EŞLEŞEN SİNYALLER:\n\n"
     msg += "\n".join(summary["güçlü"]) or "Yok"
@@ -240,8 +211,7 @@ def generate_summary(keyword=None):
     msg += "\n\n🟢 Mükemmel Alış:\n" + ("\n".join(summary["mükemmel_alış"]) or "Yok")
     msg += "\n\n📈 Alış Sayımı Tamamlananlar:\n" + ("\n".join(summary["alış_sayımı"]) or "Yok")
     msg += "\n\n🔵 Mükemmel Satış:\n" + ("\n".join(summary["mükemmel_satış"]) or "Yok")
-    msg += "\n\n📉 Satış Sayımı Tamamlananlar:\n" + ("\n".join(summary["satış_sayımı"]) or "Yok")
-    msg += "\n\n🟤 Matisay Fib0:\n" + ("\n".join(summary["matisay"]) or "Yok")
+    msg += "\n\n🟣 Matisay < -25:\n" + ("\n".join(summary["matisay_-25"]) or "Yok")
 
     return msg
 
