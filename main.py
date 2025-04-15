@@ -63,6 +63,12 @@ def receive_signal():
             else:
                 data = {"symbol": "Bilinmiyor", "exchange": "Bilinmiyor", "signal": raw.strip()}
 
+        # Dinamik yerleştirme (örneğin, {{plot(...)}} gibi ifadeleri işleme)
+        signal = data.get("signal", "")
+        signal = re.sub(r"{{plot\(\"matisay trend direction\"\)}}", "-25", signal)  # Örnek olarak -25 yerleştirildi
+        data["signal"] = signal
+
+        # Zaman damgası ekle
         data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open(SIGNALS_FILE, "a", encoding="utf-8") as f:
             f.write(json.dumps(data, ensure_ascii=False) + "\n")
