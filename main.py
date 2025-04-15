@@ -143,6 +143,22 @@ def load_analiz_json():
         print("analiz.json dosyası geçerli bir JSON formatında değil.")
         return {}
 
+def generate_analiz_response(tickers):
+    analiz_verileri = load_analiz_json()  # analiz.json dosyasını yüklemek için mevcut fonksiyonu çağırıyoruz
+
+    response_lines = []
+    for ticker in tickers:
+        analiz = analiz_verileri.get(ticker.upper())  # Hisse kodlarını büyük harfe çevirerek kontrol
+        if analiz:
+            # Detayları ve yorumları formatla
+            detaylar = "\n".join(analiz["detaylar"])
+            yorum = analiz["yorum"]
+            response_lines.append(f"📊 *{ticker} Analiz Sonuçları:*\n{detaylar}\n\n{yorum}")
+        else:
+            response_lines.append(f"❌ {ticker} için analiz bulunamadı.")
+
+    return "\n\n".join(response_lines)
+
 def generate_summary(keyword=None):
     if not os.path.exists(SIGNALS_FILE):
         return "📊 Henüz hiç sinyal kaydedilmedi."
