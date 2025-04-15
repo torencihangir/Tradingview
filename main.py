@@ -8,11 +8,6 @@ import threading
 from datetime import datetime
 import pytz
 from dotenv import load_dotenv
-import sys
-import io
-
-# Standart çıktının kodlamasını UTF-8 olarak ayarla
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # .env dosyasını yükle
 load_dotenv()
@@ -27,7 +22,7 @@ ANALIZ_FILE = "analiz.json"
 
 def escape_markdown(text):
     # Sadece özel karakterlerden bazılarını kaçır
-    escape_chars = r"*_[~>|{}"
+    escape_chars = r"*_[~`>|{}"
     return re.sub(r"([{}])".format(re.escape(escape_chars)), r"\\\1", text)
 
 def send_telegram_message(message):
