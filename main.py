@@ -21,28 +21,31 @@ SIGNALS_FILE = "C:\\Users\\Administrator\\Desktop\\tradingview-telegram-bot\\sig
 ANALIZ_FILE = "analiz.json"
 
 def escape_markdown_v2(text):
+    # Telegram MarkdownV2'de özel karakterleri kaçırmak gerekiyor
     escape_chars = r"\_*[]()~`>#+-=|{}.!<>"
     return re.sub(r"([{}])".format(re.escape(escape_chars)), r"\\\1", text)
 
 
+
 def send_telegram_message(message):
-    # Mesajı MarkdownV2 formatına uygun şekilde kaçar
+    # ✅ Kaçır
     escaped_message = escape_markdown_v2(message)
 
-    # Mesajı 4096 karakterlik parçalara böl
+    # ✅ Parçalayıp yolla
     for i in range(0, len(escaped_message), 4096):
         chunk = escaped_message[i:i+4096]
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
         data = {
             "chat_id": CHAT_ID,
             "text": chunk,
-            "parse_mode": "MarkdownV2"
+            "parse_mode": "MarkdownV2"  # ÖNEMLİ
         }
         try:
             r = requests.post(url, json=data, timeout=5)
-            print(">>> Telegram yanıtı:", r.status_code, r.text, flush=True)
+            print("✅ Telegram yanıtı:", r.status_code, r.text)
         except Exception as e:
-            print("Telegram'a mesaj gönderilemedi:", e, flush=True)
+            print("❌ Telegram'a mesaj gönderilemedi:", e)
+
 
 @app.route("/signal", methods=["POST"])
 def receive_signal():
