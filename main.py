@@ -20,14 +20,14 @@ CHAT_ID = os.getenv("CHAT_ID")
 SIGNALS_FILE = "C:\\Users\\Administrator\\Desktop\\tradingview-telegram-bot\\signals.json"
 ANALIZ_FILE = "analiz.json"
 
-def escape_markdown(text):
-    # Sadece özel karakterlerden bazılarını kaçır
-    escape_chars = r"*_[~`>|{}"
+def escape_markdown_v2(text):
+    escape_chars = r"\_*[]()~`>#+-=|{}.!<>"
     return re.sub(r"([{}])".format(re.escape(escape_chars)), r"\\\1", text)
 
+
 def send_telegram_message(message):
-    # Mesajı Markdown formatına uygun şekilde kaçar
-    escaped_message = escape_markdown(message)
+    # Mesajı MarkdownV2 formatına uygun şekilde kaçar
+    escaped_message = escape_markdown_v2(message)
 
     # Mesajı 4096 karakterlik parçalara böl
     for i in range(0, len(escaped_message), 4096):
@@ -36,7 +36,7 @@ def send_telegram_message(message):
         data = {
             "chat_id": CHAT_ID,
             "text": chunk,
-            "parse_mode": "Markdown"
+            "parse_mode": "MarkdownV2"
         }
         try:
             r = requests.post(url, json=data, timeout=5)
