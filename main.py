@@ -307,4 +307,3 @@ threading.Thread(target=clear_signals_daily, daemon=True).start()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
- bu şekilde main.py dosyası
