@@ -296,27 +296,40 @@ def telegram_webhook():
 # KODUN TAMAMINI ÇALIŞTIRMAK İÇİN BU KISIMLARI ÖNCEKİ VERSİYONDAN ALIP
 # generate_bist_analiz_response fonksiyonunu bu dosyadaki ile değiştirin.
 
+# --- Uygulama Başlangıcı ---
 if __name__ == "__main__":
     print("🚀 Flask uygulaması başlatılıyor...")
-    # Eksik fonksiyonları varsayılan olarak ekleyelim (gerçek kodda bunlar olmalı)
-    def generate_summary(keyword=None): return "Özet oluşturuluyor..."
-    def generate_analiz_response(tickers): return "Analiz oluşturuluyor..."
-    def clear_signals(): print("Sinyaller temizleniyor..."); return True
-    def clear_signals_daily(): print("Günlük temizlik döngüsü çalışıyor..."); time.sleep(3600) # Sadece göstermelik
-    @app.route("/signal", methods=["POST"])
-    def receive_signal(): return "ok", 200
-    @app.route("/clear_signals", methods=["POST"])
-    def clear_signals_endpoint(): clear_signals(); return "ok", 200
 
-    # Arka plan temizlik görevini başlat (gerçek kodda bu olmalı)
-    # cleanup_thread = threading.Thread(target=clear_signals_daily, daemon=True)
-    # cleanup_thread.start()
-    # print("✅ Günlük sinyal temizleme görevi arka planda başlatıldı.")
+    # Ortam değişkenlerini kontrol et
+    if not BOT_TOKEN: print("❌ UYARI: BOT_TOKEN .env dosyasında ayarlanmamış!")
+    if not CHAT_ID: print("❌ UYARI: CHAT_ID .env dosyasında ayarlanmamış!")
+    # ... (Diğer dosya yolu kontrolleri)
 
+    # JSON dosyalarının varlığını kontrol et veya oluştur
+    for filepath in [SIGNALS_FILE, ANALIZ_FILE, ANALIZ_SONUCLARI_FILE]:
+        if filepath and not os.path.exists(filepath):
+            print(f"ℹ️ {filepath} dosyası bulunamadı, boş olarak oluşturuluyor...")
+            if not save_json_file(filepath, {}):
+                 print(f"❌ {filepath} dosyası oluşturulamadı!")
+
+    # Başlangıçta verileri tekrar yükle
+    load_signals()
+    load_analiz_data()
+    load_bist_analiz_data()
+
+    # Arka plan günlük temizlik görevini başlat
+    cleanup_thread = threading.Thread(target=clear_signals_daily, daemon=True)
+    cleanup_thread.start()
+    print("✅ Günlük sinyal temizleme görevi arka planda başlatıldı.")
+
+    # Flask uygulamasını çalıştır
     port = int(os.getenv("PORT", 5000))
-    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() == "true"
-    print(f"🔧 Ayarlar: Port={port}, Debug={debug_mode}")
-    print(f"🔧 Telegram Bot Token: {'Var' if BOT_TOKEN else 'Yok!'}, Chat ID: {'Var' if CHAT_ID else 'Yok!'}")
-    if not BOT_TOKEN or not CHAT_ID: print("❌ UYARI: BOT_TOKEN veya CHAT_ID .env dosyasında ayarlanmamış!")
+    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
+    print(f"🔧 Ayarlar: Port={port}, Debug={debug_mode}, Timezone={TIMEZONE}") # TIMEZONE tanımını eklediğimi varsayıyorum
+    print(f"📂 Veri Dosyaları: Sinyal='{SIGNALS_FILE}', Analiz='{ANALIZ_FILE}', BIST Analiz='{ANALIZ_SONUCLARI_FILE}'")
+
+    # Placeholder fonksiyon tanımları BURADA OLMAMALI!
+    # def generate_summary(keyword=None): return "Özet oluşturuluyor..." # <<< SİLİN VEYA YORUM YAPIN
+    # def generate_analiz_response(tickers): return "Analiz oluşturuluyor..." # <<< SİLİN VEYA YORUM YAPIN
 
     app.run(host="0.0.0.0", port=port, debug=debug_mode)
