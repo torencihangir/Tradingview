@@ -777,40 +777,27 @@ def clear_signals_endpoint():
 
 # --- Uygulama Başlangıcı ---
 if __name__ == "__main__":
-    print("*"*50)
-    print("🚀 Flask Sinyal/Analiz Botu Başlatılıyor...")
-    print("*"*50)
-
-    # Ortam değişkenlerini kontrol et
-    if not BOT_TOKEN: print("❌ UYARI: BOT_TOKEN .env dosyasında bulunamadı!")
-    if not CHAT_ID: print("❌ UYARI: CHAT_ID .env dosyasında bulunamadı!")
-    if not all([BOT_TOKEN, CHAT_ID]):
-        print(">>> Lütfen .env dosyasını kontrol edip tekrar başlatın. <<<")
-        exit() # Gerekli değişkenler yoksa çık
-
-    print(f"🔧 Ayarlar: Timezone='{TIMEZONE}', Cleanup Time='{os.getenv('CLEANUP_HOUR', 0)}:{os.getenv('CLEANUP_MINUTE', 5)}'")
-    print(f"📂 Veri Dosyaları: Sinyal='{SIGNALS_FILE}', Analiz='{ANALIZ_FILE}', BIST Analiz='{ANALIZ_SONUCLARI_FILE}'")
+    # ... (önceki kodlar) ...
 
     # Gerekli JSON dosyalarını kontrol et/oluştur
     for filepath in [SIGNALS_FILE, ANALIZ_FILE, ANALIZ_SONUCLARI_FILE]:
         if filepath and not os.path.exists(filepath):
             print(f"ℹ️ {filepath} bulunamadı, boş olarak oluşturuluyor...")
-            # save_json_file dizini de oluşturur
             if not save_json_file(filepath, {}):
                  print(f"❌ {filepath} oluşturulamadı! Manuel kontrol gerekli.")
-                 # Kritikse burada çıkış yapılabilir: exit()
         elif filepath and os.path.exists(filepath) and os.path.getsize(filepath) == 0:
             # Dosya varsa ama boşsa, geçerli JSON formatı için {} yazalım
-            print(f"ℹ️ Boş dosya bulundu: {filepath}. İçerik '{}' olarak ayarlanıyor.")
+            # ---- HATALI SATIR ----
+            # print(f"ℹ️ Boş dosya bulundu: {filepath}. İçerik '{}' olarak ayarlanıyor.")
+            # ---- DÜZELTİLMİŞ SATIR ----
+            print(f"ℹ️ Boş dosya bulundu: {filepath}. İçerik '{{}}' olarak ayarlanıyor.") # <<<<<<<< DEĞİŞİKLİK BURADA
             save_json_file(filepath, {})
 
-
-    # Başlangıçta verileri yükle
-    print("\n--- Başlangıç Veri Yükleme ---")
+    # ... (sonraki kodlar) ...
     load_signals()
     load_analiz_data()
     load_bist_analiz_data()
-    print("--- Veri Yükleme Tamamlandı ---\n")
+    # ... (diğer kodlar ve app.run)
 
 
     # Arka plan temizlik görevini başlat
