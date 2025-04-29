@@ -125,113 +125,45 @@ def load_bist_analiz_data():
         if loaded_data is not None: bist_analiz_data = loaded_data; print(f"✅ BIST Analiz yüklendi: {len(bist_analiz_data)} kayıt.")
         else: print("❌ BIST Analiz okuma hatası."); bist_analiz_data = bist_analiz_data or {}
 
-# ----- parse_signal_line GÜNCELLENDİ (JSON ve Yeni Formatlar) -----
 def parse_signal_line(alert_json_string):
     """Gelen JSON formatındaki alert mesajını ayrıştırır."""
-    try:
-        alert_data = json.loads(alert_json_string)
-    except json.JSONDecodeError as e:
-        print(f"❌ JSON Ayrıştırma Hatası: {e} - Veri: {alert_json_string[:200]}...")
-        return None
-
+    try: alert_data = json.loads(alert_json_string)
+    except json.JSONDecodeError as e: print(f"❌ JSON Ayrıştırma Hatası: {e} - Veri: {alert_json_string[:200]}..."); return None
     symbol = alert_data.get("symbol", "N/A").upper()
     exchange_raw = alert_data.get("exchange", "UNKNOWN").lower()
     signal_text = alert_data.get("signal", "")
-    timestamp_str = alert_data.get("timestamp") # Timestamp'ı JSON'dan al
-
-    # Borsa adını standartlaştır
-    borsa_map = {
-        "bist": "bist", "xu100": "bist", "bist_dly": "bist", # BIST_DLY'yi bist yap
-        "nasdaq": "nasdaq", "ndx": "nasdaq", "bats": "bats", # BATS eklendi
-        "binance": "binance", "crypto": "binance",
-        "okx": "okx", # OKX eklendi
-        "us": "bats" # us'yi bats yap
-    }
+    timestamp_str = alert_data.get("timestamp")
+    borsa_map = { "bist": "bist", "xu100": "bist", "bist_dly": "bist", "nasdaq": "nasdaq", "ndx": "nasdaq", "bats": "bats", "binance": "binance", "crypto": "binance", "okx": "okx", "us": "bats" }
     borsa = borsa_map.get(exchange_raw, exchange_raw if exchange_raw != "unknown" else "unknown")
-
-    if borsa == "unknown" or symbol == "N/A":
-        print(f"❌ Geçersiz Borsa/Sembol: {alert_data}")
-        return None
-
-    # Zaman damgasını işle
+    if borsa == "unknown" or symbol == "N/A": print(f"❌ Geçersiz Borsa/Sembol: {alert_data}"); return None
     parsed_time_str = None
     if timestamp_str:
-        # Farklı formatları dene
-        for fmt in ("%Y-%m-%dT%H:%M:%S.%f", # Mikrosaniye ile T ayracı
-                    "%Y-%m-%d %H:%M:%S.%f", # Mikrosaniye ile boşluk ayracı
-                    "%Y-%m-%dT%H:%M:%S",     # Saniye ile T ayracı
-                    "%Y-%m-%d %H:%M:%S"):     # Saniye ile boşluk ayracı
+        for fmt in ("%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S"):
             try:
-                # Zaman damgasını datetime nesnesine çevir
                 dt_obj_naive = datetime.strptime(timestamp_str, fmt)
-                # Zaman dilimi bilgisi ekle (eğer yoksa)
                 dt_obj_aware = TIMEZONE.localize(dt_obj_naive)
                 parsed_time_str = dt_obj_aware.strftime("%Y-%m-%d %H:%M:%S %Z%z")
-                break # Başarılı olursa döngüden çık
-            except ValueError:
-                continue # Bu format uymadı, sonrakini dene
-        if not parsed_time_str:
-            print(f"⚠️ Zaman damgası formatı anlaşılamadı: {timestamp_str}. Şimdiki zaman kullanılacak.")
-            parsed_time_str = datetime.now(TIMEZONE).strftime("%Y-%m-%d %H:%M:%S %Z%z")
-    else:
-        # Timestamp yoksa şimdiki zamanı kullan
-        parsed_time_str = datetime.now(TIMEZONE).strftime("%Y-%m-%d %H:%M:%S %Z%z")
-
-
-    # Sonuç sözlüğünü hazırla
-    data = {
-        "raw": alert_json_string,
-        "symbol": symbol,
-        "borsa": borsa,
-        "time": parsed_time_str, # Ayrıştırılmış veya varsayılan zaman
-        "type": "INFO",
-        "source": signal_text, # Kaynak olarak signal metnini alalım
-        "kairi_value": None,
-        "matisay_value": None,
-        "alis_sinyali_flag": False,
-        "mukemmel_alis_flag": False,
-        "alis_sayimi_tamam_flag": False,
-        "mukemmel_satis_flag": False,
-        "satis_sayimi_tamam_flag": False
-    }
-
+                break
+            except ValueError: continue
+        if not parsed_time_str: print(f"⚠️ Zaman formatı anlaşılamadı: {timestamp_str}"); parsed_time_str = datetime.now(TIMEZONE).strftime("%Y-%m-%d %H:%M:%S %Z%z")
+    else: parsed_time_str = datetime.now(TIMEZONE).strftime("%Y-%m-%d %H:%M:%S %Z%z")
+    data = { "raw": alert_json_string, "symbol": symbol, "borsa": borsa, "time": parsed_time_str, "type": "INFO", "source": signal_text, "kairi_value": None, "matisay_value": None, "alis_sinyali_flag": False, "mukemmel_alis_flag": False, "alis_sayimi_tamam_flag": False, "mukemmel_satis_flag": False, "satis_sayimi_tamam_flag": False }
     signal_lower = signal_text.lower()
-
-    # KAIRI Değeri
     try:
-        # Regex: "KAIRI", boşluk, isteğe bağlı '-', rakamlar, isteğe bağlı '.', rakamlar
         kairi_match = re.search(r"kairi\s+(-?[\d\.]+)", signal_lower)
         if kairi_match: data["kairi_value"] = float(kairi_match.group(1))
     except (ValueError, TypeError): print(f"⚠️ KAIRI değeri okunamadı: {signal_text}")
-
-    # Matisay Değeri (Eğer sayısal değer varsa)
     try:
         matisay_match = re.search(r"matisay\s+(-?[\d\.]+)", signal_lower)
         if matisay_match: data["matisay_value"] = float(matisay_match.group(1))
     except (ValueError, TypeError): print(f"⚠️ Matisay değeri okunamadı: {signal_text}")
-
-    # Flag'ler ve Sinyal Tipi (Türkçe karakterlere ve büyük/küçük harfe duyarsız)
-    if "alış sayımı tamamlandı" in signal_lower:
-        data["alis_sayimi_tamam_flag"] = True
-        data["alis_sinyali_flag"] = True # Alış sayımı da güçlü sinyal varsayımı
-        data["type"] = "BUY"
-    elif "satış sayımı tamamlandı" in signal_lower:
-        data["satis_sayimi_tamam_flag"] = True
-        data["type"] = "SELL"
-    elif "mükemmel alış kurulumu tamamlandı" in signal_lower:
-        data["mukemmel_alis_flag"] = True
-        data["alis_sinyali_flag"] = True # Mükemmel alış güçlü sinyaldir
-        data["type"] = "BUY"
-    elif "mükemmel satış kurulumu tamamlandı" in signal_lower:
-        data["mukemmel_satis_flag"] = True
-        data["type"] = "SELL"
-    # Not: Sadece KAIRI/Matisay değeri içerenler INFO olarak kalacak.
-
-    print(f"ℹ️ Ayrıştırılan Sinyal: {data}")
-    return data
+    if "alış sayımı tamamlandı" in signal_lower: data["alis_sayimi_tamam_flag"], data["alis_sinyali_flag"], data["type"] = True, True, "BUY"
+    elif "satış sayımı tamamlandı" in signal_lower: data["satis_sayimi_tamam_flag"], data["type"] = True, "SELL"
+    elif "mükemmel alış kurulumu tamamlandı" in signal_lower: data["mukemmel_alis_flag"], data["alis_sinyali_flag"], data["type"] = True, True, "BUY"
+    elif "mükemmel satış kurulumu tamamlandı" in signal_lower: data["mukemmel_satis_flag"], data["type"] = True, "SELL"
+    print(f"ℹ️ Ayrıştırılan Sinyal: {data}"); return data
 
 def clear_signals():
-    """Verileri temizler."""
     global signals_data, analiz_data, bist_analiz_data, last_signal_time
     print("🧹 Tüm veriler temizleniyor...")
     success = True
@@ -243,9 +175,9 @@ def clear_signals():
 
 # --- Çekirdek Fonksiyonlar ---
 
+# ----- generate_summary GÜNCELLENDİ (Başlık escape + try/except fix) -----
 def generate_summary(target_borsa=None):
     """İstenen formata göre sinyal özeti oluşturur."""
-    # (Kod aynı, Düzeltilmiş try-except ile)
     with signals_lock:
         relevant_signals = []
         if target_borsa:
@@ -285,19 +217,23 @@ def generate_summary(target_borsa=None):
         response_parts = []
         def add_section(title, items):
             if items: response_parts.append(f"{title}\n" + "\n".join(sorted(items)))
+
+        # ----- BAŞLIKLARDAKİ ÖZEL KARAKTERLER ESCAPE EDİLDİ -----
         add_section("*📊 GÜÇLÜ EŞLEŞEN SİNYALLER:*", guclu_eslesen)
-        add_section("*🔴 KAIRI ≤ \\-30:*", kairi_neg30)
-        add_section("*🟠 KAIRI ≤ \\-20 \\(ama > \\-30\\):*", kairi_neg20)
-        add_section("*🟣 Matisay < \\-25:*", matisay_neg25)
+        add_section("*🔴 KAIRI \\<\\= \\-30:*", kairi_neg30)
+        add_section("*🟠 KAIRI \\<\\= \\-20 \\(ama \\> \\-30\\):*", kairi_neg20)
+        add_section("*🟣 Matisay \\< \\-25:*", matisay_neg25)
+        # -------------------------------------------------------
         add_section("*🟢 Mükemmel Alış:*", mukemmel_alis)
         add_section("*📈 Alış Sayımı Tamamlananlar:*", alis_sayim)
         add_section("*🔵 Mükemmel Satış:*", mukemmel_satis)
         add_section("*📉 Satış Sayımı Tamamlananlar:*", satis_sayim)
+
         if not response_parts: return f"ℹ️ `{escape_markdown_v2(target_borsa.upper() if target_borsa else 'Tüm Borsalar')}` için özel sinyal yok\\."
         return "\n\n".join(response_parts)
+# -------------------------------------------------------------------
 
 def generate_analiz_response(tickers):
-    """analiz.json'dan (NASDAQ) veri çeker, formatlar ve sıralar."""
     # (Kod aynı)
     with analiz_lock:
         if not analiz_data: return f"⚠️ NASDAQ Analiz verileri (`{escape_markdown_v2(os.path.basename(ANALIZ_FILE))}`) yüklenemedi\\."
@@ -322,7 +258,6 @@ def generate_analiz_response(tickers):
         separator = "\n\n---\n\n"; return separator.join(response_lines)
 
 def generate_bist_analiz_response(tickers):
-    """analiz_sonuclari.json'dan (BIST) veri çeker, formatlar."""
     # (Kod aynı)
     with bist_analiz_lock:
         if not bist_analiz_data: return f"⚠️ Detaylı BIST Analiz verileri (`{escape_markdown_v2(os.path.basename(ANALIZ_SONUCLARI_FILE))}`) yüklenemedi\\."
@@ -379,7 +314,6 @@ def receive_signal():
         return f"Sinyal işlendi: {symbol}", 200
     else:
         print(f"⚠️ Sinyal ayrıştırılamadı veya geçersiz: {signal_text}")
-        # Hatalı sinyal için bildirim göndermeyelim
         return "Sinyal ayrıştırılamadı veya geçersiz.", 400
 
 
@@ -404,7 +338,7 @@ def telegram_webhook():
             command_processed = True; print(">>> /ozet komutu...")
             parts = text.split(maxsplit=1); keyword = parts[1].lower() if len(parts) > 1 else None
             if keyword == "bist_dly": keyword = "bist"
-            allowed = ["bist", "nasdaq", "bats", "binance", "okx"] # OKX eklendi
+            allowed = ["bist", "nasdaq", "bats", "binance", "okx"]
             if keyword and keyword not in allowed: response_message = f"⚠️ Geçersiz borsa: `{escape_markdown_v2(keyword)}`\\. İzin: {', '.join(f'`{k}`' for k in allowed)}\\."
             else: response_message = generate_summary(keyword)
         elif text.lower().startswith("/analiz"):
