@@ -36,28 +36,34 @@ def escape_markdown_v2(text):
 
 
 def send_telegram_message(message):
-    # Mesajı Telegram'a göndermeden ÖNCE MarkdownV2 karakterlerini kaçır
-    escaped_message = escape_markdown_v2(message)
+    # GÜNCELLEME: Bu satırı kaldır veya yorum satırı yap
+    # escaped_message = escape_markdown_v2(message)
 
     # Çok uzun mesajları parçalayarak gönder
-    for i in range(0, len(escaped_message), 4096):
-        chunk = escaped_message[i:i+4096]
+    # Not: escape_markdown_v2 kaldırıldığı için mesaj uzunluğu biraz değişebilir,
+    # ama 4096 genellikle yeterince büyük bir limittir.
+    # Mesajı doğrudan kullan (çünkü çağıran fonksiyonlar zaten formatladı/escape etti)
+    message_to_send = message
+
+    # Parçalayıp yolla
+    for i in range(0, len(message_to_send), 4096):
+        chunk = message_to_send[i:i+4096]
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
         data = {
             "chat_id": CHAT_ID,
             "text": chunk,
-            "parse_mode": "MarkdownV2"  # MarkdownV2 kullanıyoruz
+            "parse_mode": "MarkdownV2"  # ÖNEMLİ: Bu kalmalı
         }
         try:
-            r = requests.post(url, json=data, timeout=10) # Timeout artırıldı
+            r = requests.post(url, json=data, timeout=10)
             r.raise_for_status() # HTTP hatalarını kontrol et
             print("✅ Telegram yanıtı:", r.status_code)
             # print("Giden Mesaj Chunk:", chunk) # Hata ayıklama için
             # print("Telegram Yanıt Detayı:", r.text) # Hata ayıklama için
         except requests.exceptions.RequestException as e:
             print(f"❌ Telegram'a mesaj gönderilemedi: {e}")
-            # Hata durumunda orijinal (kaçırılmamış) mesajı da loglayabiliriz
-            print(f"❌ Gönderilemeyen mesaj (orijinal): {message[i:i+4096]}")
+            # Hata durumunda gönderilemeyen chunk'ı logla
+            print(f"❌ Gönderilemeyen chunk: {chunk}")
         except Exception as e:
             print(f"❌ Beklenmedik hata (Telegram gönderimi): {e}")
 
@@ -156,36 +162,53 @@ def generate_analiz_response(tickers):
     for ticker in tickers:
         analiz = analiz_verileri.get(ticker.upper())
         if analiz:
-            puan = analiz.get("puan", 0)
-            # Detayların None olup olmadığını kontrol et
+            # Ham verileri al
+            ticker_raw = ticker.upper()
+            puan_raw = analiz.get("puan", 0)
             detaylar_list = analiz.get("detaylar")
-            detaylar = "\n".join(detaylar_list) if detaylar_list else "Detay bulunamadı."
-            yorum = analiz.get("yorum", "Yorum bulunamadı.")
+            detaylar_raw = "\n".join(detaylar_list) if detaylar_list else "Detay bulunamadı."
+            yorum_raw = analiz.get("yorum", "Yorum bulunamadı.")
+
+            # GÜNCELLEME: İçerikleri ayrı ayrı escape et
+            ticker_escaped = escape_markdown_v2(ticker_raw)
+            puan_escaped = escape_markdown_v2(str(puan_raw)) # Puanı string'e çevir
+            detaylar_escaped = escape_markdown_v2(detaylar_raw)
+            yorum_escaped = escape_markdown_v2(yorum_raw)
+
             analiz_listesi.append({
-                "ticker": ticker.upper(),
-                "puan": puan,
-                "detaylar": detaylar,
-                "yorum": yorum
+                "ticker_escaped": ticker_escaped,
+                "puan_escaped": puan_escaped,
+                "detaylar_escaped": detaylar_escaped,
+                "yorum_escaped": yorum_escaped,
+                "puan_raw": puan_raw # Sıralama için ham puanı sakla
             })
         else:
+             # GÜNCELLEME: Hata mesajını da escape et
+            ticker_escaped = escape_markdown_v2(ticker.upper())
+            yorum_escaped = f"❌ _{ticker_escaped}_ için analiz bulunamadı." # İtalik kalsın ama içerik escaped
             analiz_listesi.append({
-                "ticker": ticker.upper(),
-                "puan": None,
-                "detaylar": None,
-                "yorum": f"❌ _{ticker.upper()}_ için analiz bulunamadı." # Markdown için _ eklendi
+                "ticker_escaped": ticker_escaped,
+                "puan_escaped": None,
+                "detaylar_escaped": None,
+                "yorum_escaped": yorum_escaped, # Önceden formatlanmış ve escape edilmiş
+                "puan_raw": None
             })
 
-    analiz_listesi.sort(key=lambda x: (x["puan"] is not None, x["puan"]), reverse=True)
+    # Puanlara göre büyükten küçüğe sıralama (ham puanı kullan)
+    analiz_listesi.sort(key=lambda x: (x["puan_raw"] is not None, x["puan_raw"]), reverse=True)
 
     response_lines = []
     for analiz in analiz_listesi:
-        if analiz["puan"] is not None:
-            # MarkdownV2 formatı
+        if analiz["puan_raw"] is not None:
+            # GÜNCELLEME: Önceden escape edilmiş parçaları Markdown formatlama ile birleştir
             response_lines.append(
-                f"📊 *{analiz['ticker']} Analiz Sonuçları (Puan: {analiz['puan']})*:\n`{analiz['detaylar']}`\n\n_{analiz['yorum']}_"
+                f"📊 *{analiz['ticker_escaped']} Analiz Sonuçları (Puan: {analiz['puan_escaped']})*:\n"
+                f"`{analiz['detaylar_escaped']}`\n\n"
+                f"_{analiz['yorum_escaped']}_"
             )
         else:
-            response_lines.append(analiz["yorum"])
+            # Hata mesajı zaten yorum_escaped içinde formatlı ve escape edilmişti
+            response_lines.append(analiz["yorum_escaped"])
 
     return "\n\n".join(response_lines)
 
