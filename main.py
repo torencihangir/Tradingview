@@ -64,9 +64,9 @@ def telegram_webhook():
             tickers = [x.strip().upper() for x in text.replace("/bist_analiz", "").split(",") if x.strip()]
             msg = generate_bist_analiz_response(tickers)
         elif text.startswith("/start") or text.startswith("/help"):
-            msg = "📌 Komutlar:
+            msg = """📌 Komutlar:
 /analiz AAPL, MSFT
-/bist_analiz THYAO, MIATK"
+/bist_analiz THYAO, MIATK"""
         else:
             msg = "❓ Geçersiz komut. `/help` yazabilirsin."
 
