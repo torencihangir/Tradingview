@@ -44,37 +44,11 @@ def send_telegram_message(msg):
 
 @app.route("/telegram", methods=["POST"])
 def telegram_webhook():
-    print("🚀 /telegram endpoint tetiklendi")
+    print("🔥 /telegram tetiklendi!")  # Bu satırı göreceğiz mi?
     try:
-        update = request.get_json(force=True)
-        message = update.get("message") or update.get("edited_message")
-        if not message:
-            return "ok", 200
-
-        text = message.get("text", "").strip()
-        chat_id = str(message.get("chat", {}).get("id", ""))
-        if chat_id != CHAT_ID:
-            print("❌ Yetkisiz sohbet")
-            return "ok", 200
-
-        if text.startswith("/analiz"):
-            tickers = [x.strip().upper() for x in text.replace("/analiz", "").split(",") if x.strip()]
-            msg = generate_analiz_response(tickers)
-        elif text.startswith("/bist_analiz"):
-            tickers = [x.strip().upper() for x in text.replace("/bist_analiz", "").split(",") if x.strip()]
-            msg = generate_bist_analiz_response(tickers)
-        elif text.startswith("/start") or text.startswith("/help"):
-            msg = """📌 Komutlar:
-/analiz AAPL, MSFT
-/bist_analiz THYAO, MIATK"""
-        else:
-            msg = "❓ Geçersiz komut. `/help` yazabilirsin."
-
-        send_telegram_message(msg)
         return "ok", 200
-
     except Exception as e:
-        print("💥 Hata:", e)
+        print("💥 HATA:", e)
         return "error", 500
 
 def generate_analiz_response(tickers):
