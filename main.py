@@ -223,25 +223,45 @@ def clear_signals():
     return success
 
 def clear_signals_daily():
-    """Günlük temizlik."""
-    # (Kod aynı)
-    CLEANUP_HOUR, CLEANUP_MINUTE = int(os.getenv("CLEANUP_HOUR", 0)), int(os.getenv("CLEANUP_MINUTE", 5))
-    print(f"📅 Günlük temizlik: {CLEANUP_HOUR:02d}:{CLEANUP_MINUTE:02d}")
+    """Her gün belirli bir saatte (örn. gece yarısı) verileri temizler."""
+    CLEANUP_HOUR = int(os.getenv("CLEANUP_HOUR", 0)) # Temizlik saati (0-23), varsayılan gece 00
+    CLEANUP_MINUTE = int(os.getenv("CLEANUP_MINUTE", 5)) # Temizlik dakikası, varsayılan 00:05
+    print(f"📅 Günlük temizlik görevi ayarlandı: Her gün {CLEANUP_HOUR:02d}:{CLEANUP_MINUTE:02d}")
+
     while True:
         try:
             now = datetime.now(TIMEZONE)
-            next_run = now.replace(hour=CLEANUP_HOUR, minute=CLEANUP_MINUTE, second=0, microsecond=0)
-            if now >= next_run: next_run += timedelta(days=1)
-            wait_seconds = (next_run - now).total_seconds()
-            print(f"🌙 Sonraki temizlik: {next_run:%Y-%m-%d %H:%M:%S %Z} ({wait_seconds:.0f}s)")
-            if wait_seconds > 0: time.sleep(wait_seconds) else: time.sleep(60); continue
-            print(f"⏰ {datetime.now(TIMEZONE):%Y-%m-%d %H:%M:%S} - Temizlik başlıyor...")
-            if clear_signals(): send_telegram_message("🧹 Günlük veriler temizlendi\\.")
-            else: send_telegram_message("❌ Günlük temizlik hatası\\!")
-            print("✅ Günlük temizlik tamamlandı."); time.sleep(60)
-        except Exception as e: print(f"❌ Günlük temizlik hatası: {e}"); print(traceback.format_exc()); send_telegram_message("🚨 Temizlik görevinde hata\\!"); time.sleep(3600)
+            # Bir sonraki temizlik zamanını hesapla
+            next_run_time = now.replace(hour=CLEANUP_HOUR, minute=CLEANUP_MINUTE, second=0, microsecond=0)
+            if now >= next_run_time:
+                # Eğer şu anki zaman hedeften sonraysa, sonraki güne ayarla
+                next_run_time += timedelta(days=1)
 
-# --- Çekirdek Fonksiyonlar (Komut Yanıtları - GÜNCELLENDİ) ---
+            wait_seconds = (next_run_time - now).total_seconds()
+            print(f"🌙 Sonraki günlük temizlik: {next_run_time.strftime('%Y-%m-%d %H:%M:%S %Z')} ({wait_seconds:.0f} saniye sonra)")
+
+            # Negatif bekleme süresi olmaması için kontrol (nadiren olabilir)
+            if wait_seconds > 0:
+                time.sleep(wait_seconds)
+            else:
+                 # --- DÜZELTİLMİŞ KISIM ---
+                 time.sleep(60) # 1 dakika bekle
+                 continue      # Döngünün başına dön ve tekrar hesapla
+                 # ------------------------
+
+            print(f"⏰ {datetime.now(TIMEZONE).strftime('%Y-%m-%d %H:%M:%S')} - Günlük temizlik başlıyor...")
+            if clear_signals():
+                send_telegram_message("🧹 Günlük sinyal ve analiz verileri otomatik olarak temizlendi\\.")
+            else:
+                send_telegram_message("❌ Günlük otomatik temizlik sırasında bir hata oluştu\\!")
+            print("✅ Günlük temizlik tamamlandı.")
+            time.sleep(60) # Bir sonraki döngüye geçmeden önce kısa bekleme
+
+        except Exception as e:
+            print(f"❌ Günlük temizlik döngüsünde hata: {e}")
+            print(traceback.format_exc())
+            send_telegram_message("🚨 Günlük temizlik görevinde kritik hata oluştu\\! Kontrol gerekli\\.")
+            time.sleep(3600) # Hata durumunda 1 saat bekle
 
 def generate_summary(target_borsa=None):
     """İstenen formata göre sinyal özeti oluşturur."""
