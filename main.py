@@ -21,10 +21,8 @@ app = Flask(__name__)
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 SIGNALS_FILE = os.getenv("SIGNALS_FILE_PATH", "signals.json")
-# ANALIZ_FILE NASDAQ analizlerini içeriyor varsayılıyor
-ANALIZ_FILE = os.getenv("ANALIZ_FILE_PATH", "analiz.json")
-# ANALIZ_SONUCLARI_FILE BIST analizlerini içeriyor varsayılıyor
-ANALIZ_SONUCLARI_FILE = os.getenv("ANALIZ_SONUCLARI_FILE_PATH", "analiz_sonuclari.json")
+ANALIZ_FILE = os.getenv("ANALIZ_FILE_PATH", "analiz.json") # NASDAQ
+ANALIZ_SONUCLARI_FILE = os.getenv("ANALIZ_SONUCLARI_FILE_PATH", "analiz_sonuclari.json") # BIST
 try:
     TIMEZONE = pytz.timezone(os.getenv("TIMEZONE", "Europe/Istanbul"))
 except pytz.exceptions.UnknownTimeZoneError:
@@ -33,8 +31,8 @@ except pytz.exceptions.UnknownTimeZoneError:
 
 # Bellekte verileri tutmak için
 signals_data = {}
-analiz_data = {} # NASDAQ analizleri için
-bist_analiz_data = {} # BIST analizleri için
+analiz_data = {}
+bist_analiz_data = {}
 last_signal_time = {}
 
 # Eşzamanlılık için Kilitler
@@ -138,9 +136,8 @@ def load_bist_analiz_data():
         else: print("❌ BIST Analiz okuma hatası."); bist_analiz_data = bist_analiz_data or {}
 
 def parse_signal_line(line):
-    """Gelen alert mesajını ayrıştırır."""
-    # (Kod aynı - Kendi formatınıza göre düzenlemeyi unutmayın!)
-    line = line.strip();
+    """Gelen alert mesajını ayrıştırır (KAIRI, Matisay ve flag'leri de içerecek şekilde güncellenmeli)."""
+    line = line.strip()
     if not line: return None
     data = {"raw": line, "borsa": "unknown", "symbol": "N/A", "type": "INFO", "source": "Belirtilmemiş",
             "kairi_value": None, "matisay_value": None, "alis_sinyali_flag": False,
@@ -158,7 +155,8 @@ def parse_signal_line(line):
     if re.search(r"\b(AL|ALIM|LONG|BUY)\b", line, re.IGNORECASE): data["type"] = "BUY"
     elif re.search(r"\b(SAT|SATIM|SHORT|SELL)\b", line, re.IGNORECASE): data["type"] = "SELL"
     data["time"] = datetime.now(TIMEZONE).strftime("%Y-%m-%d %H:%M:%S %Z%z")
-    try: # Yeni alanlar
+    # YENİ ALANLAR
+    try:
         kairi_match = re.search(r"KAIRI:?([-\d\.]+)", line, re.IGNORECASE)
         if kairi_match: data["kairi_value"] = float(kairi_match.group(1))
         matisay_match = re.search(r"Matisay:?([-\d\.]+)", line, re.IGNORECASE)
@@ -176,7 +174,6 @@ def parse_signal_line(line):
 
 def clear_signals():
     """Verileri temizler."""
-    # (Kod aynı)
     global signals_data, analiz_data, bist_analiz_data, last_signal_time
     print("🧹 Tüm veriler temizleniyor...")
     success = True
@@ -186,13 +183,12 @@ def clear_signals():
     print("✅ Temizlik sonucu:", "Başarılı" if success else "Hatalı")
     return success
 
-# clear_signals_daily fonksiyonu ve ilgili thread başlatma kodu kaldırıldı.
+# clear_signals_daily fonksiyonu kaldırıldı.
 
-# --- Çekirdek Fonksiyonlar (Komut Yanıtları) ---
+# --- Çekirdek Fonksiyonlar (Komut Yanıtları - GÜNCELLENDİ) ---
 
 def generate_summary(target_borsa=None):
     """İstenen formata göre sinyal özeti oluşturur."""
-    # (Kod aynı)
     with signals_lock:
         relevant_signals = []
         if target_borsa:
@@ -202,14 +198,30 @@ def generate_summary(target_borsa=None):
         else:
             for signal_list in signals_data.values(): relevant_signals.extend(signal_list)
         if not relevant_signals: return f"ℹ️ `{escape_markdown_v2(target_borsa.upper() if target_borsa else 'Tüm Borsalar')}` için sinyal yok\\."
+        # Kategoriler
         guclu_eslesen, kairi_neg30, kairi_neg20, matisay_neg25, mukemmel_alis, alis_sayim, mukemmel_satis, satis_sayim = [],[],[],[],[],[],[],[]
         for signal in relevant_signals:
             symbol, borsa = signal.get("symbol", "N/A"), signal.get("borsa", "?").upper()
             kairi_val, matisay_val = signal.get("kairi_value"), signal.get("matisay_value")
             alis_sinyali, muk_alis, alis_say, muk_satis, satis_say = signal.get("alis_sinyali_flag", False), signal.get("mukemmel_alis_flag", False), signal.get("alis_sayimi_tamam_flag", False), signal.get("mukemmel_satis_flag", False), signal.get("satis_sayimi_tamam_flag", False)
-            kairi_num, matisay_num = None, None
-            try: kairi_num = float(kairi_val) if kairi_val is not None else None; except (ValueError, TypeError): pass
-            try: matisay_num = float(matisay_val) if matisay_val is not None else None; except (ValueError, TypeError): pass
+
+            # --- DÜZELTİLMİŞ SAYI KONTROLÜ ---
+            kairi_num = None
+            if kairi_val is not None:
+                try:
+                    kairi_num = float(kairi_val)
+                except (ValueError, TypeError):
+                    pass # Hata olursa None kalır
+
+            matisay_num = None
+            if matisay_val is not None:
+                try:
+                    matisay_num = float(matisay_val)
+                except (ValueError, TypeError):
+                    pass # Hata olursa None kalır
+            # ----------------------------------
+
+            # Kategori ekleme
             esc_sym, esc_borsa = escape_markdown_v2(symbol), escape_markdown_v2(borsa)
             if alis_sinyali and kairi_num is not None: guclu_eslesen.append(f"✅ `{esc_sym}` \\({esc_borsa}\\) \\- KAIRI: {escape_markdown_v2(f'{kairi_num:.2f}')} & Alış Sinyali")
             if kairi_num is not None:
@@ -221,9 +233,10 @@ def generate_summary(target_borsa=None):
             if alis_say: alis_sayim.append(f"`{esc_sym}` \\({esc_borsa}\\)")
             if muk_satis: mukemmel_satis.append(f"`{esc_sym}` \\({esc_borsa}\\)")
             if satis_say: satis_sayim.append(f"`{esc_sym}` \\({esc_borsa}\\)")
+        # Çıktı oluşturma
         response_parts = []
         def add_section(title, items):
-            if items: response_parts.append(f"{title}\n" + "\n".join(items))
+            if items: response_parts.append(f"{title}\n" + "\n".join(sorted(items))) # Kategorileri kendi içinde sırala
         add_section("*📊 GÜÇLÜ EŞLEŞEN SİNYALLER:*", guclu_eslesen)
         add_section("*🔴 KAIRI ≤ \\-30:*", kairi_neg30)
         add_section("*🟠 KAIRI ≤ \\-20 \\(ama > \\-30\\):*", kairi_neg20)
@@ -235,118 +248,49 @@ def generate_summary(target_borsa=None):
         if not response_parts: return f"ℹ️ `{escape_markdown_v2(target_borsa.upper() if target_borsa else 'Tüm Borsalar')}` için özel sinyal yok\\."
         return "\n\n".join(response_parts)
 
-# ----- /analiz Fonksiyonu GÜNCELLENDİ (Sıralama ve Format) -----
 def generate_analiz_response(tickers):
     """analiz.json'dan (NASDAQ) veri çeker, formatlar ve puana göre sıralar."""
+    # (Kod aynı)
     with analiz_lock:
-        if not analiz_data:
-             return f"⚠️ NASDAQ Analiz verileri (`{escape_markdown_v2(os.path.basename(ANALIZ_FILE))}`) yüklenemedi veya boş\\."
-
-        results = []
-        not_found = []
-
+        if not analiz_data: return f"⚠️ NASDAQ Analiz verileri (`{escape_markdown_v2(os.path.basename(ANALIZ_FILE))}`) yüklenemedi\\."
+        results, not_found = [], []
         for ticker_raw in tickers:
-            ticker = ticker_raw.strip().upper()
-            # Veriyi analiz_data'dan (NASDAQ için) al
-            data = analiz_data.get(ticker)
+            ticker = ticker_raw.strip().upper(); data = analiz_data.get(ticker)
             if data:
-                try:
-                    # Puanı sayısal değere çevir (sıralama için)
-                    # JSON'da puan alanı adı 'puan' mı? Evet, örnekte öyle.
-                    puan_val = float(data.get("puan", -math.inf))
-                except (ValueError, TypeError):
-                    puan_val = -math.inf # Sayısal olmayan puanlar en sona gelsin
+                try: puan_val = float(data.get("puan", -math.inf))
+                except (ValueError, TypeError): puan_val = -math.inf
                 results.append({"ticker": ticker, "puan": puan_val, "data": data})
-            else:
-                not_found.append(ticker)
-
-        # Sonuçları puana göre büyükten küçüğe sırala
+            else: not_found.append(ticker)
         results.sort(key=lambda x: x["puan"], reverse=True)
-
         response_lines = []
         for result in results:
-            data = result["data"]
-            ticker = result["ticker"] # Sıralama sonrası doğru ticker
-
-            # Verileri al ve escape et
-            symbol = escape_markdown_v2(ticker)
-            puan_str = escape_markdown_v2(data.get("puan", "N/A"))
-            # JSON'da yorum alanı adı 'yorum' mu? Evet, örnekte öyle.
-            yorum = escape_markdown_v2(data.get("yorum", "_Yorum bulunamadı_"))
-            # JSON'da detaylar alanı adı 'detaylar' mı? Evet, örnekte öyle.
+            data, ticker = result["data"], result["ticker"]
+            symbol, puan_str = escape_markdown_v2(ticker), escape_markdown_v2(data.get("puan", "N/A"))
+            yorum = escape_markdown_v2(data.get("yorum", "_Yorum yok_"))
             detaylar_list = data.get("detaylar", [])
+            formatted_detaylar = "\n".join([escape_markdown_v2(d) for d in detaylar_list]) if detaylar_list else "_Detay yok\\._"
+            response_lines.append(f"📊 *{symbol}* Analiz Sonuçları \\(Puan: {puan_str}\\):\n{formatted_detaylar}\n\n{yorum}")
+        for nf_ticker in not_found: response_lines.append(f"❌ `{escape_markdown_v2(nf_ticker)}` analizi bulunamadı\\.")
+        separator = "\n\n---\n\n"; return separator.join(response_lines)
 
-            formatted_detaylar = ""
-            if detaylar_list and isinstance(detaylar_list, list):
-                escaped_detaylar = [escape_markdown_v2(d) for d in detaylar_list]
-                formatted_detaylar = "\n".join(escaped_detaylar)
-            else:
-                formatted_detaylar = "_Detay bulunamadı\\._"
-
-            # İstenen formata göre mesajı oluştur
-            response_lines.append(
-                f"📊 *{symbol}* Analiz Sonuçları \\(Puan: {puan_str}\\):\n" # Başlık
-                f"{formatted_detaylar}\n\n" # Detaylar listesi ve boşluk
-                f"{yorum}" # Yorum
-            )
-
-        # Bulunamayanları ekle
-        for nf_ticker in not_found:
-            response_lines.append(f"❌ `{escape_markdown_v2(nf_ticker)}` için NASDAQ analizi bulunamadı\\.")
-
-        # Çoklu hisse varsa aralarına ayırıcı koy
-        separator = "\n\n---\n\n"
-        return separator.join(response_lines)
-
-# ----- /bist_analiz Fonksiyonu GÜNCELLENDİ (Format) -----
 def generate_bist_analiz_response(tickers):
-    """analiz_sonuclari.json'dan (BIST) veri çeker, istenen formatta listeler."""
+    """analiz_sonuclari.json'dan (BIST) veri çeker, formatlar."""
+    # (Kod aynı)
     with bist_analiz_lock:
-        if not bist_analiz_data:
-             return f"⚠️ Detaylı BIST Analiz verileri (`{escape_markdown_v2(os.path.basename(ANALIZ_SONUCLARI_FILE))}`) yüklenemedi veya boş\\."
-
+        if not bist_analiz_data: return f"⚠️ Detaylı BIST Analiz verileri (`{escape_markdown_v2(os.path.basename(ANALIZ_SONUCLARI_FILE))}`) yüklenemedi\\."
         response_lines = []
         for ticker_raw in tickers:
-            ticker = ticker_raw.strip().upper()
-            # Veriyi bist_analiz_data'dan al
-            data = bist_analiz_data.get(ticker)
-
+            ticker = ticker_raw.strip().upper(); data = bist_analiz_data.get(ticker)
             if data:
-                # Verileri al ve escape et
-                symbol = escape_markdown_v2(ticker) # Başlıkta ticker kullanılıyor
-                score_str = escape_markdown_v2(data.get("score", "N/A"))
+                symbol, score_str = escape_markdown_v2(ticker), escape_markdown_v2(data.get("score", "N/A"))
                 classification = escape_markdown_v2(data.get("classification", "_Belirtilmemiş_"))
-                # JSON'da yorum alanı adı 'comments' mi? Evet, örnekte öyle.
                 comments = data.get("comments", [])
-
-                formatted_comments_list = []
-                if comments and isinstance(comments, list):
-                    for comment in comments:
-                        if not isinstance(comment, str): continue
-                        escaped_comment = escape_markdown_v2(comment)
-                        # Başına '- ' ekle (Markdown listesi için)
-                        formatted_comments_list.append(f"\\- {escaped_comment}") # Tireyi escape et
-                    formatted_comments = "\n".join(formatted_comments_list)
-                else:
-                    formatted_comments = "_Yorum bulunamadı\\._"
-
-                # İstenen formata göre mesajı oluştur
-                response_lines.append(
-                    f"📊 *{symbol}* Detaylı Analiz:\n\n" # Başlık ve boş satır
-                    f"📈 *Puan:* {score_str}\n"
-                    f"🏅 *Sınıflandırma:* {classification}\n\n" # Boş satır
-                    f"📝 *Öne Çıkanlar:*\n"
-                    f"{formatted_comments}" # Yorum listesi
-                )
-            else:
-                response_lines.append(f"❌ `{escape_markdown_v2(ticker)}` için detaylı BIST analizi bulunamadı\\.")
-
-        # Çoklu hisse varsa aralarına ayırıcı koy
-        separator = "\n\n---\n\n"
-        return separator.join(response_lines)
+                formatted_comments = "\n".join([f"\\- {escape_markdown_v2(c)}" for c in comments if isinstance(c, str)]) if comments else "_Yorum yok\\._"
+                response_lines.append(f"📊 *{symbol}* Detaylı Analiz:\n\n📈 *Puan:* {score_str}\n🏅 *Sınıflandırma:* {classification}\n\n📝 *Öne Çıkanlar:*\n{formatted_comments}")
+            else: response_lines.append(f"❌ `{escape_markdown_v2(ticker)}` için detaylı BIST analizi bulunamadı\\.")
+        separator = "\n\n---\n\n"; return separator.join(response_lines)
 
 # --- Flask Endpointleri ---
-# (Bu kısımlar önceki versiyonla aynı, değişiklik yok)
 @app.route("/", methods=["GET"])
 def home():
     signal_counts = {b: len(s) for b, s in signals_data.items()}
@@ -423,7 +367,7 @@ def telegram_webhook():
             response_message = ("👋 *Merhaba\\!* Komutlar:\n\n"
                                 "• `/ozet`: Tüm özet\\.\n"
                                 "• `/ozet [borsa]`: Belirli borsa \\(`bist`, `nasdaq`\\.\\.\\)\\.\n"
-                                "• `/analiz [HİSSE,\\.\\.]`: NASDAQ analizi \\(Örn: `/analiz AAPL`\\)\\.\n" # Açıklama güncellendi
+                                "• `/analiz [HİSSE,\\.\\.]`: NASDAQ analizi \\(Örn: `/analiz AAPL`\\)\\.\n"
                                 "• `/bist_analiz [HİSSE,\\.\\.]`: Detaylı BIST analizi \\(Örn: `/bist_analiz EREGL`\\)\\.\n"
                                 "• `/clear_signals`: Verileri siler \\(Dikkat\\!\\)\\.\n"
                                 "• `/help`: Bu yardım mesajı\\.")
@@ -452,7 +396,7 @@ def clear_signals_endpoint():
 if __name__ == "__main__":
     print("*"*50 + "\n🚀 Flask Sinyal/Analiz Botu Başlatılıyor...\n" + "*"*50)
     if not BOT_TOKEN or not CHAT_ID: print("❌ BOT_TOKEN veya CHAT_ID eksik!"); exit()
-    print(f"🔧 Ayarlar: TZ='{TIMEZONE}'") # Cleanup Time logu kaldırıldı
+    print(f"🔧 Ayarlar: TZ='{TIMEZONE}'")
     print(f"📂 Dosyalar: Sinyal='{SIGNALS_FILE}', NASDAQ Analiz='{ANALIZ_FILE}', BIST Analiz='{ANALIZ_SONUCLARI_FILE}'")
     for fp in [SIGNALS_FILE, ANALIZ_FILE, ANALIZ_SONUCLARI_FILE]:
         if fp and not os.path.exists(fp): print(f"ℹ️ {fp} oluşturuluyor..."); save_json_file(fp, {})
