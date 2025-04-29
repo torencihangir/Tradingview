@@ -181,7 +181,7 @@ def generate_bist_analiz_response(tickers):
 def telegram_webhook():
     print(">>> /telegram endpoint tetiklendi")
     try:
-        update = request.json
+        request.get_json(force=True)
         if not update:
             print("Boş JSON verisi alındı.")
             return "ok", 200
