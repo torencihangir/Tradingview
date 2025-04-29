@@ -298,25 +298,37 @@ def telegram_webhook():
 
 if __name__ == "__main__":
     print("🚀 Flask uygulaması başlatılıyor...")
-    # Eksik fonksiyonları varsayılan olarak ekleyelim (gerçek kodda bunlar olmalı)
-    def generate_summary(keyword=None): return "Özet oluşturuluyor..."
-    def generate_analiz_response(tickers): return "Analiz oluşturuluyor..."
-    def clear_signals(): print("Sinyaller temizleniyor..."); return True
-    def clear_signals_daily(): print("Günlük temizlik döngüsü çalışıyor..."); time.sleep(3600) # Sadece göstermelik
-    @app.route("/signal", methods=["POST"])
-    def receive_signal(): return "ok", 200
-    @app.route("/clear_signals", methods=["POST"])
-    def clear_signals_endpoint(): clear_signals(); return "ok", 200
 
-    # Arka plan temizlik görevini başlat (gerçek kodda bu olmalı)
+    # Eksik placeholder fonksiyonları tanımla (gerçek fonksiyonlar yukarıda olmalı!)
+    def generate_summary(keyword=None): return "📊 Özet fonksiyonu hazır değil!"
+    def generate_analiz_response(tickers): return "📈 Analiz fonksiyonu hazır değil!"
+    def clear_signals(): print("🧹 Sinyaller temizleniyor..."); return True
+    def clear_signals_daily(): 
+        print("🕓 Günlük sinyal temizleme görevi başlatıldı...")
+        while True:
+            clear_signals()
+            time.sleep(86400)
+
+    @app.route("/signal", methods=["POST"])
+    def receive_signal():
+        print("📩 /signal endpoint'ine veri geldi!")
+        return "ok", 200
+
+    @app.route("/clear_signals", methods=["POST"])
+    def clear_signals_endpoint():
+        clear_signals()
+        return "ok", 200
+
+    # Arka plan temizleyici başlatılabilir (opsiyonel)
     # cleanup_thread = threading.Thread(target=clear_signals_daily, daemon=True)
     # cleanup_thread.start()
-    # print("✅ Günlük sinyal temizleme görevi arka planda başlatıldı.")
 
-    port = int(os.getenv("PORT", 5000))
-    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() == "true"
-    print(f"🔧 Ayarlar: Port={port}, Debug={debug_mode}")
-    print(f"🔧 Telegram Bot Token: {'Var' if BOT_TOKEN else 'Yok!'}, Chat ID: {'Var' if CHAT_ID else 'Yok!'}")
-    if not BOT_TOKEN or not CHAT_ID: print("❌ UYARI: BOT_TOKEN veya CHAT_ID .env dosyasında ayarlanmamış!")
+    # Gerekirse sabit port üzerinden başlat (PORT=5000)
+    port = 5000
+    print(f"🔧 Sunucu Portu: {port}")
+    print(f"🔧 Flask Debug Modu: False")
+    print(f"🔧 BOT_TOKEN: {'Var' if BOT_TOKEN else 'Yok!'} | CHAT_ID: {'Var' if CHAT_ID else 'Yok!'}")
+    if not BOT_TOKEN or not CHAT_ID:
+        print("❌ .env dosyasında BOT_TOKEN veya CHAT_ID eksik!")
 
-    app.run(host="0.0.0.0", port=port, debug=debug_mode)
+    app.run(host="0.0.0.0", port=port, debug=False)
