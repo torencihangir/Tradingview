@@ -28,11 +28,11 @@ BIST_ANALYSIS_FILE = "analiz_sonuclari.json"
 
 # escape_markdown_v2 fonksiyonu (Mevcut haliyle kalıyor)
 def escape_markdown_v2(text):
-    """Telegram MarkdownV2 için özel karakterleri (nokta ve ünlem dahil) kaçırır."""
+    """Telegram MarkdownV2 için özel karakterleri (., !, <, > dahil) kaçırır."""
     if text is None:
         return ""
-    # Nokta '.' ve Ünlem '!' karakterlerini de escape listesine ekleyelim.
-    escape_chars = r'_*[]()~`>#+-=|{}.!' # <- '.' ve '!' eklendi
+    # < > . ! karakterlerini de listeye ekleyelim
+    escape_chars = r'_*[]()~`>#+-=|{}.!<> ' # <- '<' ve '>' eklendi
     text_str = str(text)
     # Regex kullanarak belirtilen karakterleri bul ve önüne \ ekle
     return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text_str)
@@ -296,13 +296,6 @@ def generate_nasdaq_analiz_response(tickers): # Fonksiyon adını değiştirdim 
                 "detaylar": detaylar,
                 "yorum": yorum
             })
-        else:
-            analiz_listesi.append({
-                "ticker": ticker_upper,
-                "puan": None,
-                "detaylar": None,
-                "yorum": f"❌ `{ticker_upper}` için NASDAQ analizi bulunamadı\\."
-            })
 
     # Puanlara göre sıralama
     analiz_listesi.sort(key=lambda x: (x["puan"] is not None, x.get("puan", -1)), reverse=True)
@@ -388,8 +381,6 @@ def telegram_webhook():
                     if stock_info:
                         responses.append(format_bist_stock_info(stock_info))
                         found_count += 1
-                    else:
-                        responses.append(f"❌ `{ticker}` için BIST analizi bulunamadı\\.")
 
                 if found_count > 0 and len(tickers) > 1 : # Birden fazla hisse istendi ve en az biri bulunduysa başlık ekle
                      full_response = f"*{len(tickers)} adet BIST hissesi için analiz sonuçları:*\n\n" + "\n\n---\n\n".join(responses)
@@ -542,10 +533,6 @@ def generate_summary(keyword=None):
             if len(items) > item_limit:
                 msg_parts.append(f"  \\.\\.\\. ve {len(items) - item_limit} tane daha")
 
-    if not has_content:
-        keyword_display = f" {keyword.upper()}" if keyword else ""
-        # SONUNDA MANUEL \\. OLMAMALI! escape_markdown_v2 halledecek.
-        return f"📊 Gösterilecek{keyword_display} sinyal bulunamadı."
 
     return "\n".join(msg_parts)
 
