@@ -153,26 +153,30 @@ def generate_analiz_response(tickers):
     analiz_verileri = load_analiz_json()
     analiz_listesi = []
 
+    if not analiz_verileri:
+         return f"⚠️ Analiz verileri (`{ANALIZ_FILE}`) yüklenemedi veya boş."
+
     for ticker in tickers:
-        analiz = analiz_verileri.get(ticker.upper())
+        ticker_upper = ticker.strip().upper()
+        analiz = analiz_verileri.get(ticker_upper)
         if analiz:
             puan = analiz.get("puan", 0)
-            # Detayların None olup olmadığını kontrol et
             detaylar_list = analiz.get("detaylar")
-            detaylar = "\n".join(detaylar_list) if detaylar_list else "Detay bulunamadı."
+            detaylar = "\n".join(detaylar_list) if isinstance(detaylar_list, list) else "Detay bulunamadı."
             yorum = analiz.get("yorum", "Yorum bulunamadı.")
             analiz_listesi.append({
-                "ticker": ticker.upper(),
+                "ticker": ticker_upper,
                 "puan": puan,
                 "detaylar": detaylar,
                 "yorum": yorum
             })
         else:
             analiz_listesi.append({
-                "ticker": ticker.upper(),
+                "ticker": ticker_upper,
                 "puan": None,
                 "detaylar": None,
-                "yorum": f"❌ _{ticker.upper()}_ için analiz bulunamadı." # Markdown için _ eklendi
+                # YORUM OLUŞTURULURKEN FORMATLAMA KALDIRILDI:
+                "yorum": f"❌ {ticker_upper} için analiz bulunamadı."
             })
 
     analiz_listesi.sort(key=lambda x: (x["puan"] is not None, x["puan"]), reverse=True)
@@ -180,12 +184,12 @@ def generate_analiz_response(tickers):
     response_lines = []
     for analiz in analiz_listesi:
         if analiz["puan"] is not None:
-            # MarkdownV2 formatı
+            # MESAJ OLUŞTURULURKEN *, ` ve _ FORMATLAMASI KALDIRILDI:
             response_lines.append(
-                f"📊 *{analiz['ticker']} Analiz Sonuçları (Puan: {analiz['puan']})*:\n`{analiz['detaylar']}`\n\n_{analiz['yorum']}_"
+                f"📊 {analiz['ticker']} Analiz Sonuçları (Puan: {analiz['puan']}):\n{analiz['detaylar']}\n\n{analiz['yorum']}"
             )
         else:
-            response_lines.append(analiz["yorum"])
+            response_lines.append(analiz["yorum"]) # Zaten formatlamasız geliyor
 
     return "\n\n".join(response_lines)
 
