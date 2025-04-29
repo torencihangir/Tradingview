@@ -28,9 +28,13 @@ BIST_ANALYSIS_FILE = "analiz_sonuclari.json"
 
 # escape_markdown_v2 fonksiyonu (Mevcut haliyle kalıyor)
 def escape_markdown_v2(text):
-    escape_chars = r"\_*[]()~`>#+-=|{}"
-    # Gelen verinin None olma ihtimaline karşı str() kullanalım ve None ise boş string döndürelim
-    text_str = str(text) if text is not None else ""
+    """Telegram MarkdownV2 için özel karakterleri (nokta ve ünlem dahil) kaçırır."""
+    if text is None:
+        return ""
+    # Nokta '.' ve Ünlem '!' karakterlerini de escape listesine ekleyelim.
+    escape_chars = r'_*[]()~`>#+-=|{}.!' # <- '.' ve '!' eklendi
+    text_str = str(text)
+    # Regex kullanarak belirtilen karakterleri bul ve önüne \ ekle
     return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text_str)
 
 # send_telegram_message fonksiyonu (Mevcut haliyle kalıyor - mesaj bölme dahil)
@@ -540,7 +544,8 @@ def generate_summary(keyword=None):
 
     if not has_content:
         keyword_display = f" {keyword.upper()}" if keyword else ""
-        return f"📊 Gösterilecek{keyword_display} sinyal bulunamadı\\."
+        # SONUNDA MANUEL \\. OLMAMALI! escape_markdown_v2 halledecek.
+        return f"📊 Gösterilecek{keyword_display} sinyal bulunamadı."
 
     return "\n".join(msg_parts)
 
