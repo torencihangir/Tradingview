@@ -19,7 +19,7 @@ ADMIN_CHAT_ID = os.getenv("CHAT_ID") # Yöneticiye bildirim/hata göndermek içi
 ANALIZ_FILE = os.getenv("ANALIZ_FILE_PATH", "analiz.json")
 BIST_ANALIZ_FILE = os.getenv("ANALIZ_SONUCLARI_FILE_PATH", "analiz_sonuclari.json")
 # YENİ: Sinyallerin kaydedileceği dosya
-SIGNAL_LOG_FILE = os.getenv("SIGNAL_LOG_FILE_PATH", "signals.json")
+SIGNAL_LOG_FILE_PATH=signals.json
 
 app = Flask(__name__)
 
