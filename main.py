@@ -8,7 +8,7 @@ import re
 from datetime import datetime, date
 from dotenv import load_dotenv
 import traceback
-# import locale # Artık finansal.json formatlaması için gerekmiyor
+# import locale # Gerek kalmadı
 
 # Ortam değişkenlerini yükle
 load_dotenv()
@@ -16,8 +16,8 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_CHAT_ID = os.getenv("CHAT_ID")
 ANALIZ_FILE = os.getenv("ANALIZ_FILE_PATH", "analiz.json")
-BIST_ANALIZ_FILE = os.getenv("ANALIZ_SONUCLARI_FILE_PATH", "analiz_sonuclari.json") # Kullanılacak BIST dosyası
-SIGNAL_LOG_FILE = os.getenv("SIGNAL_LOG_FILE_PATH", "signals.json") # .env ile yapılandırılabilir
+BIST_ANALIZ_FILE = os.getenv("ANALIZ_SONUCLARI_FILE_PATH", "analiz_sonuclari.json")
+SIGNAL_LOG_FILE = os.getenv("SIGNAL_LOG_FILE_PATH", "signals.json")
 
 app = Flask(__name__)
 
@@ -55,7 +55,7 @@ def append_to_jsonl(path, data_dict):
 def send_telegram_message(chat_id, msg, parse_mode="Markdown", avoid_self_notify=False):
     if not BOT_TOKEN or not chat_id: print("🚨 TG gönderimi: BOT_TOKEN/chat_id eksik!"); return False
     msg = str(msg); max_length = 4096; messages_to_send = []
-    if len(msg.encode('utf-8')) > max_length: # Byte uzunluğunu kontrol et
+    if len(msg.encode('utf-8')) > max_length:
         parts = msg.split('\n\n'); current_message = ""
         for part in parts:
             part_len = len(part.encode('utf-8')); current_len = len(current_message.encode('utf-8'))
@@ -97,96 +97,60 @@ def simplify_exchange(exchange_name):
     return mapping.get(name, exchange_name)
 
 # --- Analiz İşleme Fonksiyonları ---
-def format_analiz_output(ticker_data): # (Değişiklik Yok)
+# GÜNCELLENDİ: keys_to_extract içinde "Potansiyel" düzeltildi
+def format_analiz_output(ticker_data):
     t = ticker_data.get("symbol", "?"); puan = ticker_data.get("puan", "N/A"); detaylar = ticker_data.get("detaylar", [])
     target_price_line, potential_line, analyst_count_line, sector_line, industry_line = "🎯 Hedef Fiyat: ?", "🚀 Potansiyel: ?", "👨‍💼 Analist Sayısı: ?", "🏢 Sektör: ?", "⚙️ Endüstri: ?"
-    keys_to_extract = {"Hedef Fiyat:": ("🎯", target_price_line), "Potansiyel:": ("🚀", potential_line), "Analist Sayısı:": ("👨‍💼", analyst_count_line), "Sektör:": ("🏢", sector_line), "Endüstri:": ("⚙️", industry_line)}
+    keys_to_extract = {
+        "Hedef Fiyat:": ("🎯", target_price_line),
+        "Potansiyel:": ("🚀", potential_line), # <<< YAZIM HATASI DÜZELTİLDİ
+        "Analist Sayısı:": ("👨‍💼", analyst_count_line),
+        "Sektör:": ("🏢", sector_line),
+        "Endüstri:": ("⚙️", industry_line)
+    }
     extracted_lines_set = set()
     for line in detaylar:
+        # Satırın başındaki emojiyi (varsa) ve boşluğu geçici olarak kaldıralım
+        clean_line = re.sub(r"^[^\w]*\s*", "", line)
         for key, (emoji, default_value) in keys_to_extract.items():
-            if key in line:
+            # Anahtarla başlayıp başlamadığını kontrol et
+            if clean_line.startswith(key):
+                # Orijinal satırı emojili formatla
                 formatted_line = f"{emoji} {line}" if not line.startswith(emoji) else line
                 if key == "Hedef Fiyat:": target_price_line = formatted_line
-                elif key == "Potensiyel:": potential_line = formatted_line # Potansiyel yazım hatası kontrolü
+                elif key == "Potansiyel:": potential_line = formatted_line
                 elif key == "Analist Sayısı:": analyst_count_line = formatted_line
                 elif key == "Sektör:": sector_line = formatted_line
                 elif key == "Endüstri:": industry_line = formatted_line
                 extracted_lines_set.add(line); break
+    # Çıkarılmayan (yani ana metrikler olan) satırları al
     core_details = [line for line in detaylar if line not in extracted_lines_set]; detay_text = "\n".join(core_details)
     output = (f"📊 *{t} Analiz Sonuçları (Puan: {puan})*\n{detay_text}\n{target_price_line}\n{potential_line}\n{analyst_count_line}\n{sector_line}\n{industry_line}\n\n{t} için analiz tamamlandı. Toplam puan: {puan}.")
     return output
 
-# YENİ: analiz_sonuclari.json için formatlama fonksiyonu
-def format_bist_puanlama_output(ticker_data):
-    """BİST Puanlama verisini (analiz_sonuclari.json) istenen formata getirir."""
-    sembol = ticker_data.get("symbol", "Bilinmiyor")
-    tip = ticker_data.get("tip", "Belirtilmemiş")
-    puan = ticker_data.get("score", "N/A")
-    sinif = ticker_data.get("classification", "Belirtilmemiş")
-    yorumlar = ticker_data.get("comments", [])
-    detaylar = ticker_data.get("details", {}) # Puan detayları
-    analyst_summary = ticker_data.get("analyst_summary") # Analist özeti
-
-    # Emoji haritası (analiz_sonuclari.json yorumlarına göre güncellendi)
-    emoji_map = {
-        "peg oranı": "🎯", "f/k oranı": "💰", "net borç/favök": "🏦",
-        "pd/dd oranı": "⚖️", "net dönem karı": "📈", "satışlar": "🛒",
-        "favök": "🔥", "özkaynak artışı": "🧱", "varlıklar": "🏛️", # Genel varlık
-        "dönen varlıklar": "🔄", "duran varlıklar": "🏢", "toplam varlıklar": "🏛️",
-        "finansal borç": "📉", "net borç": "💸",
-        "özkaynak karlılığı": "📊", "aktif karlılık": "✅", "takipteki alacaklar": "📉",
-        "npl oranı": "📉", "car oranı": "🛡️", "nim oranı": "🏦",
-        "kredi artışı": "💳", "mevduat artışı": "💰", "prim üretimi": "📄",
-        "teknik denge": "⚙️", "bileşik rasyo": "📉",
-        "esas faaliyet karı": "💼", "finansal yük.": "📉", # Katilim için eklendi
-        "veri eksik": "❓", # Eksik veri için
-        "default": "➡️" # Eşleşmeyenler için
-    }
-
-    output_lines = [f"📊 *{sembol}* ({tip}) - Puanlama Analizi\n"] # Başlık
-    output_lines.append(f"📈 Puan: *{puan}* | 🏅 Sınıf: {sinif}\n") # Puan ve Sınıf
-
-    # Yorumlar Bölümü
+def format_bist_puanlama_output(ticker_data): # (Değişiklik Yok)
+    sembol = ticker_data.get("symbol", "?"); tip = ticker_data.get("tip", "?"); puan = ticker_data.get("score", "N/A"); sinif = ticker_data.get("classification", "?"); yorumlar = ticker_data.get("comments", []); detaylar = ticker_data.get("details", {}); analyst_summary = ticker_data.get("analyst_summary")
+    emoji_map = {"peg oranı": "🎯", "f/k oranı": "💰", "net borç/favök": "🏦", "pd/dd oranı": "⚖️", "net dönem karı": "📈", "satışlar": "🛒", "favök": "🔥", "özkaynak artışı": "🧱", "varlıklar": "🏛️", "dönen varlıklar": "🔄", "duran varlıklar": "🏢", "toplam varlıklar": "🏛️", "finansal borç": "📉", "net borç": "💸", "özkaynak karlılığı": "📊", "aktif karlılık": "✅", "takipteki alacaklar": "📉", "npl oranı": "📉", "car oranı": "🛡️", "nim oranı": "🏦", "kredi artışı": "💳", "mevduat artışı": "💰", "prim üretimi": "📄", "teknik denge": "⚙️", "bileşik rasyo": "📉", "esas faaliyet karı": "💼", "finansal yük.": "📉", "veri eksik": "❓", "default": "➡️"}
+    output_lines = [f"📊 *{sembol}* ({tip}) - Puanlama Analizi\n", f"📈 Puan: *{puan}* | 🏅 Sınıf: {sinif}\n"]
     if yorumlar:
         output_lines.append("📝 *Yorumlar:*")
         for y in yorumlar:
             y_clean = str(y).strip();
             if not y_clean: continue
-            eklenecek_emoji = emoji_map["default"]; lower_y = y_clean.lower(); found_emoji = False
-            # Yorumun başındaki metrik adını bulmaya çalış
-            best_match_key = ""
+            eklenecek_emoji = emoji_map["default"]; lower_y = y_clean.lower(); found_emoji = False; best_match_key = ""
             for k in emoji_map.keys():
                 if k != "default" and lower_y.startswith(k):
-                    # En uzun eşleşeni bul (örn: "net borç/favök" vs "net borç")
-                    if len(k) > len(best_match_key):
-                        best_match_key = k
-            if best_match_key:
-                eklenecek_emoji = emoji_map[best_match_key]
-                found_emoji = True
-            # Eğer başta bulamazsak, içinde geçiyor mu diye bakalım
+                    if len(k) > len(best_match_key): best_match_key = k
+            if best_match_key: eklenecek_emoji = emoji_map[best_match_key]; found_emoji = True
             if not found_emoji:
                  for k, v in emoji_map.items():
                      if k != "default" and k in lower_y: eklenecek_emoji = v; break
             output_lines.append(f"  {eklenecek_emoji} {y_clean}")
-        output_lines.append("") # Boşluk bırak
-    else:
-        output_lines.append("📝 Yorumlar: (Bulunamadı)\n")
-
-    # Puan Detayları Bölümü (İsteğe Bağlı)
+        output_lines.append("")
+    else: output_lines.append("📝 Yorumlar: (Bulunamadı)\n")
     if detaylar and isinstance(detaylar, dict):
-         output_lines.append("🔢 *Puan Detayları:*")
-         detail_pairs = [f"`{k}: {v}`" for k, v in detaylar.items()]
-         # Detayları 2'li veya 3'lü gruplar halinde göstermek daha okunaklı olabilir
-         # Şimdilik hepsini birleştirerek gösterelim:
-         output_lines.append("  " + " | ".join(detail_pairs))
-         output_lines.append("")
-
-    # Analist Özeti Bölümü
-    if analyst_summary:
-        output_lines.append("👨‍💼 *Analist Özeti:*")
-        output_lines.append(f"  {analyst_summary}")
-        # output_lines.append("") # Sonuna boşluk koymaya gerek yok
-
+         output_lines.append("🔢 *Puan Detayları:*"); detail_pairs = [f"`{k}: {v}`" for k, v in detaylar.items()]; output_lines.append("  " + " | ".join(detail_pairs)); output_lines.append("")
+    if analyst_summary: output_lines.append("👨‍💼 *Analist Özeti:*"); output_lines.append(f"  {analyst_summary}")
     return "\n".join(output_lines).strip()
 
 # --- Komut İşleyiciler ---
@@ -212,26 +176,60 @@ def handle_analiz_command(chat_id, args): # (Değişiklik Yok)
     final_output = "\n\n".join(formatted_results + results_not_found)
     send_telegram_message(chat_id, final_output)
 
-# GÜNCELLENMİŞ: /bist_analiz analiz_sonuclari.json kullanacak
+# GÜNCELLENDİ: /bist_analiz çoklu hisse alabilir
 def handle_bist_analiz_command(chat_id, args):
-    if not args: send_telegram_message(chat_id, "Lütfen BİST sembolünü belirtin.\nÖrnek: `/bist_analiz MIATK`"); return
-    ticker = args.split(None, 1)[0].strip().upper()
-    if not ticker: send_telegram_message(chat_id, "Geçerli BİST sembolü belirtilmedi.\nÖrnek: `/bist_analiz MIATK`"); return
+    """ /bist_analiz komutunu işler (çoklu hisse destekler) """
+    if not args:
+        send_telegram_message(chat_id, "Lütfen analiz etmek istediğiniz BİST hisse senedi sembollerini virgülle ayırarak belirtin.\nÖrnek: `/bist_analiz MIATK,ASELS`")
+        return
 
-    print(f"🔍 /bist_analiz komutu alındı (Chat ID: {chat_id}): {ticker}")
-    # YENİ: analiz_sonuclari.json dosyasını oku
+    # Argümanları temizle (virgül ve boşluklara göre ayır, büyük harfe çevir, boşları filtrele)
+    tickers = [t.strip().upper() for t in re.split(r'[ ,]+', args) if t.strip()]
+    if not tickers:
+        send_telegram_message(chat_id, "Geçerli bir BİST hisse senedi sembolü belirtilmedi.\nÖrnek: `/bist_analiz MIATK,ASELS`")
+        return
+
+    print(f"🔍 /bist_analiz komutu alındı (Chat ID: {chat_id}): {tickers}")
+
+    # analiz_sonuclari.json dosyasını oku
     data = load_json_file(BIST_ANALIZ_FILE)
-    if data is None: send_telegram_message(chat_id, f"❌ BİST Puanlama verisi ({os.path.basename(BIST_ANALIZ_FILE)}) yüklenemedi."); return
-    if not data: send_telegram_message(chat_id, f"❌ BİST Puanlama verisi ({os.path.basename(BIST_ANALIZ_FILE)}) bulunamadı/boş."); return
+    if data is None:
+        send_telegram_message(chat_id, f"❌ BİST Puanlama verisi ({os.path.basename(BIST_ANALIZ_FILE)}) yüklenemedi.")
+        return
+    if not data:
+        send_telegram_message(chat_id, f"❌ BİST Puanlama verisi ({os.path.basename(BIST_ANALIZ_FILE)}) bulunamadı/boş.")
+        return
 
-    hisse_data = data.get(ticker)
-    if not hisse_data or not isinstance(hisse_data, dict): send_telegram_message(chat_id, f"❌ `{ticker}` için BİST puanlama verisi bulunamadı."); return
+    results_found = []
+    results_not_found = []
 
-    # YENİ: Yeni puanlama formatlama fonksiyonunu çağır
-    output = format_bist_puanlama_output(hisse_data)
-    send_telegram_message(chat_id, output) # Markdown kullanıyoruz
+    for t in tickers:
+        hisse_data = data.get(t)
+        if hisse_data and isinstance(hisse_data, dict):
+            results_found.append(hisse_data) # Veri bulunduysa listeye ekle
+        else:
+            results_not_found.append(f"❌ `{t}` için BİST puanlama verisi bulunamadı.")
 
-def handle_ozet_command(chat_id, args): # (Boş kategorileri gizleme eklendi, değişiklik yok)
+    if not results_found:
+        error_message = "\n".join(results_not_found) if results_not_found else f"❌ Belirtilen sembol(ler) için ({', '.join(tickers)}) veri bulunamadı."
+        send_telegram_message(chat_id, error_message)
+        return
+
+    # Bulunan sonuçları formatla (ŞİMDİLİK SIRALAMA YOK - istenirse eklenebilir)
+    # Önceki `/analiz` gibi sıralama isteniyorsa:
+    # def get_bist_score(item): score = item.get('score', -float('inf')); return score if isinstance(score, (int, float)) else float(score) if isinstance(score, str) and score.replace('.','',1).isdigit() else -float('inf')
+    # results_found.sort(key=get_bist_score, reverse=True)
+
+    formatted_results = [format_bist_puanlama_output(hisse) for hisse in results_found]
+
+    # Tüm mesajları birleştir (bulunanlar + bulunamayanlar)
+    final_output_parts = formatted_results + results_not_found
+    final_output = "\n\n".join(final_output_parts)
+
+    # Tek mesaj olarak gönder
+    send_telegram_message(chat_id, final_output)
+
+def handle_ozet_command(chat_id, args): # (Değişiklik Yok)
     target_exchange_filter = args.strip().upper() if args.strip() else None
     print(f"🔍 /ozet komutu alındı (Chat ID: {chat_id}) - Filtre: {target_exchange_filter}")
     today_str = date.today().isoformat()
@@ -263,15 +261,15 @@ def handle_ozet_command(chat_id, args): # (Boş kategorileri gizleme eklendi, de
         signal_text = str(s.get("signal", "")).strip(); lower_signal = signal_text.lower(); processed = False
         if "kairi" in lower_signal and "seviyesinde" in lower_signal:
             try:
-                kairi_match = re.search(r'([-+]?\d*[,.]?\d+)', signal_text.replace(',', '.')) # Ondalık için , ve . kabul et
-                if kairi_match: kairi_val = float(kairi_match.group(1)); entry = f"{symbol} ({exchange_simp}): KAIRI {kairi_val:.2f}".replace('.',',') # Türkçe format
+                kairi_match = re.search(r'([-+]?\d*[,.]?\d+)', signal_text.replace(',', '.'))
+                if kairi_match: kairi_val = float(kairi_match.group(1)); entry = f"{symbol} ({exchange_simp}): KAIRI {kairi_val:.2f}".replace('.',',');
                 if kairi_val <= -30: kategori_map["kairi_neg30"].append(entry); processed = True
                 elif kairi_val <= -20: kategori_map["kairi_neg20"].append(entry); processed = True
             except: pass
         if not processed and "matisay" in lower_signal and ("değerinde" in lower_signal or "kesti" in lower_signal):
              try:
                 matisay_match = re.search(r'([-+]?\d*[,.]?\d+)', signal_text.replace(',', '.'))
-                if matisay_match: matisay_val = float(matisay_match.group(1)); entry = f"{symbol} ({exchange_simp}): Matisay {matisay_val:.2f}".replace('.',',')
+                if matisay_match: matisay_val = float(matisay_match.group(1)); entry = f"{symbol} ({exchange_simp}): Matisay {matisay_val:.2f}".replace('.',',');
                 if matisay_val < -25: kategori_map["matisay_neg25"].append(entry); processed = True
              except: pass
         if not processed:
@@ -289,10 +287,9 @@ def handle_ozet_command(chat_id, args): # (Boş kategorileri gizleme eklendi, de
     final_ozet = "\n".join(ozet_mesaji).strip()
     send_telegram_message(chat_id, final_ozet, parse_mode=None)
 
-
-# --- Flask Rotaları --- (Değişiklik Yok)
+# --- Flask Rotaları ---
 @app.route("/telegram", methods=["POST"])
-def telegram_webhook():
+def telegram_webhook(): # (Değişiklik Yok)
     start_time = time.time(); update = {}
     try:
         update = request.get_json();
@@ -307,9 +304,10 @@ def telegram_webhook():
                 elif command == "/bist_analiz": handle_bist_analiz_command(chat_id, args) # Güncellenmiş halini çağırır
                 elif command == "/ozet": handle_ozet_command(chat_id, args)
                 elif command == "/start" or command == "/help":
+                     # YARDIM MESAJI GÜNCELLENDİ
                      help_text = (f"Merhaba {first_name}! 👋\n\nKullanılabilir komutlar:\n\n"
                          "*ABD Analizi:*\n`/analiz <Sembol1>,<Sembol2>,...`\n_(Örn: `/analiz TSLA,AAPL`)_\n\n"
-                         "*BİST Puanlama Analizi:*\n`/bist_analiz <Sembol>`\n_(Örn: `/bist_analiz MIATK`)_\n\n" # Açıklama güncellendi
+                         "*BİST Puanlama Analizi:*\n`/bist_analiz <Sembol1>,<Sembol2>,...`\n_(Örn: `/bist_analiz MIATK,ASELS`)_\n\n" # Açıklama güncellendi
                          "*Günlük Özet:*\n`/ozet [Borsa]`\n_(Örn: `/ozet BINANCE` veya `/ozet` tümü için)_\n\n"
                          "*Diğer:*\n`/help` - Bu yardım mesajı.")
                      send_telegram_message(chat_id, help_text)
@@ -370,13 +368,12 @@ def handle_signal(): # (Değişiklik Yok)
 
 # --- Sunucuyu Başlatma ---
 if __name__ == "__main__":
-    # ... (ASCII Art kaldırıldı) ...
     print("==============================================")
     print("✅ SignalCihangir Flask Bot Başlatılıyor...")
     print(f"🔧 Ortam: {'Production' if not os.getenv('FLASK_DEBUG') else 'Development'}")
     print(f"🔗 Dinlenen Adres: http://0.0.0.0:5000")
     print(f"📄 ABD Analiz Dosyası: {ANALIZ_FILE}")
-    print(f"📄 BIST Puanlama Dosyası: {BIST_ANALIZ_FILE}") # Log güncellendi
+    print(f"📄 BIST Puanlama Dosyası: {BIST_ANALIZ_FILE}")
     print(f"📄 Sinyal Log Dosyası: {SIGNAL_LOG_FILE}")
     print(f"👤 Yönetici Chat ID: {ADMIN_CHAT_ID if ADMIN_CHAT_ID else 'Ayarlanmadı'}")
     print("==============================================")
