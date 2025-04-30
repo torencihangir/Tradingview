@@ -286,8 +286,31 @@ def handle_ozet_command(chat_id, args): # (Değişiklik Yok)
     if not any_category_found: ozet_mesaji = [f"📊 GÜNLÜK SİNYAL ÖZETİ {ozet_title}:\n"]; ozet_mesaji.append("Bugün bu filtre için özetlenecek sinyal bulunamadı.")
     final_ozet = "\n".join(ozet_mesaji).strip()
     send_telegram_message(chat_id, final_ozet, parse_mode=None)
+    
 
 # --- Flask Rotaları ---
+@app.route("/clear_signals", methods=['POST'])
+def clear_signals_log():
+    """ '/clear_signals' POST isteği aldığında sinyal log dosyasını temizler. """
+    print("🧹 /clear_signals isteği alındı...")
+    try:
+        # Dosyayı 'w' (write) modunda açıp hemen kapatmak içeriğini temizler.
+        # Dosya yoksa oluşturur (boş olarak).
+        with open(SIGNAL_LOG_FILE, "w", encoding="utf-8") as f:
+            pass # Dosyayı açıp kapatmak yeterli
+        print(f"✅ Sinyal log dosyası başarıyla temizlendi: {SIGNAL_LOG_FILE}")
+        # Başarı mesajını JSON olarak döndürelim (API tarzı için daha uygun)
+        return jsonify({"status": "success", "message": f"Signal log file '{os.path.basename(SIGNAL_LOG_FILE)}' cleared."}), 200
+    except Exception as e:
+        error_details = traceback.format_exc()
+        print(f"💥 Sinyal log temizleme hatası: {e}\n{error_details}")
+        # Hata durumunda yöneticiye bildirim gönder
+        if ADMIN_CHAT_ID:
+             error_message_to_admin = f"🚨 Sinyal Log Temizleme Hatası!\n\nError: {e}\n\nDosya: {SIGNAL_LOG_FILE}"
+             send_telegram_message(ADMIN_CHAT_ID, error_message_to_admin, parse_mode=None, avoid_self_notify=True)
+        # Hata mesajını JSON olarak döndür
+        return jsonify({"status": "error", "message": "Failed to clear signal log file."}), 500
+        
 @app.route("/telegram", methods=["POST"])
 def telegram_webhook(): # (Değişiklik Yok)
     start_time = time.time(); update = {}
