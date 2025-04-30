@@ -5,9 +5,10 @@ import requests
 import os
 import time
 import re
-from datetime import datetime, date # date eklendi
+from datetime import datetime, date
 from dotenv import load_dotenv
 import traceback
+# import locale # Artık finansal.json formatlaması için gerekmiyor
 
 # Ortam değişkenlerini yükle
 load_dotenv()
@@ -15,7 +16,7 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_CHAT_ID = os.getenv("CHAT_ID")
 ANALIZ_FILE = os.getenv("ANALIZ_FILE_PATH", "analiz.json")
-BIST_ANALIZ_FILE = os.getenv("ANALIZ_SONUCLARI_FILE_PATH", "analiz_sonuclari.json")
+BIST_ANALIZ_FILE = os.getenv("ANALIZ_SONUCLARI_FILE_PATH", "analiz_sonuclari.json") # Kullanılacak BIST dosyası
 SIGNAL_LOG_FILE = os.getenv("SIGNAL_LOG_FILE_PATH", "signals.json") # .env ile yapılandırılabilir
 
 app = Flask(__name__)
@@ -54,7 +55,7 @@ def append_to_jsonl(path, data_dict):
 def send_telegram_message(chat_id, msg, parse_mode="Markdown", avoid_self_notify=False):
     if not BOT_TOKEN or not chat_id: print("🚨 TG gönderimi: BOT_TOKEN/chat_id eksik!"); return False
     msg = str(msg); max_length = 4096; messages_to_send = []
-    if len(msg.encode('utf-8')) > max_length:
+    if len(msg.encode('utf-8')) > max_length: # Byte uzunluğunu kontrol et
         parts = msg.split('\n\n'); current_message = ""
         for part in parts:
             part_len = len(part.encode('utf-8')); current_len = len(current_message.encode('utf-8'))
@@ -95,8 +96,8 @@ def simplify_exchange(exchange_name):
     mapping = {"NASDAQ": "NASDAQ", "NYSE": "NYSE", "BINANCE": "BINANCE", "OKX": "OKX", "BYBIT": "BYBIT", "KUCOIN": "KUCOIN", "GEMINI":"GEMINI", "KRAKEN":"KRAKEN", "COINBASE":"COINBASE"}
     return mapping.get(name, exchange_name)
 
-# --- Analiz İşleme Fonksiyonları --- (Değişiklik Yok)
-def format_analiz_output(ticker_data):
+# --- Analiz İşleme Fonksiyonları ---
+def format_analiz_output(ticker_data): # (Değişiklik Yok)
     t = ticker_data.get("symbol", "?"); puan = ticker_data.get("puan", "N/A"); detaylar = ticker_data.get("detaylar", [])
     target_price_line, potential_line, analyst_count_line, sector_line, industry_line = "🎯 Hedef Fiyat: ?", "🚀 Potansiyel: ?", "👨‍💼 Analist Sayısı: ?", "🏢 Sektör: ?", "⚙️ Endüstri: ?"
     keys_to_extract = {"Hedef Fiyat:": ("🎯", target_price_line), "Potansiyel:": ("🚀", potential_line), "Analist Sayısı:": ("👨‍💼", analyst_count_line), "Sektör:": ("🏢", sector_line), "Endüstri:": ("⚙️", industry_line)}
@@ -106,7 +107,7 @@ def format_analiz_output(ticker_data):
             if key in line:
                 formatted_line = f"{emoji} {line}" if not line.startswith(emoji) else line
                 if key == "Hedef Fiyat:": target_price_line = formatted_line
-                elif key == "Potansiyel:": potential_line = formatted_line
+                elif key == "Potensiyel:": potential_line = formatted_line # Potansiyel yazım hatası kontrolü
                 elif key == "Analist Sayısı:": analyst_count_line = formatted_line
                 elif key == "Sektör:": sector_line = formatted_line
                 elif key == "Endüstri:": industry_line = formatted_line
@@ -115,25 +116,78 @@ def format_analiz_output(ticker_data):
     output = (f"📊 *{t} Analiz Sonuçları (Puan: {puan})*\n{detay_text}\n{target_price_line}\n{potential_line}\n{analyst_count_line}\n{sector_line}\n{industry_line}\n\n{t} için analiz tamamlandı. Toplam puan: {puan}.")
     return output
 
-def format_bist_analiz_output(ticker_data):
-    sembol = ticker_data.get("symbol", "?"); puan = ticker_data.get("score", "N/A"); sinif = ticker_data.get("classification", "?"); yorumlar = ticker_data.get("comments", [])
-    emoji_map = {"peg oranı": "🎯", "f/k oranı": "💰", "net borç/favök": "🏦","net dönem karı": "📈", "finansal borç": "📉", "net borç": "💸","dönen varlıklar": "🔄", "duran varlıklar": "🏢", "toplam varlıklar": "🏛️", "özkaynak": "🧱", "default": "➡️"}
-    yorum_lines = []
+# YENİ: analiz_sonuclari.json için formatlama fonksiyonu
+def format_bist_puanlama_output(ticker_data):
+    """BİST Puanlama verisini (analiz_sonuclari.json) istenen formata getirir."""
+    sembol = ticker_data.get("symbol", "Bilinmiyor")
+    tip = ticker_data.get("tip", "Belirtilmemiş")
+    puan = ticker_data.get("score", "N/A")
+    sinif = ticker_data.get("classification", "Belirtilmemiş")
+    yorumlar = ticker_data.get("comments", [])
+    detaylar = ticker_data.get("details", {}) # Puan detayları
+    analyst_summary = ticker_data.get("analyst_summary") # Analist özeti
+
+    # Emoji haritası (analiz_sonuclari.json yorumlarına göre güncellendi)
+    emoji_map = {
+        "peg oranı": "🎯", "f/k oranı": "💰", "net borç/favök": "🏦",
+        "pd/dd oranı": "⚖️", "net dönem karı": "📈", "satışlar": "🛒",
+        "favök": "🔥", "özkaynak artışı": "🧱", "varlıklar": "🏛️", # Genel varlık
+        "dönen varlıklar": "🔄", "duran varlıklar": "🏢", "toplam varlıklar": "🏛️",
+        "finansal borç": "📉", "net borç": "💸",
+        "özkaynak karlılığı": "📊", "aktif karlılık": "✅", "takipteki alacaklar": "📉",
+        "npl oranı": "📉", "car oranı": "🛡️", "nim oranı": "🏦",
+        "kredi artışı": "💳", "mevduat artışı": "💰", "prim üretimi": "📄",
+        "teknik denge": "⚙️", "bileşik rasyo": "📉",
+        "esas faaliyet karı": "💼", "finansal yük.": "📉", # Katilim için eklendi
+        "veri eksik": "❓", # Eksik veri için
+        "default": "➡️" # Eşleşmeyenler için
+    }
+
+    output_lines = [f"📊 *{sembol}* ({tip}) - Puanlama Analizi\n"] # Başlık
+    output_lines.append(f"📈 Puan: *{puan}* | 🏅 Sınıf: {sinif}\n") # Puan ve Sınıf
+
+    # Yorumlar Bölümü
     if yorumlar:
+        output_lines.append("📝 *Yorumlar:*")
         for y in yorumlar:
             y_clean = str(y).strip();
             if not y_clean: continue
             eklenecek_emoji = emoji_map["default"]; lower_y = y_clean.lower(); found_emoji = False
-            for k, v in emoji_map.items():
-                if k != "default" and lower_y.startswith(k): eklenecek_emoji = v; found_emoji = True; break
+            # Yorumun başındaki metrik adını bulmaya çalış
+            best_match_key = ""
+            for k in emoji_map.keys():
+                if k != "default" and lower_y.startswith(k):
+                    # En uzun eşleşeni bul (örn: "net borç/favök" vs "net borç")
+                    if len(k) > len(best_match_key):
+                        best_match_key = k
+            if best_match_key:
+                eklenecek_emoji = emoji_map[best_match_key]
+                found_emoji = True
+            # Eğer başta bulamazsak, içinde geçiyor mu diye bakalım
             if not found_emoji:
                  for k, v in emoji_map.items():
                      if k != "default" and k in lower_y: eklenecek_emoji = v; break
-            yorum_lines.append(f"{eklenecek_emoji} {y_clean}")
-    else: yorum_lines.append("➡️ Yorum bulunamadı.")
-    yorum_text = "\n".join(yorum_lines)
-    output = (f"📊 BİST Detaylı Analiz\n\n🏷️ Sembol: *{sembol}*\n📈 Puan: *{puan}*\n🏅 Sınıflandırma: {sinif}\n\n📝 Öne Çıkanlar:\n{yorum_text}")
-    return output
+            output_lines.append(f"  {eklenecek_emoji} {y_clean}")
+        output_lines.append("") # Boşluk bırak
+    else:
+        output_lines.append("📝 Yorumlar: (Bulunamadı)\n")
+
+    # Puan Detayları Bölümü (İsteğe Bağlı)
+    if detaylar and isinstance(detaylar, dict):
+         output_lines.append("🔢 *Puan Detayları:*")
+         detail_pairs = [f"`{k}: {v}`" for k, v in detaylar.items()]
+         # Detayları 2'li veya 3'lü gruplar halinde göstermek daha okunaklı olabilir
+         # Şimdilik hepsini birleştirerek gösterelim:
+         output_lines.append("  " + " | ".join(detail_pairs))
+         output_lines.append("")
+
+    # Analist Özeti Bölümü
+    if analyst_summary:
+        output_lines.append("👨‍💼 *Analist Özeti:*")
+        output_lines.append(f"  {analyst_summary}")
+        # output_lines.append("") # Sonuna boşluk koymaya gerek yok
+
+    return "\n".join(output_lines).strip()
 
 # --- Komut İşleyiciler ---
 def handle_analiz_command(chat_id, args): # (Değişiklik Yok)
@@ -158,75 +212,67 @@ def handle_analiz_command(chat_id, args): # (Değişiklik Yok)
     final_output = "\n\n".join(formatted_results + results_not_found)
     send_telegram_message(chat_id, final_output)
 
-def handle_bist_analiz_command(chat_id, args): # (Değişiklik Yok)
+# GÜNCELLENMİŞ: /bist_analiz analiz_sonuclari.json kullanacak
+def handle_bist_analiz_command(chat_id, args):
     if not args: send_telegram_message(chat_id, "Lütfen BİST sembolünü belirtin.\nÖrnek: `/bist_analiz MIATK`"); return
     ticker = args.split(None, 1)[0].strip().upper()
     if not ticker: send_telegram_message(chat_id, "Geçerli BİST sembolü belirtilmedi.\nÖrnek: `/bist_analiz MIATK`"); return
-    print(f"🔍 /bist_analiz komutu alındı (Chat ID: {chat_id}): {ticker}")
-    data = load_json_file(BIST_ANALIZ_FILE)
-    if data is None: send_telegram_message(chat_id, f"❌ BİST Analiz verisi ({os.path.basename(BIST_ANALIZ_FILE)}) yüklenemedi."); return
-    if not data: send_telegram_message(chat_id, f"❌ BİST Analiz verisi ({os.path.basename(BIST_ANALIZ_FILE)}) bulunamadı/boş."); return
-    hisse_data = data.get(ticker)
-    if not hisse_data or not isinstance(hisse_data, dict): send_telegram_message(chat_id, f"❌ `{ticker}` için BİST analiz verisi bulunamadı."); return
-    output = format_bist_analiz_output(hisse_data)
-    send_telegram_message(chat_id, output)
 
-# GÜNCELLENMİŞ handle_ozet_command (Boş kategorileri gizler)
-def handle_ozet_command(chat_id, args):
-    """ /ozet [Borsa] komutunu işler, boş kategorileri gizler """
+    print(f"🔍 /bist_analiz komutu alındı (Chat ID: {chat_id}): {ticker}")
+    # YENİ: analiz_sonuclari.json dosyasını oku
+    data = load_json_file(BIST_ANALIZ_FILE)
+    if data is None: send_telegram_message(chat_id, f"❌ BİST Puanlama verisi ({os.path.basename(BIST_ANALIZ_FILE)}) yüklenemedi."); return
+    if not data: send_telegram_message(chat_id, f"❌ BİST Puanlama verisi ({os.path.basename(BIST_ANALIZ_FILE)}) bulunamadı/boş."); return
+
+    hisse_data = data.get(ticker)
+    if not hisse_data or not isinstance(hisse_data, dict): send_telegram_message(chat_id, f"❌ `{ticker}` için BİST puanlama verisi bulunamadı."); return
+
+    # YENİ: Yeni puanlama formatlama fonksiyonunu çağır
+    output = format_bist_puanlama_output(hisse_data)
+    send_telegram_message(chat_id, output) # Markdown kullanıyoruz
+
+def handle_ozet_command(chat_id, args): # (Boş kategorileri gizleme eklendi, değişiklik yok)
     target_exchange_filter = args.strip().upper() if args.strip() else None
     print(f"🔍 /ozet komutu alındı (Chat ID: {chat_id}) - Filtre: {target_exchange_filter}")
     today_str = date.today().isoformat()
-
     signals_today = []
     try:
-        if not os.path.exists(SIGNAL_LOG_FILE):
-            send_telegram_message(chat_id, "ℹ️ Bugün için kaydedilmiş sinyal bulunamadı.")
-            return
+        if not os.path.exists(SIGNAL_LOG_FILE): send_telegram_message(chat_id, "ℹ️ Bugün için kaydedilmiş sinyal bulunamadı."); return
         with open(SIGNAL_LOG_FILE, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip();
                 if not line: continue
                 try:
-                    signal_data = json.loads(line)
-                    signal_ts = signal_data.get('server_timestamp', '')
+                    signal_data = json.loads(line); signal_ts = signal_data.get('server_timestamp', '')
                     if signal_ts.startswith(today_str):
-                        original_exchange = str(signal_data.get("exchange", "")).upper()
-                        should_include = False
+                        original_exchange = str(signal_data.get("exchange", "")).upper(); should_include = False
                         if not target_exchange_filter: should_include = True
                         elif target_exchange_filter == "BIST" and original_exchange.startswith("BIST"): should_include = True
                         elif original_exchange == target_exchange_filter: should_include = True
                         if should_include: signals_today.append(signal_data)
                 except Exception as e: print(f"⚠️ Satır işlenirken hata: {e} - Satır: {line[:100]}")
     except Exception as e:
-        print(f"❌ Sinyal log dosyası ({SIGNAL_LOG_FILE}) okunurken hata: {e}")
-        send_telegram_message(chat_id, f"❌ Sinyal log dosyası okunurken bir hata oluştu.")
+        print(f"❌ Sinyal log dosyası ({SIGNAL_LOG_FILE}) okunurken hata: {e}"); send_telegram_message(chat_id, f"❌ Sinyal log dosyası okunurken bir hata oluştu.")
         if ADMIN_CHAT_ID: send_telegram_message(ADMIN_CHAT_ID, f"🚨 Sinyal Log Okuma Hatası!\nDosya: {SIGNAL_LOG_FILE}\nHata: {e}", parse_mode=None, avoid_self_notify=True)
         return
-
     ozet_title = f"({today_str})" if not target_exchange_filter else f"({target_exchange_filter} - {today_str})"
-    if not signals_today:
-        send_telegram_message(chat_id, f"📊 GÜNLÜK SİNYAL ÖZETİ {ozet_title}:\n\nBugün bu filtre için kaydedilmiş sinyal bulunamadı.")
-        return
-
+    if not signals_today: send_telegram_message(chat_id, f"📊 GÜNLÜK SİNYAL ÖZETİ {ozet_title}:\n\nBugün bu filtre için kaydedilmiş sinyal bulunamadı."); return
     kategori_map = {"kairi_neg30": [], "kairi_neg20": [], "matisay_neg25": [], "mukemmel_alis": [], "alis_sayim": [], "mukemmel_satis": [], "satis_sayim": []}
     for s in signals_today:
         symbol = s.get("symbol", "?"); exchange_orig = s.get("exchange", "?"); exchange_simp = simplify_exchange(exchange_orig)
         signal_text = str(s.get("signal", "")).strip(); lower_signal = signal_text.lower(); processed = False
         if "kairi" in lower_signal and "seviyesinde" in lower_signal:
             try:
-                kairi_match = re.search(r'([-+]?\d*\.?\d+)', signal_text)
-                if kairi_match:
-                    kairi_val = float(kairi_match.group(1)); entry = f"{symbol} ({exchange_simp}): KAIRI {kairi_val:.2f}"
-                    if kairi_val <= -30: kategori_map["kairi_neg30"].append(entry); processed = True
-                    elif kairi_val <= -20: kategori_map["kairi_neg20"].append(entry); processed = True
+                kairi_match = re.search(r'([-+]?\d*[,.]?\d+)', signal_text.replace(',', '.')) # Ondalık için , ve . kabul et
+                if kairi_match: kairi_val = float(kairi_match.group(1)); entry = f"{symbol} ({exchange_simp}): KAIRI {kairi_val:.2f}".replace('.',',') # Türkçe format
+                if kairi_val <= -30: kategori_map["kairi_neg30"].append(entry); processed = True
+                elif kairi_val <= -20: kategori_map["kairi_neg20"].append(entry); processed = True
             except: pass
         if not processed and "matisay" in lower_signal and ("değerinde" in lower_signal or "kesti" in lower_signal):
              try:
-                matisay_match = re.search(r'([-+]?\d*\.?\d+)', signal_text)
-                if matisay_match:
-                    matisay_val = float(matisay_match.group(1)); entry = f"{symbol} ({exchange_simp}): Matisay {matisay_val:.2f}"
-                    if matisay_val < -25: kategori_map["matisay_neg25"].append(entry); processed = True
+                matisay_match = re.search(r'([-+]?\d*[,.]?\d+)', signal_text.replace(',', '.'))
+                if matisay_match: matisay_val = float(matisay_match.group(1)); entry = f"{symbol} ({exchange_simp}): Matisay {matisay_val:.2f}".replace('.',',')
+                if matisay_val < -25: kategori_map["matisay_neg25"].append(entry); processed = True
              except: pass
         if not processed:
             entry = f"{symbol} ({exchange_simp}): {signal_text}"
@@ -234,36 +280,22 @@ def handle_ozet_command(chat_id, args):
             elif "alış sayımı" in lower_signal: kategori_map["alis_sayim"].append(entry)
             elif "mükemmel satış" in lower_signal: kategori_map["mukemmel_satis"].append(entry)
             elif "satış sayımı" in lower_signal: kategori_map["satis_sayim"].append(entry)
-
-    # --- Özet Mesajı Oluşturma (GÜNCELLENDİ) ---
-    ozet_mesaji = [f"📊 GÜNLÜK SİNYAL ÖZETİ {ozet_title}:\n"]
+    ozet_mesaji = [f"📊 GÜNLÜK SİNYAL ÖZETİ {ozet_title}:\n"]; any_category_found = False
     kategori_basliklari = {"guclu": "📊 GÜÇLÜ EŞLEŞEN SİNYALLER:", "kairi_neg30": "🔴 KAIRI ≤ -30:", "kairi_neg20": "🟠 KAIRI ≤ -20 (ama > -30):", "mukemmel_alis": "🟢 Mükemmel Alış:", "alis_sayim": "📈 Alış Sayımı Tamamlananlar:", "mukemmel_satis": "🔵 Mükemmel Satış:", "satis_sayim": "📉 Satış Sayımı Tamamlananlar:", "matisay_neg25": "🟣 Matisay < -25:"}
-    any_category_found = False # En az bir kategori bulundu mu?
-
     for key, baslik in kategori_basliklari.items():
         signals_in_category = kategori_map.get(key, [])
-        # SADECE kategori boş DEĞİLSE başlığı ve sinyalleri ekle
-        if signals_in_category:
-            any_category_found = True # Kategori bulundu olarak işaretle
-            ozet_mesaji.append(baslik) # Başlığı ekle
-            ozet_mesaji.extend(signals_in_category) # Sinyalleri ekle
-            ozet_mesaji.append("") # Kategoriler arası boşluk
-
-    # Eğer HİÇBİR kategori bulunamadıysa, genel bir mesaj göster
-    if not any_category_found:
-         # Başlığı tekrar ekle (yukarıda silindiği için)
-         ozet_mesaji = [f"📊 GÜNLÜK SİNYAL ÖZETİ {ozet_title}:\n"]
-         ozet_mesaji.append("Bugün bu filtre için özetlenecek sinyal bulunamadı.")
-
+        if signals_in_category: any_category_found = True; ozet_mesaji.append(baslik); ozet_mesaji.extend(signals_in_category); ozet_mesaji.append("")
+    if not any_category_found: ozet_mesaji = [f"📊 GÜNLÜK SİNYAL ÖZETİ {ozet_title}:\n"]; ozet_mesaji.append("Bugün bu filtre için özetlenecek sinyal bulunamadı.")
     final_ozet = "\n".join(ozet_mesaji).strip()
-    send_telegram_message(chat_id, final_ozet, parse_mode=None) # Markdown'sız gönderim
+    send_telegram_message(chat_id, final_ozet, parse_mode=None)
+
 
 # --- Flask Rotaları --- (Değişiklik Yok)
 @app.route("/telegram", methods=["POST"])
 def telegram_webhook():
     start_time = time.time(); update = {}
     try:
-        update = request.get_json()
+        update = request.get_json();
         if not update: print("⚠️ Boş veya geçersiz JSON alındı."); return "error: invalid json", 400
         if "message" in update and "text" in update["message"]:
             message = update["message"]; chat_id = message["chat"]["id"]; text = message["text"]
@@ -272,13 +304,13 @@ def telegram_webhook():
                 parts = text.split(' ', 1); command = parts[0].lower(); args = parts[1].strip() if len(parts) > 1 else ""
                 print(f"➡️ Komut: {command} | Args: '{args}' | Chat: {chat_id} | User: @{username} ({first_name})")
                 if command == "/analiz": handle_analiz_command(chat_id, args)
-                elif command == "/bist_analiz": handle_bist_analiz_command(chat_id, args)
+                elif command == "/bist_analiz": handle_bist_analiz_command(chat_id, args) # Güncellenmiş halini çağırır
                 elif command == "/ozet": handle_ozet_command(chat_id, args)
                 elif command == "/start" or command == "/help":
                      help_text = (f"Merhaba {first_name}! 👋\n\nKullanılabilir komutlar:\n\n"
                          "*ABD Analizi:*\n`/analiz <Sembol1>,<Sembol2>,...`\n_(Örn: `/analiz TSLA,AAPL`)_\n\n"
-                         "*BİST Analizi:*\n`/bist_analiz <Sembol>`\n_(Örn: `/bist_analiz MIATK`)_\n\n"
-                         "*Günlük Özet:*\n`/ozet [Borsa]`\n_(Örn: `/ozet BINANCE` veya sadece `/ozet` tümü için)_\n\n"
+                         "*BİST Puanlama Analizi:*\n`/bist_analiz <Sembol>`\n_(Örn: `/bist_analiz MIATK`)_\n\n" # Açıklama güncellendi
+                         "*Günlük Özet:*\n`/ozet [Borsa]`\n_(Örn: `/ozet BINANCE` veya `/ozet` tümü için)_\n\n"
                          "*Diğer:*\n`/help` - Bu yardım mesajı.")
                      send_telegram_message(chat_id, help_text)
                 else: send_telegram_message(chat_id, f"❓ Bilinmeyen komut: `{command}`\n/help yazın.")
@@ -298,9 +330,7 @@ def telegram_webhook():
          end_time = time.time(); print(f"⏱️ İstek işleme süresi: {end_time - start_time:.4f} saniye")
 
 @app.route("/", methods=["GET"])
-def index():
-    return """<!DOCTYPE html><html><head><title>SignalCihangir Bot</title></head><body><h1>SignalCihangir Bot Aktif!</h1><p>Webhook <code>/telegram</code>, Sinyal Alıcı <code>/signal</code></p><p>Test: <a href="/test">/test</a></p></body></html>""", 200
-
+def index(): return """<!DOCTYPE html><html><head><title>SignalCihangir Bot</title></head><body><h1>SignalCihangir Bot Aktif!</h1><p>Webhook <code>/telegram</code>, Sinyal Alıcı <code>/signal</code></p><p>Test: <a href="/test">/test</a></p></body></html>""", 200
 @app.route("/test", methods=["GET"])
 def test():
     message_to_admin = "✅ Bot test endpoint'i başarıyla çalıştırıldı."
@@ -308,10 +338,8 @@ def test():
         if send_telegram_message(ADMIN_CHAT_ID, message_to_admin): return f"Test başarılı! Yöneticiye (ID: {ADMIN_CHAT_ID}) mesaj gönderildi.", 200
         else: return f"Test endpoint'i çalıştı ancak yöneticiye mesaj gönderilemedi (ID: {ADMIN_CHAT_ID}).", 500
     else: return "Test başarılı! Yönetici CHAT_ID ayarlanmadı.", 200
-
-# Sinyal Endpoint'i (Kayıtlı)
 @app.route("/signal", methods=["POST"])
-def handle_signal():
+def handle_signal(): # (Değişiklik Yok)
     start_time = time.time(); signal_data_for_log = {}
     try:
         raw_data = request.data
@@ -342,17 +370,15 @@ def handle_signal():
 
 # --- Sunucuyu Başlatma ---
 if __name__ == "__main__":
-    # ... (ASCII Art ve başlangıç logları) ...
-    print(f" HHHHHH   EEEEEEE  RRRRRR   EEEEEEE   SSSSSS\n H::::H   E:::::E  R::::R   E:::::E  SS::::SS\n H::::H   E:::::E  R:::::R  E:::::E S:::::S\n HH::HH   E:::::E  R:::::R  E:::::E S:::::S\n   H::::H   E:::::E  RR:::::R   E:::::E  S:::::S\n   H::::H   E:::::E   R::::R    E:::::E   S::::SS\n   H::::H   E:::::E   R::::R    E:::::E    SS::::SS\n   H::::H   E:::::E   R::::R    E:::::E     SSS::::S\n   H::::H   E:::::E   R::::R    E:::::E       SSSSS\n   H::::H   E:::::E   R::::R    E:::::E       SSSSS\n   H::::H   E:::::E   R::::R    E:::::E       SSSSS\n   H::::H   E:::::E  RR:::::R   E:::::E       SSSSS\n HH::HH   E:::::E  R:::::R  E:::::E S:::::S  SSSSS\n H::::H   E:::::E  R:::::R  E:::::E S:::::S  SSSSS\n H::::H   E:::::E  R:::::R  E:::::E SS::::SS SSSSS\n HHHHHH   EEEEEEE  RRRRRR   EEEEEEE  SSSSSS  SSSSS\n")
+    # ... (ASCII Art kaldırıldı) ...
     print("==============================================")
     print("✅ SignalCihangir Flask Bot Başlatılıyor...")
     print(f"🔧 Ortam: {'Production' if not os.getenv('FLASK_DEBUG') else 'Development'}")
     print(f"🔗 Dinlenen Adres: http://0.0.0.0:5000")
     print(f"📄 ABD Analiz Dosyası: {ANALIZ_FILE}")
-    print(f"📄 BIST Analiz Dosyası: {BIST_ANALIZ_FILE}")
+    print(f"📄 BIST Puanlama Dosyası: {BIST_ANALIZ_FILE}") # Log güncellendi
     print(f"📄 Sinyal Log Dosyası: {SIGNAL_LOG_FILE}")
     print(f"👤 Yönetici Chat ID: {ADMIN_CHAT_ID if ADMIN_CHAT_ID else 'Ayarlanmadı'}")
     print("==============================================")
     from waitress import serve
     serve(app, host="0.0.0.0", port=5000)
-    # Geliştirme için: app.run(host="0.0.0.0", port=5000, debug=True)
